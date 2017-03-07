@@ -1,0 +1,120 @@
+在Clistcontrol里面放置CEdit和CComboBox等等
+步骤：
+	1、创建变量
+		*.h文件加入 	CComboBox m_comBox; CEdit m_Edit;
+	2、创建变量相应对象，并且隐藏
+		OnInitDialog()重载里加入：
+		BOOL CConfigNVDS::OnInitDialog()
+		{	
+			//创建 combox
+			m_comBox.Create(WS_CHILD|WS_VISIBLE|CBS_DROPDOWN|CBS_OEMCONVERT,
+			                CRect(0,0,1000,1000),   //写大一些，否则下拉框肯能显示不全
+			                this,
+			                IDC_CONFIG_NVDS_STATUS);//手工加入的ID，最好在10000以上 这样系统和其他的才可能不会用到
+			m_comBox.SetFont(this->GetFont(),FALSE);//设置字体
+			m_comBox.ShowWindow(SW_HIDE);           //创建完后隐藏
+			ASSERT(m_comBox.m_hWnd);
+		
+			//创建 cedit
+			m_Edit.Create(ES_AUTOHSCROLL|WS_CHILD|ES_LEFT|ES_WANTRETURN|WS_BORDER, 
+			              CRect(0,0,0,0),
+			              this, 
+			              IDC_CONFIG_NVDS_EDIT);  //手工加入的ID，最好在10000以上 这样系统和其他的才可能不会用到
+			m_Edit.SetFont(this->GetFont(),FALSE);//设置字体
+			m_Edit.ShowWindow(SW_HIDE);           //创建完后隐藏
+			ASSERT(m_Edit.m_hWnd);
+		}
+		注意：IDC_CONFIG_NVDS_STATUS、IDC_CONFIG_NVDS_EDIT，这两个ID很有用处，可以使用它们来处理他们的消息
+
+	3、在用户双击、单击等情况下，在适当位置显示CEdit或CComboBox
+		添加消息：
+		ON_NOTIFY(NM_DBLCLK, IDC_LISTCONTROL, &CConfigNVDS::OnNMClick)   //关联处理双击左键函数
+		
+		void CConfigNVDS::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
+		{
+			LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+			// TODO: 在此添加控件通知处理程序代码
+		    *pResult = 0;
+		
+			NM_LISTVIEW  *pEditCtrl = (NM_LISTVIEW *)pNMHDR;
+			CRect  EditRect; CRect  ComRect;
+			
+			m_Item = pEditCtrl->iItem; //行数
+			m_SubItem = pEditCtrl->iSubItem; //列数
+		
+			RefreshItem(); //这里应该处理结束上次编辑
+			if (m_Item == -1)		
+				return;
+				
+			if (m_SubItem == NVDS_STATUS_NUM)
+			{   
+				//显示 CComboBox
+				m_comBox.ResetContent(); //清除上次的所有列表
+				for(...) m_comBox.AddString(status_table[i]);    //加入下拉列表
+				m_list.GetSubItemRect(m_Item,m_SubItem,LVIR_LABEL,ComRect);		
+				m_comBox.SetParent(&m_list);
+				CString ComstrItem = m_list.GetItemText(m_Item,m_SubItem);
+				ComRect.SetRect(ComRect.left, 
+				                ComRect.top-4, 
+				                ComRect.left+m_list.GetColumnWidth(m_SubItem), 
+				                ComRect.bottom);
+				m_comBox.MoveWindow(&ComRect);
+				m_comBox.SetWindowText(ComstrItem);  //当显示Combo Box控件时里面的内容为原来的内容,不然是空白的
+				m_comBox.ShowWindow(SW_SHOW);
+				m_comBox.ShowDropDown();
+				m_comBox.SetFocus(); //设置焦点
+			}
+		
+			if (m_SubItem == NVDS_DATAS_NUM)
+			{
+				//显示 CEdit
+				m_list.GetSubItemRect(m_Item,m_SubItem,LVIR_LABEL,EditRect); //获取单元格的空间
+				m_Edit.SetParent(&m_list); //将list control设置为父窗口,生成的Edit才能正确定位,这个也很重要,				
+				EditRect.SetRect(EditRect.left, 
+								 EditRect.top - 4, 
+				                 EditRect.left+m_list.GetColumnWidth(m_SubItem), 
+								 EditRect.bottom);
+				CString strItem = m_list.GetItemText(m_Item,m_SubItem);				
+				m_Edit.MoveWindow(&EditRect);
+				m_Edit.SetWindowText(strItem);
+				m_Edit.ShowWindow(SW_SHOW);
+				m_Edit.SetFocus();//设置为焦点
+				m_Edit.SetSel(0,-1);  //0,-1表示单元格内容全选中
+			}
+		}		
+	
+	4、用户结束编辑（设置框内容，并且隐藏相应的 CEdit 或 CComboBox）：
+		if(m_comBox.IsWindowVisible())
+		{
+			m_comBox.GetWindowText(str);  //注意它和函数GetLBText()区别,
+			m_list.SetItemText(m_Item,m_SubItem,str);
+			m_comBox.ShowWindow(SW_HIDE);
+		}
+		
+		if(m_Edit.IsWindowVisible())
+		{
+			m_Edit.GetWindowText(str); //获取输入的内容
+			m_list.SetItemText(m_Item,m_SubItem,str); //m_Item,m_SubItem这两个变量的值是原来的单元格的值
+			m_Edit.ShowWindow(SW_HIDE);
+		}
+		注意：在什么情况下结束编辑呢？？？？？
+		答：这里就可以看到 我们上面定义的ID（IDC_CONFIG_NVDS_EDIT）的妙用了吧！！！！
+			1、在CEdit失去焦点：
+				ON_EN_KILLFOCUS(IDC_CONFIG_NVDS_EDIT, &CConfigNVDS::OnEnKillfocusConfigNvicEdit)
+			2、在用户在CEdit内输入回车：
+				重载：BOOL CConfigNVDS::PreTranslateMessage(MSG* pMsg)
+					  {
+					    if (pMsg->message==WM_KEYDOWN)
+					    {
+					        if (pMsg->wParam==VK_RETURN)
+					        {
+								//这里。。。。。
+					        }
+					    }					
+					}
+			3、在CComboBox的选择改变：		
+				ON_CBN_SELCHANGE(IDC_CONFIG_NVDS_STATUS, &CConfigNVDS::OnEnKillfocusConfigNvicEdit)
+			4、在CComboBox的选择取消：
+				ON_CBN_SELENDCANCEL(IDC_CONFIG_NVDS_STATUS, &CConfigNVDS::OnCbnSelectConfigNvicCombo)	
+			
+	

@@ -1,0 +1,202 @@
+
+|include| *BLE.txt*
+|include| *GCC.txt*
+|include| *Makefile.txt*
+|include| *Linux.txt*
+|include| *Shell.txt*
+|include| *Batch.txt*
+|include| *Python.txt*
+|include| *Hardware.txt*
+|include| *Perl.txt*
+|include| *Keil.txt*
+
+HS6620
+    - ROM:256KB
+    - RAM:128KB, 16*8KB, 默认只有第一块有电, 默认只有第一块和最后一块时钟
+        所以唤醒后，记得把reset_handler和开电的程序放到第一块
+    - PHY RX 算法延时大概有40us
+    - HS6620 数字信号引出：
+        o_tab_rdi_ctrl[11:0]:   bit0: TX_EN
+                                bit1: RX_EN
+        bb/cor_sync_det:        CEVA的sync检测
+        phy/sync_det:           PHY的sync检测
+        bb/r_le_cnt_ifs[7:0]:   tifs值
+        bb/r_bit_cnt[10:0]:     1us bit counter
+        bb/r_lif_win:           CEVA的接收sync窗口
+    - CEVA T_IFS_DELAY加入1bit:
+        原始的T_IFS_DELAY[5:0]变为T_IFS_DELAY[6:1],
+        T_IFS_DELAY[0]为LE Registers的offset0的bit1(原为保留bit)
+    - CEVA tifs RX: 
+        win_stant: (150 - 4) - win_ext + le_delay_search_win
+        win_width: 2*win_ext + 8
+    - 外设稳定时间：
+      +----------------+---------+---------+---------+
+      |                |   Max   |   Min   | General |
+      +----------------+---------+---------+---------+
+      | 24M xtal       |   8ms   |         |   2ms   | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
+      | 32768K xtal    |   2s    |         |   0.5s  | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
+      | RAM power on   |  650us  |         |  250us  | (clamp_dealy+4))*30.5
+      | Flash power on |  12.2ms |   2ms   |         | GigaDevice
+      +----------------+---------+---------+---------+
+
+
+TI-CC2540USBdongle固件更新方法
+    a.正版 >
+        软件：Setup_SmartRFProgr_1.12.7.exe （BTool：BLE-CC254x-1.4.2.2.exe，Sniffer:Setup_SmartRF_Packet_Sniffer_2.18.1.exe）
+        硬件：CC Debugger
+        固件位置：
+          - BTool: CC2540_USBdongle_HostTestRelease_All.hex (\Texas Instruments\BLE-CC254x-1.3\Accessories\HexFiles)
+          - Sniffer: sniffer_fw_cc2540_usb.hex (\Texas Instruments\SmartRF Tools\Packet Sniffer\bin\general\firmware)
+        连接：直接把cc debugger的排针插在dongle上
+<
+    b.赝品 >
+        连接：
+          - dongle接口定义: 1.VCC 2.GND 3.RESET_N 4.P2_1 5.P2_2
+          - CC Debugger接口定义：1.GND 2.VCC 3.P2_2 4.P2_1 5.X 6.X 7.RESET_N 8.X 9.X 10.X
+        对应连接
+
+Vivado:
+    XILINX platform cable USB 无法识别解决方法： ~
+    管理员身份顺序执行下列命令： >
+    $ cd D:\Xilinx\Vivado\2014.3\data\xicom\cable_drivers\nt64\
+    $ wdreg.exe -compat -inf xusbdrvr.inf uninstall
+    $ wdreg.exe -compat -inf xusbdrvr.inf install
+
+<    Don't close Vivado, but re-start hw-server: ~
+    vivado's tcl console: >
+    $ disconnect_hw_server
+<    cmd console: >
+    $ taskkill /im hw_server.exe
+    $ set PATH=%PATH%;D:\Xilinx\Vivado\2014.3\lib\win32.o
+    $ "D:/Xilinx/Vivado/2014.3/bin/unwrapped/win32.o/hw_server.exe" "-D" "-I20" "-s" "TCP:127.0.0.1:3121"
+
+<    Command line download: ~
+    Command line: >
+    $ vivado -mode batch -source download.tcl
+<    Download to RAM tcl script: >
+      open_hw
+      connect_hw_server
+      open_hw_target [lindex [get_hw_targets -of_objects [get_hw_servers localhost]] 0]
+      set_property PROBES.FILE {C:/Users/user/Desktop/FPGA/debug_nets.ltx} [lindex [get_hw_devices] 0]
+      set_property PROGRAM.FILE {C:/Users/user/Desktop/FPGA/tb_top.bit} [lindex [get_hw_devices] 0]
+      program_hw_devices [lindex [get_hw_devices] 0]
+      refresh_hw_device [lindex [get_hw_devices] 0]
+      disconnect_hw_server
+      close_hw
+<    Download to FLASH tcl script: >
+      open_hw
+      connect_hw_server
+      open_hw_target [lindex [get_hw_targets -of_objects [get_hw_servers localhost]] 0]
+      create_hw_cfgmem -hw_device [lindex [get_hw_devices] 0] -mem_dev  [lindex [get_cfgmem_parts {28f00ap30b-bpi-x16}] 0]
+      set_property PROGRAM.BLANK_CHECK  0 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.ERASE  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.CFG_PROGRAM  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.VERIFY  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      refresh_hw_device [lindex [get_hw_devices] 0]
+      set_property PROGRAM.ADDRESS_RANGE  {use_file} [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.FILES [list "C:/Users/user/Desktop/FPGA/connfig_28f00ap30t.mcs" ] [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0]]
+      set_property PROGRAM.BPI_RS_PINS {none} [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.UNUSED_PIN_TERMINATION {pull-none} [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.BLANK_CHECK  0 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.ERASE  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.CFG_PROGRAM  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      set_property PROGRAM.VERIFY  1 [ get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      startgroup
+      if {![string equal [get_property PROGRAM.HW_CFGMEM_TYPE  [lindex [get_hw_devices] 0]] [get_property MEM_TYPE [get_property CFGMEM_PART [get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]]]] }  { create_hw_bitstream -hw_device [lindex [get_hw_devices] 0] [get_property PROGRAM.HW_CFGMEM_BITFILE [ lindex [get_hw_devices] 0]]; program_hw_devices [lindex [get_hw_devices] 0]; }; 
+      program_hw_cfgmem -hw_cfgmem [get_property PROGRAM.HW_CFGMEM [lindex [get_hw_devices] 0 ]]
+      endgroup
+      disconnect_hw_server
+      close_hw
+
+<    波形导入导出: ~
+      导出波形文件：write_hw_ila_data my_hw_ila_data_file.zip [upload_hw_ila_data hw_ila_1]
+      导入波形文件：display_hw_ila_data [read_hw_ila_data my_hw_ila_data_file.zip]
+      Ref： http://forums.xilinx.com/t5/Design-Tools-Others/Is-it-possible-to-export-waveform-data-from-Vivado-Logic/td-p/341563
+
+
+SPI Flash 汇总
+              MID/DID  page_size  sector_size  capacity  OTP(LB)  SecuirtyRegister 
+    ------------------------------------------------------------------------------- ~
+    GigaDevice: >
+    3.3V:
+    GD25Q80B:  C84014  256B       4KB          8M-bit    SR.S10   4*256B
+    GD25VQ16C: C84215  256B       4KB          16M-bit   SR.S10   4*256B
+    1.8V:
+    GD25LQ80B: C86014  256B       4KB          8M-bit    S13/12/11 3*512B
+    GD25LQ40B: C86013  256B       4KB          4M-bit    S13/12/11 3*512B
+    GD25LQ20B: C86012  256B       4KB          2M-bit    S13/12/11 3*512B
+    3.3V:
+    GD25Q05B:  C84010  256B       4KB          512K-bit  -         -
+    GD25Q10B:  C84011  256B       4KB          1M-bit    -         -
+    GD25Q21B:  C84012  256B       4KB          2M-bit    S13/12/11 3*512B
+    GD25Q40C:  C84013  256B       4KB          4M-bit    SR.S10    4*256B  ***
+    GD25Q41B:  C84013  256B       4KB          4M-bit    S13/12/11 3*512B  <--???
+    GD25Q80C:  C84014  256B       4KB          8M-bit    SR.S10    4*256B  ***
+    GD25Q16C:  C84015  256B       4KB          16M-bit   SR.S10    4*256B  *** HS6600A1's COB board; peripheral #30
+    GD25Q32B:  C84016  256B       4KB          32M-bit   SR.S10    4*256B  *** FPGA hanix325t sec@0x000000, 0x000100, 0x000200, 0x000300
+    GD25Q32C:  C84016  256B       4KB          32M-bit   S13/12/11 3*1024B                    sec@0x001000, 0x002000, 0x003000
+
+    3.3V, Dual-port:
+                                                         SR.S4/3/2=BP2,BP1,BP0
+    MD25D40:   514013  256B       4KB          4M-bit    -                 *** HS6600A2's sflash die, SE max current 10mA; read single 18mA@80MHz
+    MD25D80:   514014  256B       4KB          8M-bit    -
+    XD25D40:   504013
+<
+    ------------------------------------------------------------------------------- ~
+    Berg Micro: >
+    3.3V:
+                                                         SR. 4/3/2=BP2,BP1,BP0
+    BG25Q512A: E04010  256B       4KB          512K-bit  SR2.5/4/3 3*256B
+    BG25Q10A:  E04011  256B       4KB          1M-bit    SR2.5/4/3 3*256B
+    BG25Q20A:  E04012  256B       4KB          2M-bit    SR2.5/4/3 3*256B
+    BG25Q40A:  E04013  256B       4KB          4M-bit    SR2.5/4/3 3*256B  *** HS6600A4's flash die, HS6600A2's external flash by yao
+    BG25Q80A:  E04014  256B       4KB          8M-bit    SR2.5/4/3 3*256B  *** HS6600Q48B4P's sflash die, SE current 20mA; read single 7.5mA@33MHz
+    BG25Q16A:  E04015  256B       4KB          16M-bit   SR2.5/4/3 3*256B  ***
+    BG25Q32A:  E04016  256B       4KB          32M-bit   SR2.5/4/3 3*256B
+<
+    ------------------------------------------------------------------------------- ~
+    Boya: >
+    BY25Q40A:  E04013  256B       4KB           4M-bit   SR2.5/4/3 3*256B
+    1.8V:
+    BG25Q128AL:E06018  256B       4KB         128M-bit   SR2.5/4/3/2 4*256B
+<
+    ------------------------------------------------------------------------------- ~
+    Winbond: >
+    3.3V:
+                                                         SR. 4/3/2=BP2,BP1,BP0
+    W25Q16DV:  EF4015  256B       4KB          16M-bit   S13/12/11 3*256B  *** peripheral board
+    W25Q80DV:  EF4014  256B       4KB           8M-bit   S13/12/11 3*256B
+    1.8V:
+    W25Q16DW:  EF6015                          16M-bit   S13/12/11/10 4*256B
+
+关联没有扩展名的文件(Windows)
+    管理员身份运行cmd: >
+    $ assoc .="No Extension"
+    $ ftype "No Extension"="C:\Program Files\Vim\vim80\gvim.exe" "%1"
+
+Cygwin下编译universal-ctags
+    github:
+        git clone https://github.com/universal-ctags/ctags.git
+    安装：
+        $ apt-cyg install mingw64-i686-gcc-core
+        $ apt-cyg install mingw64-i686-win-iconv
+    修改mk_mingw.mak：
+        DEFINES下加入 "-DUNIX_PATH_SEPARATOR"
+    命令：
+        make -f mk_mingw.mak  CC=i686-w64-mingw32-gcc
+
+创建常用右键菜单：
+    使用winmaster.exe创建有用的右键菜单：
+    1. cygwin >
+    $ C:\cygwin64\home\user\.bin\hstart.exe /NOCONSOLE "cmd /c set HOME=&set CHERE_INVOKING=1&C:\cygwin64\bin\mintty.exe -"
+<    2. cmd(adm) >
+    $ C:\cygwin64\home\user\.bin\cmd_adm.bat
+<    3. MeinPlatz (文件统计) >
+    $ C:\cygwin64\home\user\.bin\hstart.exe /NOCONSOLE "cmd /C E:\4-other\OneDrive\Skill\Tool\MeinPlatz\MeinPlatz.exe %%CD%%"
+
+编辑器或者shell出现乱码
+    1. 尝试更改字体
+    2. 尝试更改编码方式：utf8
+
+
+vim: ft=help

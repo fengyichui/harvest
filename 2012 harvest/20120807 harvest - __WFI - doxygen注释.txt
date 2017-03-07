@@ -1,0 +1,75 @@
+1、EEPROM学习
+	管脚定义：
+		A2-A0 ：器件地址选择引脚
+		sda：i2c数据线
+		scl：i2c时钟线
+		wp： 硬件写保护控制线
+		gnd：地
+		vcc：电源 
+
+	通过I2C读写:
+
+
+2、__WFI
+	#define __WFI  __wfi
+	#ifdef TEST_EN
+	    // Wait For Interrupt
+	    __WFI();  // Enter sleep mode
+	    // Wakeup when I2C interrupt is triggered
+	#endif
+	
+	WFI suspends execution until one of the following events occurs:
+		a、an IRQ interrupt, regardless of the CPSR I-bit
+		b、an FIQ interrupt, regardless of the CPSR F-bit
+		c、an Imprecise Data abort, unless masked by the CPSR A-bit
+		d、a Debug Entry request, regardless of whether Debug is enabled.
+
+
+3、 doxygen 风格的注释：
+	/**
+	* @*** xxxxxxxxxxx
+	* @*** xxxxxxxxxxxxxxxxxxxxx
+	*
+	* xxxxxxxxxxxxxxxxxx
+	*/
+	doxygen 支持好几种注释风格，我们仅使用上面这一种即可,即在注释块开始使用两个星号，
+	该注释块是放在所要描述内容的上方的。
+	
+	在后面我们还会看到如下所示的注释块，这种注释块是放在所要描述内容的右边的。 
+	 /**< xxxxxxxxxxxxxxxx */
+
+	● doxygen 的常用指令
+	@file 文件名
+	@author 作者
+	@brief 简要说明
+	@param 用于函数说明中，后面接参数名字，然后再接关于该参数的说明
+	@return 对函数返回值进行说明
+	@note 注解信息
+	@attention 注意信息
+	@warning 警告信息
+	@see 表示交叉参考
+	
+	● 函数注释
+	/**
+	* @brief Write File operation.
+	*
+	* @param[in] fd - file description to an open file.
+	* @param[out] buff - pointer to the buffer that containing the data to write to the file.
+	* @param[in] size - number of bytes to write to the file.
+	* @return - if success return actual write bytes.otherwize return -1.
+	*/
+	
+	● 结构体注释 
+	/**
+	* @brief File Stat structure
+	*/
+	struct INNO_FileStat 
+	{
+	INNOuint32 attrib; /**< file attribute */
+	INNOuint32 size; /**< file size */
+	INNOuint32 atime; /**< time of last access */
+	INNOuint32 mtime; /**< time of last modified */
+	INNOuint32 ctime; /**< time of create */
+	};
+
+

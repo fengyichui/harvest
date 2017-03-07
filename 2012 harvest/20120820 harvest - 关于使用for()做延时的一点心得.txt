@@ -1,0 +1,16 @@
+1、关于使用for()做延时的一点心得:
+	a、循环时间基本固定（编译器优化一定的情况下）：
+		for(time_out = 0; time_out < TIME_OUT_1SEC*5; ++time_out)、
+		{
+		}
+	b、循环时间不能确定：
+		for(time_out = 0; time_out < TIME_OUT_1SEC*5; ++time_out)
+		{
+			if(timer0_top_overflow_int_occur && 
+			   timer1_top_overflow_int_occur && 
+			   timer2_top_overflow_int_occur && 
+			   timer3_top_overflow_int_occur)
+				break;
+		}
+		为什么不能固定？
+		答：因为"&&"的原因，如果"&&"前面的内容为FALSE，则后面的判断不会进行。

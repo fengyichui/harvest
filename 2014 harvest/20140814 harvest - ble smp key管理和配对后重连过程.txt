@@ -1,0 +1,61 @@
+
+BLE SMP
+
+Key管理:
+
+    第一种管理方法: 保存所有Key: LTK, IRK, CSRK
+        ==> LE_Long_Term_Key_Request_Event: <Rand>, <EDIV>
+        <== LE_Long_Term_Key_Request_Reply_Command: *LTK*
+
+    第二种管理方法: 仅仅保存 |ER| 和 |IR|
+        LTK, IRK, CSRK 产生过程:
+        ==> LE_Long_Term_Key_Request_Event: <Rand>, <EDIV>
+            DHK = d1(|IR|, 3, 0);
+            Y = dm(DHK, <Rand>);
+            DIV = Y xor <EDIV>;
+            *LTK* = d1(|ER|, DIV, 0);
+            *CSRK* = d1(|ER|, DIV, 1);
+            *IRK* = d1(|IR|, 1, 0);
+        <== LE_Long_Term_Key_Request_Reply_Command: *LTK*
+        note: d1和dm方法都需要AES128加密算法
+
+<DIV> 和 <Rand> 其实都是随机数，且这个随机数都可以从controller获取
+
+下次重新链接使用配对过程中Slave分发的Key来进行链路加密
+Master应该存储slave的 LTK, CSRK, IRK, RAND, EDIV, 以备下次链接时候使用。
+Slave可以存储Master的Keys，如果以后有机会翻转角色
+
+SMP常规加密链路过程（配对之后，重连）：
+
+    Master, host -> controller ~
+    |LE_Start_Encryption_Command|: con_handle, <Rand>, <EDIV>, *LTK*
+    Note：这个命令只有Master有, 且 <Rand><EDIV> 发送给Slave, *LTK* Master自己用
+
+    mater-controller -> slave-controller ~
+    |LL_ENC_REQ|: <Rand>, <EDIV>, <SKDm>, <IVm>
+    Note: 这个命令只能Master发送
+
+    slave-controller -> master-controller ~
+    |LL_ENC_RSP|: <SKDs>, <IVs>
+
+    Slave, controller -> host ~
+    |LE_Long_Term_Key_Request_Event|: con_handle <Rand>, <EDIV>
+    Note: 这个命令只有Slave有
+
+    Slave, host -> controller ~
+    |LE_Long_Term_Key_Request_Reply_Command|: con_handle, *LTK*
+    Note: *LTK* 可以是Slave本地存储的也可以是使用ER,IR,Rand,EDIV算出来的，且LTK应该和Master的相同
+
+    slave-controller -> master-controller ~
+    |LL_START_ENC_REQ|, No Encrypt MIC
+    Note: 这个命令只能Slave发送
+
+    master-controller -> slave-controller ~
+    |LL_START_ENC_RSP|, With Encrypt MIC
+    Note: link Encrypt Begin
+
+    slave-controller -> master-controller ~
+    |LL_START_ENC_RSP|, With Encrypt MIC
+
+
+vim:tw=78:ts=8:ft=help:norl:

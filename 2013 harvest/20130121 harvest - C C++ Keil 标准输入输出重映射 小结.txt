@@ -1,0 +1,30 @@
+
+
+1、标准C, 重定向到文件 
+	FILE *pfile = fopen("c:\\1.txt", "w");
+	*stdout = *pfile; //配合上面的打开类型可选：stdin、stderr
+	printf("test");   //输出到文件了, (getchar() 输入同理)
+	fclose(pfile);
+
+2、标准C++, 重定向到文件
+	ofstream file("c:\out.txt"); //可选：ifstream ofstream fstream
+	cout.rdbuf(file.rdbuf());    //和上面配合可选：cout、cin、cerr、clog
+	cout << "test"<< endl;       //输出到文件了, (cin >> n 输入同理)
+	file.close();
+    详细请见：《C++标准程序库》P641
+
+3、Keil C, 重定向到UART
+    #include <stdio.h>
+    struct __FILE {int handle;};  //重定义__FILE
+    FILE __stdout;                //重定义__stdout
+    FILE __stdin;                 //重定义__stdin
+    int fputc(int ch, FILE *f){   //重定义fputc()
+        return UartPutChar(ch);
+    }
+    int fgetc(FILE *f)(           //重定义fgetc()
+        return UartGetChar();
+    }
+    当调用printf时内部会调用fputc()
+    当调用fgetc时内部会调用fgetc()
+    原理：个人认为是Keil的C库定义这些内容的时候是使用weak定义的，所以才可以重定义。
+    

@@ -1,0 +1,37 @@
+ 如何处理窗口的鼠标离开消息
+
+想要在鼠标离开窗口时作一些处理，却发现不能通过ClassWizard直接添加WM_MOUSELEAVE消息处理，查了一番资料，最终通过_TrackMouseEvent函数解决了问题。该函数原型如下，具体参数含义可以参考MSDN：
+
+BOOL TrackMouseEvent(  
+  LPTRACKMOUSEEVENT lpEventTrack  // tracking information  
+);  
+
+根据参数的不同，该函数会向窗口发送四种不同的消息WM_NCMOUSEHOVER、 WM_NCMOUSELEAVE、 WM_MOUSEHOVER、 WM_MOUSELEAVE。分别对应鼠标在非客户区悬停、鼠标离开非客户区、鼠标在客户区悬停、鼠标离开客户区。WM_MOUSEHOVER和WM_MOUSELEAVE有点特殊，每当一个消息产生的时候，如果我们想继续跟踪这个消息，那么我们要重新调用TrackMouseEvent函数。处理鼠标离开消息的步骤如下：
+首先在视类中添加一个BOOL型成员变量m_bMouseLeave，用来指示鼠标是否已离开视图区域，并在构造函数中初始化为TRUE。
+影响OnMouseMove消息，在OnMouseMove消息处理中添加如下代码：
+
+if (m_bMouseLeave)  
+{  
+ TRACKMOUSEEVENT trackEvent;  
+ trackEvent.cbSize = sizeof(TRACKMOUSEEVENT);  
+ trackEvent.dwFlags = TME_LEAVE;  
+ trackEvent.hwndTrack = m_hWnd;  
+ trackEvent.dwHoverTime = HOVER_DEFAULT;  
+ ::_TrackMouseEvent(&trackEvent);  
+   
+ m_bMouseLeave = FALSE;  
+}  
+ 
+
+BEGIN_MESSAGE_MAP和END_MESSAGE_MAP之间添加消息映射：
+       ON_MESSAGE(WM_MOUSELEAVE, OnMouseLeave)
+
+头文件中添加鼠标离开消息处理原型声明，并在源文件中添加函数实现：
+
+afx_msg LRESULT OnMouseLeave(WPARAM wParam, LPARAM lParam);//原型  
+LRESULT CHMIUIView::OnMouseLeave(WPARAM wParam, LPARAM lParam)//实现  
+{  
+ m_bMouseLeave = TRUE;   
+ //what you want to do ...  
+ return 0;  
+}  

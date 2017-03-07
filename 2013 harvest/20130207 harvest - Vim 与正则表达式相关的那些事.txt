@@ -1,0 +1,89 @@
+
+Vim中正则表达式的那些事：
+
+一、关于正则表达式的magic;
+    :set magic   " 设置magic 
+    :set nomagic " 取消magic 
+
+    \m (magic)：       除了 $ . * ^ 之外其他元字符都要加反斜杠.
+    \M (nomagic)：     除了 $ ^ 之外其他元字符都要加反斜杠.
+    \v (very magic)：  任何元字符都不用加反斜杠,和perl一样!!!!!!!!!!!!!!!!!!!!!!!
+    \V (very nomagic)：任何元字符都必须加反斜杠.
+
+    默认设置是 magic，vim也推荐使用magic的设置，在有特殊需要时，直接通过 \v\m\M\V 即可。
+
+二、主要用到正则表达式的地方：
+
+    1、搜索.
+        /\v^\s*$<Enter>                  "搜索所有的空行, \v的含义见上.
+
+    2、替换.
+        :%s/\v(.)(jack)/\1\2\2/g<Enter>  "替换".jack"为.jackjack. (li.jack => li.jackjack)
+        :%s/\v^\s*$/<blank>/g<Enter>     "替换所有的空行为<blank>. ? 小补充,关于s前面的[range]：%s///    (%      所有行); 
+                                                                                            3,10s/// (3,10   第3到第10行); 
+                                                                                            3s///10  (3...10 第3行后的10行,包括第3行)
+                                                                                            其他的很多请看:help range<Enter>
+
+    3、重复的在所有的 "匹配区域内" 执行某一条命令.
+        :g/\v^\s*$/d<Enter>              "删除(d命令)所有的空行. (g是global的意思)
+        :g!/\v^\s*$/d<Enter>             "删除(d命令)所有的不是空行的行.
+
+
+//正则表达式语法:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+   【Perl】    - 【Meaning】
+01  .          - any character (assuming Perl's /s modifier).
+02  ab         - sequencing of?a?and?b?sub-expressions.
+03  a|b        - alternation of?a?and?b?sub-expressions.
+04  (a)        - group and capture a back-reference.
+05  (?:a)      - group and do not capture a back-reference.
+06  \1         - a previously captured back-reference.
+07  a*         - "zero or more times, greedy."
+08  a+         - "one or more times, greedy."
+09  a?         - "zero or one time, greedy."
+10  "a{n,m}"   - "between?n?and?m?times, greedy."
+11  a*?        - "zero or more times, non-greedy."
+12  a+?        - "one or more times, non-greedy."
+13  a??        - "zero or one time, non-greedy."
+14  "a{n,m}?"  - "between?n?and?m?times, non-greedy."
+15  ^          - beginning of sequence assertion.
+16  $          - end of sequence assertion.
+17  \b         - word boundary assertion.
+18  \B         - not word boundary assertion.
+19  \n         - literal newline.
+20  .          - any character except a literal newline (without Perl's /s modifier).
+21  \r?\n|\r   - logical newline.
+22  [^\r\n]    - any single character not a logical newline.
+23  \w         - "a word character, equivalent to set[alnum | '_']."
+24  \W         - "not a word character, equivalent to ~set[alnum | '_']."
+25  \d         - a digit character.
+26  \D         - not a digit character.
+27  \s         - a space character.
+28  \S         - not a space character.
+29  [:alnum:]  - an alpha-numeric character.
+30  [:alpha:]  - an alphabetic character.
+31  [:blank:]  - a horizontal white-space character.
+32  [:cntrl:]  - a control character.
+33  [:digit:]  - a digit character.
+34  [:graph:]  - a graphable character.
+35  [:lower:]  - a lower-case character.
+36  [:print:]  - a printing character.
+37  [:punct:]  - a punctuation character.
+38  [:space:]  - a white-space character.
+39  [:upper:]  - an upper-case character.
+40  [:xdigit:] - a hexadecimal digit character.
+41  [0-9]      - characters in range?'0'?through?'9'.
+42  [abc]      - "characters?'a',?'b', or?'c'."
+43  [0-9abc]   - "characters?'a',?'b',?'c'?or in range?'0'?through?'9'."
+44  [^abc]     - "not characters?'a',?'b', or?'c'."
+45  (?i:stuff) - match?stuff?disregarding case.
+46  (?>stuff)  - "independent sub-expression, match?stuff?and turn off backtracking."
+47  (?=stuff)  - "positive look-ahead assertion, match if before?stuff?but don't include?stuff?in the match."
+48  (?!stuff)  - "negative look-ahead assertion, match if not before?stuff."
+49  (?<=stuff) - "positive look-behind assertion, match if after?stuff?but don't include?stuff?in the match. (stuff?must be constant-width.)"
+50  (?<!stuff) - "negative look-behind assertion, match if not after?stuff. (stuff?must be constant-width.)"
+51  (?P<name>stuff) - Create a named capture.                                        
+52  (?P=name)  - Refer back to a previously created named capture.
+  
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

@@ -1,0 +1,41 @@
+
+Phone: 8868
+
+Xstart:
+host: 192.168.1.54
+telnet
+usrname: liqiang
+password: lq123
+command: xterm -fn 10x20 or xterm -fa "Monospace" -fs 11 -rightbar -sb
+
+
+mail:
+web: mail.huntersun.com.cn
+
+smtp: smtp.exmail.qq.com
+pop: pop.exmail.qq.com
+
+pop3: 995
+ssl encrypt
+smtp: 465
+ssl
+
+qiang.li@huntersun.com.cn
+liqiang023650
+
+
+File:
+192.168.1.54
+
+svn
+https://localhost/svn/hs66xx
+liqiang,lq123
+
+ivt
+svn://localhost/ivt/
+liqiang,lq123dm
+
+ceva
+svn://localhost/ceva/
+liqiang,lq123
+

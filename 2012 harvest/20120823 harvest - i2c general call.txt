@@ -1,0 +1,4 @@
+1、i2c general call
+	host产生的地址: 0x00；
+	所有的slave都返回ack；
+	host通过general call只能判别总线上是否有设备，而不能判别有多少设备。 因为：低电平为ack，从i2c总线是线与连接的。

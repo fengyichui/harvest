@@ -1,0 +1,12 @@
+1、 MFC的TRACE的使用
+    在mfc的debug版本中 TRACE的使用和printf的使用方法相同，但是TRACE会把调试数据打印到“输出”框内部，release版本中不起任何作用。
+    MSDN中的解释：
+	TRACE:
+	Provides similar functionality to the printf function by sending a formatted string to a dump device such as a file or debug monitor. Like printf for C programs under MS-DOS, the TRACE macro is a convenient way to track the value of variables as your program executes. In the Debug environment, the TRACE macro output goes to afxDump. In the Release environment, it does nothing.
+	TRACE is limited to sending a total of 512 characters at a time. If you call TRACE with formatting commands, the total string length after the formatting commands have been expanded cannot be more than 512 characters, including the terminating NULL. Exceeding this limit causes an ASSERT.
+	Note   This macro is available only in the debug version of MFC.
+	afxDump:
+	Call this function while in the debugger to dump the state of an object while debugging. AfxDump calls an object’s Dump member function and sends the information to the location specified by the afxDump variable. AfxDump is available only in the Debug version of MFC.
+	Your program code should not call AfxDump, but should instead call the Dump member function of the appropriate object.
+	
+2、在windows上编程，字符串使用： TCHAR 、_tcscpy()-_tcslen()、_T(“string”)、_tfopen() 

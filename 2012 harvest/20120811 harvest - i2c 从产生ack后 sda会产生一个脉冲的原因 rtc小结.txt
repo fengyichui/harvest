@@ -1,0 +1,19 @@
+1、i2c slave产生ack后 sda会产生一个脉冲的原因
+	原因是slave产生ack后会主动释放sda数据线，因为sda是会有一个上拉电阻，所以会产生一个高脉冲
+	
+2、rtc 小结	
+	a、写rtc寄存器之前之后需要同步（waitting）的原因：
+		//while (rtc_rtc_GetCR(QN_RTC) & RTC_MASK_CR_SYNC_BUSY);
+		//rtc_rtc_SetCRWithMask(QN_RTC, RTC_MASK_MIN_IE|RTC_MASK_SEC_IE, 0);
+		//while (rtc_rtc_GetCR(QN_RTC) & RTC_MASK_CR_SYNC_BUSY);
+		原因为：rtc本身的寄存器的时钟为低速时钟（32768Hz），但是对外开放给用户的rtc寄存器“镜像”所使用的是高速时钟，这样一来就存在了高速时钟域寄存器到低速时钟域的转换了，也就产生了同步（waitting）。QN9020 rtc的同步一章很清楚的介绍了原理。
+	b、calibration 校准原理
+		百万分之一，相对值。当以秒为单位时候，1ppm == 1us；
+		计算方法：在做校准的时候计算方法为: ppm = 1000000*(准确值-实际值)/(准确值)    //正负
+	c、一般特性：
+		.提供时分秒、年月日寄存器 且是BCD编码
+		.提供这些时分秒年月日到达的中断
+		.sleep 
+		.alarm 
+		.input capture
+		.写寄存器需要同步（waitting）查询busy状态

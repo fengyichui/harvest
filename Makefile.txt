@@ -1,0 +1,291 @@
+Makefile
+
+基本规则语法：
+    语法： >
+        target ... : prerequisites ...
+        <tab> command
+        <tab> command2
+        <tab> ...
+<    或 >
+        targets : prerequisites ; command
+<
+    target:         目标文件，可以是object file，也可以是执行文件，也可以是个lable(伪目标)
+    prerequisites： 要生成那个target所需要的文件或是目标
+    command：       是make需要执行的命令（任意的Shell命令）
+                    NOTE: 如果要让上一条命令的结果应用在下一条命令时，请使用分号(;)分隔这两条命令
+
+    make并不管命令是怎么工作的，他只管执行所定义的命令。
+    make会比较targets文件和prerequisites文件的修改日期，
+    如果prerequisites文件的日期要比targets文件的日期要新，
+    或者target不存在的话，那么，make就会执行后续定义的命令。
+
+    当没有prerequisites时，target就是一个lable，make就不会执行后面的command。
+    要让make去执行其后的command，必须在make命令后指出这个lable
+
+    在默认的方式下，也就是我们只输入make命令。那么，
+    1、make会在当前目录下找名字叫“Makefile”或“makefile”的文件。
+    2、如果找到，它会找文件中的第一个目标文件（target），并把这个文件作为最终的目标文件。
+    3、如果edit文件不存在，或是edit所依赖的后面的 .o 文件的文件修改时间要比edit这个文件新，
+       那么，他就会执行后面所定义的命令来生成edit这个文件。
+    4、make会一层又一层地去找文件的依赖关系，直到最终编译出第一个目标文件。
+       在找寻的过程中，如果出现错误，比如最后被依赖的文件找不到，那么make就会直接退出，并报错，
+       而对于所定义的命令的错误，或是编译不成功，make根本不理。
+
+    GNU的make工作时的执行步骤入下：
+    1、读入所有的Makefile。
+    2、读入被include的其它Makefile。
+    3、初始化文件中的变量。
+    4、推导隐晦规则、模式规则，并分析所有规则。
+    5、为所有的目标文件创建依赖关系链。
+    6、根据依赖关系，决定哪些目标要重新生成。
+    7、执行生成命令。
+    1-5步为第一个阶段，6-7为第二个阶段。
+    第一个阶段中，如果定义的变量被使用了，那么，make会把其展开在使用的位置。
+    但make并不会完全马上展开，make使用的是拖延战术，如果变量出现在依赖关系的规则中，
+    那么仅当这条依赖被决定要使用了，变量才会在其内部展开。
+
+常用make命令行选项
+    -n          调试用，不执行命令，把规则和连带规则下的命令打印出来
+    -f=<file>   指定makefile
+    -B          重编译，认为所有的目标都需要更新
+    -C <dir>    指定读取makefile的目录
+    -d          调试模式，会输出很多很多信息
+    -j<n>       并行执行，指定同时运行命令的个数。和CPU个数相关
+    -w          显示make进入目录和退出目录的信息
+
+特殊字符：
+    \   换行符，命令或者依赖过长时，可以使用它换行
+    -   放在最前面，表示如果后面的语句出问题了，不要管，继续做后面的事情
+    @   放在最前面，表示取消当前行命令的回显，默认情况下，命令是被回显的
+    $   变量或者函数的前缀，如果需要真实的$符号，则需要用"$$"来表示
+
+预定义关键字：
+    include  包含文件，
+             例如： >
+                include main.mk
+<    .PHONY   声明后面的目标是lable(伪目标)，不是文件。
+             例如： >
+                # 声明clean是个lable
+                .PHONY : clean
+<             例如： >
+                # 有四个需要编译的程序——“prog1”， “prog2”， “prog3”和 “prog4”，
+                # 我们可以使用“make all”命令来编译所有的目标
+                .PHONY: all
+                all: prog1 prog2 prog3 prog4
+
+变量 (字符串)
+    定义：var = value           # 当var被使用时，value的值才会被展开并赋予var
+          var := value          # value的值会被立即展开并赋予var。当value里包含变量时，"="和":="的区别就显现了
+          var ?= value          # 如var没有被定义过，则var=value，否则什么也不做
+    使用：$(var) 或 ${var}
+    替换：var = $(foo:.o=.c)   # 后缀规则：把变量foo中所有以".o"结尾的全部替换成".c"
+          var = $(foo:%.o=%.c) # 模式规则：同上
+    追加：var += value          # var后追加value，等价于： var = $(var) value （使用"="或":="会根据前面的赋值情况）
+    NOTE: 默认的变量的作用域是全文件，(也包含变量定义的之前的位置)
+    override变量：
+        可以通过make命令行覆盖的变量。语法：
+        override <variable> = <value>
+    目标变量：
+        定义在目标上的变量，该变量的作用域为该目标。语法：
+        <target> : <variable> = <value>
+    模式目标变量：
+        定义在模式目标的变量，该变量作用域为所有匹配该模式的目标。语法：
+        <pattern> : <variable> = <value>
+
+命令包
+    多个命令绑定在一起
+    语法： >
+        define cmd_package_name
+        <tab> command
+        <tab> ...
+        endef
+<    调用：
+        $(cmd_package_name)
+
+函数
+    $(<function> <arguments>)
+    字符串函数 >
+        $(subst <from>,<to>,<text>)                     # 替换：$(subst ee,EE,$(var))，把$(var)中的ee替换成EE
+        $(patsubst <pattern>,<replacement>,<text>)      # 模式替换：$(patsubst %.c,%.o,x.c.c bar.c)，把字串“x.c.c bar.c”符合模式[%.c]的单词替换成[%.o]，返回结果是“x.c.o bar.o”
+        $(strip <string>)                               # 去首尾空白
+        $(findstring <find>,<text>)                     # 查找字符串：找到返回该字符串，否则返回空
+        $(filter <pattern...>,<text>)                   # 过滤：$(filter %.c %.s,foo.c bar.c baz.s ugh.h)，返回：“foo.c bar.c baz.s”
+        $(filter-out <pattern...>,<text>)               # 反过滤：$(filter %.c %.s,foo.c bar.c baz.s ugh.h)，返回：“ugh.h”
+        $(sort <list>)                                  # 排序且去掉相同的项
+        $(word <n>,<text>)                              # 取第n个单词：$(word 2, foo bar baz)返回：“bar”
+        $(wordlist <s>,<e>,<text>)                      # 取单词串：$(wordlist 2, 3, foo bar baz)返回：“bar baz”
+        $(words <text>)                                 # 取单词数：$(words, foo bar baz)返回：“3”
+        $(firstword <text>)                             # 去第1个单词
+<    文件名操作函数 >
+        $(dir <names...>)                               # 取目录：$(dir src/foo.c hacks)                    返回：“src/ ./”。
+        $(notdir <names...>)                            # 取文件：$(notdir src/foo.c hacks)                 返回：“foo.c hacks”
+        $(suffix <names...>)                            # 取后缀：$(suffix src/foo.c src-1.0/bar.c hacks)   返回：“.c .c”
+        $(basename <names...>)                          # 取前缀：$(basename src/foo.c src-1.0/bar.c hacks) 返回：“src/foo src-1.0/bar hacks”
+        $(addsuffix <suffix>,<names...>)                # 加后缀：$(addsuffix .c,foo bar)                   返回：“foo.c bar.c”
+        $(addprefix <prefix>,<names...>)                # 加前缀：$(addprefix src/,foo bar)                 返回：“src/foo src/bar”
+        $(join <list1>,<list2>)                         # 连接：  $(join aaa bbb , 111 222 333)             返回：“aaa111 bbb222 333”
+        $(wildcard <wildstr>)                           # 列出所有通配符指定的的文件, 通配符：“*”，“?”和“[...]”：$(wildcard *.o)
+<    其他 >
+        $(shell cat foo)                                # 执行shell函数
+        $(error <text ...>)                             # 打印错误，并退出
+        $(warning <text ...>)                           # 打印警告
+
+规则：
+    显式规则
+        明确指明的目标依赖规则，如：`a.c : a.o ; command`
+
+    隐含规则
+        1、编译C程序的隐含规则
+            `<n>.o` 的目标的依赖目标会自动推导为 `<n>.c`， 其生成命令是：`$(CC) –c $(CPPFLAGS) $(CFLAGS)`
+        2、编译C++程序的隐含规则
+            `<n>.o` 的目标的依赖目标会自动推导为 `<n>.cc`， 其生成命令是：`$(CXX) –c $(CPPFLAGS) $(CFLAGS)`
+        3、汇编和汇编预处理的隐含规则
+            `<n>.o` 的目标的依赖目标会自动推导为 `<n>.s`， 其生成命令是：`$(AS) $(ASFLAGS)`
+            `<n>.s` 的目标的依赖目标会自动推导为 `<n>.S`， 其生成命令是：`$(AS) $(ASFLAGS)`
+
+    模式规则
+        使用模式规则来定义一个隐含规则。
+        语法为： >
+            target-pattern : prereq-pattern ...
+            <tab> command
+            <tab> ...
+<        展开方式：为所有的target-pattern展开
+        一个模式规则就好像一个一般的规则，只是在规则中，目标的定义需要有"%"字符。
+        pattern指的就是"%"字符，"%"的意思是表示一个或多个任意字符。用于匹配文件名
+        在依赖目标中同样可以使用"%"，只是依赖目标中的"%"的取值，取决于其目标。
+        例如： >
+            %.o : %.c
+                $(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+            表示：所有.o文件的依赖目标的依赖会自动推导为.c，其命令是：$(CC)...
+<
+    静态模式规则
+        静态模式规则是一种特殊的模式规则
+        语法为： >
+            targets : target-pattern : prereq-pattern ...
+                <tab> command
+                <tab> ...
+<        展开方式：只为targets内包含的内容，以target-pattern展开
+        例如： >
+            objects = foo.o bar.o
+            $(objects): %.o: %.c
+                $(CC) -c $(CFLAGS) $< -o $@
+            展开为：
+            foo.o : foo.c
+                $(CC) -c $(CFLAGS) foo.c -o foo.o
+            bar.o : bar.c
+                $(CC) -c $(CFLAGS) bar.c -o bar.o
+<
+    后缀规则
+        后缀规则是模式规则的老式风格
+        .c.o: 等同于 %.o : %.c
+
+自动化变量及其说明：
+    $@      表示规则中的目标文件集。在模式规则中，如果有多个目标，那么，"$@"就是匹配于目标中模式定义的集合。注意，其是一个一个取出来的。
+    $%      仅当目标是函数库文件中，表示规则中的目标成员名。例如，如果一个目标是"foo.a (bar.o)"，那么，"$%"就是"bar.o"，"$@"就是"foo.a"。
+            如果目标不是函数库文件（Unix下是[.a]，Windows下是[.lib]），那么，其值为空。
+    $<      依赖目标中的第一个目标名字。如果依赖目标是以模式（即"%"）定义的，那么"$<"将是符合模式的一系列的文件集。注意，其是一个一个取出来的。
+    $?      所有比目标新的依赖目标的集合。以空格分隔。
+    $^      所有的依赖目标的集合。以空格分隔。如果在依赖目标中有多个重复的，那个这个变量会去除重复的依赖目标，只保留一份。
+    $+      这个变量很像"$^"，也是所有依赖目标的集合。只是它不去除重复的依赖目标。
+    $*      这个变量表示目标模式中"%"及其之前的部分。如果目标是"dir/a.foo.b"，并且目标的模式是"a.%.b"，那么，"$*"的值就是"dir/a.foo"。
+            这个变量对于构造有关联的文件名是比较有较。如果目标中没有模式的定义，那么"$*"也就不能被推导出，
+            但是，如果目标文件的后缀是make所识别的，那么"$*"就是除了后缀的那一部分。例如：如果目标是"foo.c"，
+            因为".c"是make所能识别的后缀名，所以，"$*"的值就是"foo"。这个特性是GNU make的，很有可能不兼容于其它版本的make，
+            所以，你应该尽量避免使用"$*"，除非是在隐含规则或是静态模式中。如果目标中的后缀是make所不能识别的，那么"$*"就是空值。
+    $(@D)   表示"$@"的目录部分（不以斜杠作为结尾），如果"$@"值是"dir/foo.o"，那么"$(@D)"就是"dir"，而如果"$@"中没有包含斜杠的话，其值就是"."（当前目录）。
+    $(@F)   表示"$@"的文件部分，如果"$@"值是"dir/foo.o"，那么"$(@F)"就是"foo.o"，"$(@F)"相当于函数"$(notdir $@)"。
+    $(*D)
+    $(*F)   和上面所述的同理，也是取文件的目录部分和文件部分。对于上面的那个例子，"$(*D)"返回"dir"，而"$(*F)"返回"foo"
+    $(%D)
+    $(%F)   分别表示了函数包文件成员的目录部分和文件部分。这对于形同"archive(member)"形式的目标中的"member"中包含了不同的目录很有用。
+    $(<D)
+    $(<F)   分别表示依赖文件的目录部分和文件部分。
+    $(^D)
+    $(^F)   分别表示所有依赖文件的目录部分和文件部分。（无相同的）
+    $(+D)
+    $(+F)   分别表示所有依赖文件的目录部分和文件部分。（可以有相同的）
+    $(?D)
+    $(?F)   分别表示被更新的依赖文件的目录部分和文件部分。
+    $$$$    随机编号
+
+预定义变量
+    AR          函数库打包程序。默认命令是“ar”。
+    AS          汇编语言编译程序。默认命令是“as”。
+    CC          C语言编译程序。默认命令是“cc”。
+    CXX         C++语言编译程序。默认命令是“g++”。
+    CPP         C程序的预处理器。默认命令是“$(CC) –E”。
+    ARFLAGS     函数库打包程序AR命令的参数。默认值是“rv”。
+    ASFLAGS     汇编语言编译器参数。（当明显地调用“.s”或“.S”文件时）。
+    CFLAGS      C语言编译器参数。例如：优化选项，警告选项
+    CXXFLAGS    C++语言编译器参数。
+    CPPFLAGS    C或C++预处理器参数。例如：包含文件(-I)，预定义宏(-D)
+    LDFLAGS     链接器参数。（如：“ld”）
+
+条件表达式
+    ifeq (<arg1>, <arg2>)  ==> if(arg1==arg2){}
+    ifneq (<arg1>, <arg2>) ==> if(arg1!=arg2){}
+    ifdef <variable-name>  ==> 如果variable-name不为空则为真
+    ifndef <variable-name> ==> 如果variable-name为空则为真
+    else
+    endif
+
+为源文件定义宏
+    gcc -DMACRO=VALUE ~
+    example: >
+        HS_BT_USE_BLE = TRUE
+        CFLAGS = -DHS_BT_USE_BLE=$(HS_BT_USE_BLE)
+        CFLAGS += -DTHUMB_PRESENT
+        $(CC) -c $(CFLAGS) -I. $(IINCDIR) $< -o $@
+
+自动生成依赖
+    大多数的C/C++编译器都支持一个“-M”的选项，即自动找寻源文件中包含的头文件，并生成一个依赖关系。
+    GNU的C/C++编译器，得用“-MM”参数，不然，“-M”参数会把一些标准库的头文件也包含进来。
+
+    一个模式规则来产生依赖文件(.d): >
+    %.d : %.c
+    	@set -e; rm -f $@; \
+    	printf $< | awk -F '/[^/]*$$' '{printf $$1."/"}' > $@.$$$$; \
+    	$(CC) -MM $(CPPFLAGS) $< >> $@.$$$$; \
+    	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+    	rm -f $@.$$$$
+    sources = foo.c bar.c
+    include $(sources:.c=.d) #包含依赖文件(.d)
+<
+例子 >
+    # 源文件和包含目录
+    sources = src/main.c
+    includes = include/
+
+    # 编译器变量
+    CC = gcc
+    CFLAGS = -g3 -O2 -Wall
+    CPPFLAGS = -I$(includes) -DDEBUG
+
+    # 第一个目标即为最终目标
+    a.exe : $(sources:%.c=%.o)
+    	$(CC) -o $@ $<
+
+    # .o 目标的模式规则
+    %.o : %.c
+    	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+
+    # .d 目标的模式规则
+    %.d : %.c
+    	@set -e; rm -f $@; \
+    	printf $< | awk -F '/[^/]*$$' '{printf $$1."/"}' > $@.$$$$; \
+    	$(CC) -MM $(CPPFLAGS) $< >> $@.$$$$; \
+    	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+    	rm -f $@.$$$$
+
+    # 包含依赖文件
+    include $(sources:.c=.d)
+
+    # 伪目标声明
+    .PHONY : clean
+
+    # 伪目标 clean
+    clean:
+    	find -type f -regex ".*\.\(exe\|o\|d\)$$" | xargs rm -f
+
+
+vim:ft=help

@@ -1,0 +1,49 @@
+
+C
+以前看各种资料啊书啊什么的，都说宏不好，看到他们给的例子，发现确实不好。
+以前没有亲身体会到，今天可是体会一把，搞了一天多才发现是宏的问题。
+
+亲身体验，搞死我了!!!!
+
+如下：
+unsigned int fifo_out(struct kfifo *fifo, unsigned char *to, unsigned int len)
+{
+	len = min(kfifo_len(fifo), len);
+
+	__kfifo_out_data(fifo, to, len, 0);
+	__kfifo_add_out(fifo, len);
+	
+	return len;
+}
+
+min()是宏：
+#define min(_a, _b)     (((_a) < (_b)) ? (_a) : (_b))
+
+kfifo_len(): fifo内数据的有效长度。
+
+使用情况：
+    线程1：调用fifo_in向fifo里添加数据；
+    线程2：调用fifo_out从fifo里读取数据；
+
+结果：
+    线程2堆栈crash (线程1也可能)
+
+Why??
+Answer: 
+    线程2调用fifo_out函数，fifo_out函数中调用宏min(), 导致kfifo_len()被调用两次，
+    如果在第一次调用(_a < _b ? ...), kfifo_len()返回值比len小，则kfifo_len()会
+    被第二次调用(...? _a : ...)。
+    但是如果在kfifo_len()被第二次调用之前，线程1打断了线程2的执行。线程1会调用
+    fifo_in()向fifo中添加数据。
+    之后线程2继续执行kfifo_len的第二次调用，因为线程1向fifo中添加过数据，则可能
+    会导致kfifo的返回值可能比len要大，于是堆栈crash了。。。。。
+
+避免方法：
+    1、用内联代替。
+    2、使用宏时候，不要向它传入值可变的参数。
+    3、慎用宏，尤其是但参数在宏内多次使用的时候。
+
+
+
+
+

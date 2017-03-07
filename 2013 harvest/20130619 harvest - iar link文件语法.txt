@@ -1,0 +1,205 @@
+
+iar 分散加载文件详解:
+
+    +-----------------------------------------------------------------------+
+    |  首先来个例子:                                                        |
+    |  (功能: 中断向量表放到0x10000000,                                     |
+    |   紧跟中断向量表的是ResetHandle, 然后是其他的所有)                    |
+    +-----------------------------------------------------------------------+
+    |   // define                                                           |
+    |   define symbol RAM_BEGIN  = 0x10000000;                              |
+    |   define symbol RAM_SIZE   = 0x10000;                                 |
+    |   define symbol STACK_SIZE = 0x200;                                   |
+    |   define symbol HEAP_SIZE  = 0x0;                                     |
+    |                                                                       |
+    |   // config                                                           |
+    |   initialize by copy { readwrite };                                   |
+    |   do not initialize  { section .noinit };                             |
+    |                                                                       |
+    |   define memory MEM with size = 4G;                                   |
+    |   define region RAM = MEM:[from RAM_BEGIN size RAM_SIZE];             |
+    |                                                                       |
+    |   define block CSTACK    with alignment = 8, size = STACK_SIZE { };   |
+    |   define block HEAP      with alignment = 8, size = HEAP_SIZE  { };   |
+    |                                                                       |
+    |   define block __RO with fixed order                                  |
+    |   {                                                                   |
+    |       readonly section .intvec,                                       |
+    |       readonly section .RESET,                                        |
+    |       readonly,                                                       |
+    |   };                                                                  |
+    |                                                                       |
+    |   define block __RW                                                   |
+    |   {                                                                   |
+    |       readwrite,                                                      |
+    |       block CSTACK,                                                   |
+    |       block HEAP                                                      |
+    |   };                                                                  |
+    |                                                                       |
+    |   place at start of RAM {block __RO};                                 |
+    |   place in RAM {block __RW};                                          |
+    +-----------------------------------------------------------------------+
+
+1.  简介: 
+    sections在地址空间中的存放是由ILINK链接器来实现的，而ILINK链接器是按照用户在ICF文件中的规定来放置sections的，所以理 解ICF文件的内容尤其重要。
+    一个标准的ICF文件可包括下面这些内容: 
+        > 可编址的存储空间（memory）
+        > 不同的存储器地址区域（region）
+        > 不同的地址块（block）
+        > Section的初始化与否
+        > Section在存储空间中的放置
+
+2. 常见的指令, 详细内容请参考ILINK相关说明文档(EWARM_DevelopmentGuide.pdf):
+
+    2.1 指定某个符号的值。
+
+        语法: define [ "exported" ] symbol "name" = "expr";
+
+        参数: exported: 导出该symbol，使其对可执行镜像可用
+              name    : 符号名
+              expr    : 符号值
+
+        举例: define symbol RAM_START_ADDRESS = 0x40000000;
+              define symbol RAM_END_ADDRESS = 0x4000FFFF;
+
+    2.2 定义一个可编址的存储地址空间（memory）。
+
+        语法: define memory "name" with size = "expr" [, "unit-size"];
+
+        参数: name      : memory的名称
+              expr      : 地址空间的大小
+              unit-size : expr的单位，可以是位（unitbitsize），缺省是字节（unitbytesize）
+
+        举例: define memory MEM with size = 4G;
+
+    2.3 定义一个存储地址区域（region）。
+        一个区域可由一个或多个范围组成，每个范围内地址必须连续，但几个范围之间不必是连续的。
+
+        语法: define region "name" = "region-expr";
+
+        参数: name        : region的名称
+              region-expr : memory:[from expr { to expr | size expr}]，可以定义起止范围，也可以定义起始地址和region的大小
+
+        举例: define region ROM = MEM:[from 0x0 size 0x10000];
+              define region ROM = MEM:[from 0x0 to 0xFFFF];
+
+    2.4 定义一个地址块（block）；它可以是个空块，比如栈、堆；也可以包含一系列sections。
+
+        语法: define block "blockname" [ with "param", "param" ... ]
+              {
+                  "extended-selectors"
+              };
+
+        参数: > blockname          : block的名称
+              > param              : > size = expr （块的大小）
+                                     > maximum size = expr （块大小的上限）
+                                     > alignment = expr （最小对齐字节数）
+                                     > fixed order （按照固定顺序放置sections）
+
+              > extended-selectors : 内部语法: [ first | last ] { "section-selector" | block "blockname" | overlay "overlayname" }
+                                     > first            : 最先存放
+                                     > last             : 最后存放
+                                     > section-selector : 内部语法: [ "section-attribute" ][ section "sectionname" ][object "objfilename" ]
+                                                          > section-attribute : [ readonly [ code | data ] | readwrite [ code | data ] | zeroinit ]
+                                                          > sectionname       : section的名称
+                                                          > objfilename       : 目标文件的名称
+                                                          即可以按照section的属性，名称及其所在目标文件的名称这三个过滤条件中，
+                                                          任意选取一个条件，或选取多个条件进行组合，来圈定所要求的 sections.
+                                     > blockname        : block里面可以包含其他block
+                                     > overlayname      : overlay的名字
+
+        举例: define block HEAP with size = 0x1000, alignment = 4 { };
+              define block MYBLOCK1 = { section mysection1, section mysection2, readwrite };
+              define block MYBLOCK2 = { readonly object myfile2.o };
+
+    2.5 初始化sections
+
+        语法: initialize { by copy | manually } [ with "param", param... ]
+              {
+                  "section-selectors"
+              };
+
+        参数: > by copy  : 在程序启动时自动执行初始化。
+              > manually : 在程序启动时不自动执行初始化。
+              > param    : > packing = { none | compress1 | compress2 | auto }
+                             packing表示是否压缩数据，缺省是auto。
+                           > copy routine = functionname
+                             functionname表示是否使用自己的拷贝函数来取代缺省函数。
+              > section-selector : 同上
+
+        举例: initialize by copy { rw };
+
+    2.6 规定在程序启动时不需要初始化的sections
+        一般用于__no_init声明的变量段（.noinit）。
+
+        语法: do not initialize
+              {
+                  "section-selectors"
+              };
+
+        参数: section-selector 同上
+
+        举例: do not initialize { .noinit };
+
+    2.7 把一系列sections和blocks放置在某个具体的地址，或者一个region的开始或者结束处。
+
+        语法: place at { address "memory" [: "expr"] | start of "region_expr" | end of "region_expr" }
+              {
+                  "extended-selectors"
+              };
+
+        参数: > memory            : memory的名称
+              > expr              : 地址值，该地址必须在memory所定义的范围内
+              > region_expr       : region的名称
+              > extended-selector : 同上
+
+        举例: place at start of ROM { section .cstart };
+              place at end of ROM { section .checksum };
+              place at address MEM:0x0 { section .intvec };
+
+    2.8 把一系列sections和blocks放置在某个region中。sections和blocks将按任意顺序放置。
+
+        语法: place in "region-expr"
+              {
+                  "extended-selectors"
+              };
+
+        参数: > region-expr       : region的名称
+              > extended-selector : 同上
+
+        举例: place in ROM { readonly };         /* all readonly sections */ 
+              place in RAM { readwrite };         /* all readwrite sections */
+              place in RAM { block HEAP, block CSTACK, block IRQ_STACK }; 
+              place in ROM { section .text object myfile.o };     /* the .text section of myfile.o */ 
+              place in ROM { readonly object myfile.o };         /* all read-only sections of myfile.o */ 
+              place in ROM { readonly data object myfile.o };     /* all read-only data sections myfile.o */
+
+3.  程序中对区域地址引用的方法
+    如果想定在rom空间
+        icf中: 
+            place at address mem:0x08090000 { readonly section .test };
+        C语言中: 
+            #pragma location = ".test"
+            const u32 uiData[512];// const 切不可省略
+
+    如果想定在ram空间
+        icf中: 
+            place at address mem:0x08090000 { readwrite section .test };
+        C语言中: 
+            #pragma location = ".test"
+            u32 uiData[512];
+            => 可发现uiData的值为0x08090000
+               该法可方便通过ICF指定某变量的地址。
+               程序也可以。写法类似.vector
+
+    如果用block的方。类似
+        icf中:
+            define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+        C语言中: 
+            #pragma language="extended"
+            #pragma segment="CSTACK"
+            void *begin_ptr = __sfb( "CSTACK" )；可得到CSTACK的开始地址(begin)
+            void *end_ptr   = __sfe( "CSTACK" )；可得到CSTACK的结尾地址(end)
+            __sfe:  Returns last address of segment.
+
+

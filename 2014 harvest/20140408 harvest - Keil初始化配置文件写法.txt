@@ -1,0 +1,160 @@
+
+
+
+Keil 初始化配置文件写法 (debug初始化和flash_download初始化)
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+BUS Configuration
+The BUS can be configured using predefined functions (for example, _WBYTE or _WDWORD) that write to the target memory. Use these functions in pre-download scripts. Some devices require a BUS configuration prior to accessing attached devices. Typically, this is true for external Flash ROM devices. For example:
+
+_WDWORD(0xFFE00000, 0x20003CE3);   // BCFG0: Flash Bus Configuration
+_WDWORD(0xE002C014, 0x0E6001E4);   // PINSEL2: CS0, OE, WE, BLS0..3
+Functions can use the Configuration Wizard syntax to create a menu-driven configuration file:
+
+/***********************************************************************/
+/*  FLASH.INI: Flash Initialization File                               */
+/***********************************************************************/
+
+//*** Use Configuration Wizard in Context Menu ***
+
+FUNC void Setup (void) {
+
+// External Memory Controller (EMC)
+//   Bank Configuration 0 (BCFG0)
+//     IDCY: Idle Cycles (0-15)
+//     WST1: Wait States 1 (0-31)
+//     WST2: Wait States 2 (0-31)
+//     RBLE: Read Byte Lane Enable
+//     WP: Write Protect
+//     BM: Burst ROM
+//     MW: Memory Width  0=8-bit  1=16-bit
+//                       2=32-bit 3=Reserved
+//
+  _WDWORD(0xFFE00000, 0x20003CE3);   // BCFG0: Flash Bus Configuration
+
+  _WDWORD(0xE002C014, 0x0E6001E4);   // PINSEL2: CS0, OE, WE, BLS0..3
+                                     //          D0..31, A2..23, JTAG
+}
+
+Setup();                             // Setup for Flash
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+Predefined Functions
+Predefined functions assist the developer in debugging applications and in creating his own functions. Predefined functions cannot be deleted or modified.
+
+The following table lists all predefined debugging functions.
+
+Return Name Parameter Description 
+double  __acos  (double) Calculates the arc cosine. 
+double  __asin  (double) Calculates the arc sine. 
+double  __atan  (double) Calculates the arc tangent. 
+double  __cos  (double) Calculates the cosine. 
+double  __exp  (double) Calculates the exponential. 
+double  __log  (double) Calculates the natural logarithm. 
+double  __log10 (double) Calculates the common logarithm. 
+double __sin (double) Calculates the sine. 
+double __sqrt  (double) Calculates the square root. 
+double __tan  (double) Calculates the tangent. 
+uchar _RBYTE (address) Read a char from the memory address. 
+uint _RWORD (address) Reads a short int from the memory address. 
+ulong _RDWORD (address) Reads a long from the memory address. 
+float _RFLOAT (address) Reads a float from the memory address. 
+double _RDOUBLE (address) Reads a double from the memory address. 
+int _TaskRunning_ (ulong func_address) Checks if the specified task function is the currently running task. Available only if a DLL for RTX Kernel Awareness is used. 
+double _sleep_ (ulong milli_seconds) Delays execution for milli seconds. 
+void _WBYTE (address, uchar val) Writes a char to the memory address. 
+void _WWORD (address, uint val) Write a short int to the memory address. 
+void _WDWORD (address, ulong val) Writes a long to the memory address. 
+void _WFLOAT (address, float val) Writes a float o the memory address. 
+void _WDOUBLE (address, double val) Writes a double to the memory address. 
+void exec ("command_string") Executes the debug command. 
+double getdbl ("prompt_string") Prompts the user to enter a double. 
+int getint ("prompt_string") Prompts the user to enter an integer. 
+long getlong ("prompt_string") Prompts the user to enter a long number. 
+void memset (start_addr, len, value) Fills the memory starting at start_addr and the length len with the value. 
+void printf ("string", ...) Works like the ANSI-C printf function. 
+int rand (int seed) Returns a random number in the range 0 to 32767. 
+void rwatch (ulong address) Delays the execution of a signal function until a read-access event occurs on address. 
+void swatch (float seconds) Delays the execution of a signal function for seconds. 
+void twatch (ulong states) Delays the execution of a signal function for number of CPU states. 
+void wwatch (ulong address) Delays the execution of a signal function until a write-access event occurs on address. 
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+Configuration Wizard Example
+
+
+//*** <<< Use Configuration Wizard in Context Menu >>> ***
+
+FUNC void Setup (void) {
+
+// <h> External Bus Interface (EBI)
+
+//   <e1.13> Enable Chip Select 0 (CSR0)
+//     <o1.20..31> BA: Base Address <0x0-0xFFF00000:0x100000><#/0x100000>
+//                 <i> Start Address for Chip Select Signal
+//     <o1.7..8>   PAGES: Page Size      <0=> 1M Byte    <1=> 4M Bytes
+//                                       <2=> 16M Bytes  <3=> 64M Bytes
+//                 <i> Selects Active Bits in Base Address
+//     <o1.0..1>   DBW: Data Bus Width   <1=> 16-bit     <2=> 8-bit
+//     <o1.12>     BAT: Byte Access Type <0=> Byte-write
+//                                       <1=> Byte-select
+//     <e1.5>      WSE: Enable Wait State Generation
+//       <o1.2..4>   NWS: Number of Standard Wait States <1-8><#-1>
+//     </e>
+//     <o1.9..11>  TDF: Data Float Output Time <0-7>
+//                 <i> Number of Cycles Added after the Transfer
+//   </e>
+  _WDWORD(0xFFE00000, 0x010024A9);   // EBI_CSR0: Flash
+
+//   <e1.13> Enable Chip Select 1 (CSR1)
+//     <o1.20..31> BA: Base Address <0x0-0xFFF00000:0x100000><#/0x100000>
+//                 <i> Start Address for Chip Select Signal
+//     <o1.7..8>   PAGES: Page Size      <0=> 1M Byte    <1=> 4M Bytes
+//                                       <2=> 16M Bytes  <3=> 64M Bytes
+//                 <i> Selects Active Bits in Base Address
+//     <o1.0..1>   DBW: Data Bus Width   <1=> 16-bit     <2=> 8-bit
+//     <o1.12>     BAT: Byte Access Type <0=> Byte-write
+//                                       <1=> Byte-select
+//     <e1.5>      WSE: Enable Wait State Generation
+//       <o1.2..4>   NWS: Number of Standard Wait States <1-8><#-1>
+//     </e>
+//     <o1.9..11>  TDF: Data Float Output Time <0-7>
+//                 <i> Number of Cycles Added after the Transfer
+//   </e>
+  _WDWORD(0xFFE00004, 0x040034A5);   // EBI_CSR1: RAM
+
+//   <q1.4>        DRP: Data Read Protocol
+//                      <0=> Standard Read
+//                      <1=> Early Read
+  _WDWORD(0xFFE00024, 0x00000010);   // EBI_MCR:  Data Read Protocol
+
+  _WDWORD(0xFFE00020, 0x00000001);   // EBI_RCR:  Remap Command
+
+// </h>
+
+// <o> Program Entry Point
+  PC = 0x04000000;
+
+}
+
+// <s> Change ID
+// <s1.30> Change Password String
+#define ID  "My User ID"
+char pw[] = "My Password";
+
+//*** <<< end of configuration section >>>    ***
+
+
+

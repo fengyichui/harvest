@@ -1,0 +1,20 @@
+C语言 动态多维数组：
+
+二重指针：
+struct test **p;
+&p[1]    - &p[0]    == sizeof(struct test *) //第一重，每走一步是一个指针大小的步长
+&p[1][1] - &p[1][0] == sizeof(struct test)   //第二重，每走一步是一个数据大小的步长
+
+二维数组：
+struct test p[3][4];  已经有维数限制
+struct test p[][4]; 
+
+
+实现动态的多维数组的方法就是使用多重指针：
+例如实现动态二维数组(rows * cols)：
+	struct pin_content **pin;
+	pin = new struct pin_content* [rows];
+	for(int i=0; i<rows; ++i)
+		pin[i] = new struct pin_content [cols];
+	
+	以后就可以这样索引数据了：pin[9][10]

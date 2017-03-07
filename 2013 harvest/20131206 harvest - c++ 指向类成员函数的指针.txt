@@ -1,0 +1,198 @@
+最近在开发中用到了函数指针，于是想整理了一下有关函数指针的概念。O(∩_∩)O~
+
+首先 函数指针是指向一组同类型的函数的指针；
+而类成员函数我们也可以相似的认为，它是指向同类中同一组类型的成员函数的指针，
+当然这里的成员函数更准确的讲应该是指非静态的成员函数。
+前者是直接指向函数地址的，而后者我们从字面上也可以知道 它肯定是跟类和对象有着关系的。
+
+=============函数指针实例：================
+
+typedef int (*p)(int,int);//定义一个接受两个int型且返回int型变量的函数指针类型
+int func(int x,int y)
+{
+    printf("func:x=%d,y=%d/n",x,y);
+    return (x<y?x:y);
+}
+
+int main()
+{
+    p fun=func;//定义函数指针并给它赋上一个函数指针
+    cout<<"min:"<<(*fun)(4,5)<<endl;//为什么*fun需要用()扩起来呢?因为*的运算符优先级比()低,如果不用()就成了*(fun())    ~
+    return 0;
+}
+
+==============而“指向类成员函数的指针”却多了一个类的区别：===============
+
+class A
+{
+public:
+    int func(int x,int y)
+    {
+        printf("A::func:x=%d,y=%d/n",x,y);
+        return (x<y?x:y);
+    }
+};
+typedef int (A::*p)(int,int);//指针名前一定要加上所属类型类名 A::的限定  ~
+
+int main()
+{
+    p fun=&A::func;
+    A a;                  //因为成员函数地址的解引用必须要附驻与某个对象的地址，所以我们必须创建某个对象。
+    cout<<"min:"<<(a.*fun)(4,5)<<endl;  //嘿嘿。。只是用起来 .*  感觉怪怪滴。~
+    return 0;
+}
+
+=====================================================================================================
+
+namespace Quintic
+{
+    class QTest
+    {
+        typedef list<bool (Quintic::QTest::*)(void)> WorkSequence_t; //定义函数指针类型的链表 ~
+
+        WorkSequence_t m_lstWorkSequence; 
+
+        bool test1(void);
+        bool test2(void);
+        bool test3(void);
+
+        bool Run(void)
+        {
+            m_lstWorkSequence.push_back(&Quintic::QTest::test1);
+            m_lstWorkSequence.push_back(&Quintic::QTest::test2);
+            m_lstWorkSequence.push_back(&Quintic::QTest::test3);
+
+            for(auto it=m_lstWorkSequence.begin();
+                    it!=m_lstWorkSequence.end();
+                    ++it)
+            {
+                (this->**it)(); //注意这里的使用 ~
+            }
+        }
+
+    }
+}
+
+======================================================================================================
+接下来 我们可以再扩展一下下：
+
+#include <tchar.h>
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+
+class A
+{
+public:
+    int func1(int x,int y)
+    {
+        printf("A::func:x=%d,y=%d/n",x,y);
+        return (x<y?x:y);
+    }
+    virtual int func2(int x,int y)
+    {
+        printf("A::func:x=%d,y=%d/n",x,y);
+        return (x>y?x:y);
+    }
+};
+class B:public A
+{
+public:
+    virtual int func2(int x,int y)
+    {
+        printf("B::func:x=%d,y=%d/n",x,y);
+        return (x+y);
+    }
+
+};
+typedef int (A::*p)(int,int);//指针名前一定要加上所属类型类名 A::的限定
+typedef int (B::*p0)(int,int);
+
+int main()
+{
+    A a;                   //因为成员函数地址的解引用必须要附驻与某个对象的地址，所以我们必须创建某个对象。 ~
+    B b;
+    p fun=&A::func1;
+
+    cout<<(a.*fun)(4,5)<<endl;
+    cout<<(b.*fun)(4,5)<<endl<<endl;
+
+    fun=&A::func2;
+    cout<<(a.*fun)(4,5)<<endl;//请注意这里调用的是虚函数，嘿嘿 还真神奇 类成员函数指针也支持多态。 ~
+    cout<<(b.*fun)(4,5)<<endl<<endl;
+
+
+    //fun=&B::func2;         //这样式错误滴，因为不存在派生类的"指向类成员函数的指针"到基类的"指向类成员函数的指针"的隐式转换 ~
+    fun=(int (A::*)(int,int))&B::func2;//应该进行强制转换  ~
+    cout<<(a.*fun)(4,5)<<endl; 
+    cout<<(b.*fun)(4,5)<<endl<<endl;
+
+    p0 fun0=&B::func2;
+    cout<<(a.*fun)(4,5)<<endl;
+    cout<<(b.*fun)(4,5)<<endl<<endl;
+
+    fun0=&A::func2;           //正确，因为这里进行了隐式转换 ~
+    cout<<(a.*fun)(4,5)<<endl;
+    cout<<(b.*fun)(4,5)<<endl<<endl;
+
+    //从上面我们不难发现 指向类成员函数的指针基类和派生类的关系和指向类对象的指针基类和派生类的关系完全相反， ~
+    //基类成员函数的布局被认为是派生类成员函数布局的一个子集~
+    return 0;
+}
+
+接下  是有关模板类的类成员函数指针的使用
+
+实例如下：
+
+#include <tchar.h>
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+
+class A
+{
+    public:
+        int func(int x,int y)
+        {
+            printf("A::func : x=%d,y=%d/n",x,y);
+            return (x<y?x:y);
+        }
+};
+class B
+{
+    public:
+        int func(int x,int y)
+        {
+            printf("B::func : x=%d,y=%d/n",x,y);
+            return (x>y?x:y);
+        }
+};
+
+template<class T>
+class C
+{
+    public:
+        T c;
+        void Print()
+        {
+            int (T::*p)(int,int)=&T::func;
+            (c.*p)(4,5);
+        }
+};
+
+int main()
+{
+    C<A> ca;
+    C<B> cb;
+
+    ca.Print();
+    cb.Print();
+    return 0;
+}
+从上面 可以很清晰地看到。。其实它和普通的模板没有什么区别。。只不过将限定名称该为参数名酒OK啦。。。
+
+
+
+vim:tw=78:ts=8:ft=help:norl:

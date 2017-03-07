@@ -1,0 +1,23 @@
+1、查看指定文件或文件夹是否存在：
+_taccess：
+int _waccess( const wchar_t *path, int mode );
+
+Parameters:
+path: 
+	File or directory path
+
+mode: 
+	Permission setting
+	mode Value Checks File For 
+	00 Existence only 
+	02 Write permission 
+	04 Read permission 
+	06 Read and write permission 
+
+return：
+	-1：不存在
+	
+Remarks:
+	When used with files, the _access function determines whether the specified file exists and can be accessed as specified by the value of mode. When used with directories, _access determines only whether the specified directory exists; in Windows NT, all directories have read and write access.
+
+

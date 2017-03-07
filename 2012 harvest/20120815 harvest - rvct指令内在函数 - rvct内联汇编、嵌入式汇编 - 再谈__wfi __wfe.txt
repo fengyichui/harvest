@@ -1,0 +1,57 @@
+1、rvct指令内在函数
+	void __breakpoint(int val);            //设置手工断点
+	
+	unsigned int __current_pc(void);       //返回当前位置pc值
+	unsigned int __current_sp(void);       //返回当前sp值
+	
+	void __nop(void);                      //空操作
+	
+	unsigned int __return_address(void);   //此内在函数返回当前函数的返回地址。
+	
+	void __wfi(void);                      //wait for interrupt
+	void __wfe(void);                      //wait for event
+	
+	int __disable_fiq(void);               
+	int __disable_irq(void);
+	void __enable_fiq(void);
+	void __enable_irq(void);
+	
+2、rvct内联汇编、嵌入式汇编
+	
+	A、内联汇编器只支持 ARM 汇编语言，而不支持以下语言和指令：
+		a、Thumb 汇编语言
+		b、Thumb-2 汇编语言
+		c、ARMv7 指令
+		d、VFP 指令
+		e、NEON 指令。
+	
+	B、可以使用嵌入式汇编器来支持 Thumb 和 Thumb-2。
+	
+	C、内联汇编器：
+		int f(int x)
+		{
+			int r0;
+			__asm              ;单行或多行书写
+			{
+				ADD r0, x, 1
+				EOR x, r0, x
+			}
+			return x;
+		}			
+		
+	D、嵌入式汇编器：
+		__asm void my_strcpy(const char *src, char *dst)
+		{
+			loop
+				LDRB r2, [r0], #1 ;注释：src == r0
+				STRB r2, [r1], #1 ;注释：dst == r1
+				CMP r2, #0
+				BNE loop
+				BX lr             ;注释：如果需要返回值 则把相应值放入到r0中
+		}
+
+3、再谈__wfi __wfe
+	WFI/WFE指令进入Idle模式。一旦进入Idle模式，CPU将立刻进入Sleep模式而停止运作，因此在WFI /WFE指令之后的程序都必须等到CPU被唤醒后才会被执行。此时NUC1xx的耗电量将降到约16mA@3.3V-48MHz。
+　　进入Idle省电模式之后，如果要唤醒CPU，回到一般的工作模式，就必须先产生中断信号。该中断信号可以是NUC1xx中的任何模块所产生的中断，也可以通过外部中断的方式来唤醒CPU。需要注意的是，当决定CPU要由某个中断来唤醒时，就必须在进入Idle省电模式前，将该中断设定完成，才能使其产生中断事件来唤醒CPU。
+
+	WFI/WFE，低功耗睡眠模式的进入。后者功耗更低。

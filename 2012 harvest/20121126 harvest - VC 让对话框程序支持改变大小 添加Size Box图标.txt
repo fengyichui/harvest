@@ -1,0 +1,4 @@
+让对话框程序支持 改变大小的size Box
+	在OnInitDialog中添加：
+	ModifyStyle(NULL, WS_SIZEBOX); //WS_SIZEBOX参数可以是对话框的右下角出现sizeBox的图标 还可以填写其他的样式参数，如最大化按钮等等
+	然后处理WM_SIZE消息。

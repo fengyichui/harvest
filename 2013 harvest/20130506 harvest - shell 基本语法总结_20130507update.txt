@@ -1,0 +1,106 @@
+
+*shell_expression*
+
+Shell 总结
+
+1. for:                      *shell_for*
+    基本语法:
+        for ...              ~
+        do                   ~
+            do something     ~
+        done                 ~
+
+    1.1 {}数字段形式
+        {}详细: a. {start..end}
+                b. {start..end..step}
+        => for i in {1..10} ~
+
+    1.2 seq形式             *shell_seq*
+        seq详细: a. seq {start}
+                 b. seq {start end}
+                 c. seq {start step end}
+        => for i in `seq 100` ~
+
+    1.3详细列表形式
+        => for File in 1 2 3 4 5          ~
+
+    1.4命令返回形式
+        => for shname in `find . -type f -name "*.sh"`  ~
+        => for shname in `ls *.sh`   ~
+
+    1.5 (())形式
+        => for((i=1;i<100;i++))  ~
+
+2. while:                    *shell_while*
+    基本语法:
+        while ...            ~
+        do                   ~
+            do something     ~
+        done                 ~
+
+3. break continue           *shell_break_contunue*
+
+4. if:                      *shell_if*
+    基本语法:
+        if ...                ~
+        then                  ~
+            do something      ~
+        elif ...              ~
+        then                  ~
+            do something      ~
+        else                  ~
+            do something      ~
+        fi                    ~
+
+5. bool 表达式             *shell_bool_expression*
+    5.1 [ .. ] 测试指令
+        eg: while [ $min -eq $max ]  ~
+    5.2 ((...)) 算数表达式
+        eg: while(($i<100))  ~
+    5.3 执行命令返回
+        5.3.1  *$(...)*
+            eg: if $(ls /abc)  ~
+        5.3.2  *`...`*
+            eg: if `find /abc`  ~
+        5.3.3  *only-command*
+            eg: if ping www.baidu.com   ~
+
+6. [ ... ]测试指令:          *shell_[...]*
+    通常用" [ ] "来表示条件测试。注意这里的两边空格很重要。要确保方括号的空格。
+    -r file　　　　　用户可读为真
+　　-w file　　　　　用户可写为真
+　　-x file　　　　　用户可执行为真
+　　-f file　　　　　文件为正规文件为真
+　　-d file　　　　　文件为目录为真
+　　-c file　　　　　文件为字符特殊文件为真
+　　-b file　　　　　文件为块特殊文件为真
+　　-s file　　　　　文件大小非0时为真
+　　-t file　　　　　当文件描述符(默认为1)指定的设备为终端时为真
+
+    -eq              比较两个参数是否相等（例如，if ）
+    -ne              比较两个参数是否不相等
+    -lt              参数1是否小于参数2
+    -le              参数1是否小于等于参数2
+    -gt              参数1是否大于参数2
+    -ge              参数1是否大于等于参数2
+
+    否定表示: [ ! ... ]
+
+    eg:
+        [ -f "somefile" ] ：判断是否是一个文件
+        [ -x "/bin/ls" ] ：判断/bin/ls是否存在并有可执行权限
+        [ -n "$var" ] ：判断$var变量是否有值
+        [ "$a" = "$b" ] ：判断$a和$b是否相等
+        [ 2 -eq 5 ]
+
+7. 标准输出, 标准错误输出重定向到垃圾桶
+    &>/dev/null              ~
+
+8. 变量赋值
+    val=1 ~
+    val=`ls` ~
+    注意: 不能出现空格!!!
+
+
+
+vim:tw=78:ts=8:ft=help:norl:

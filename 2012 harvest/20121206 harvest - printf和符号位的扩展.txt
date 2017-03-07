@@ -1,0 +1,17 @@
+
+32bit PC上做以下事情：
+
+uint16_t a = -1;
+int16_t  b = -1;
+uint32_t c = -1;
+int32_t  d = -1;
+
+printf("%d", a);	       //==> 65535
+printf("%d", b);           //==> -1
+printf("%d", c);	       //==> -1
+printf("%d", d);           //==> -1
+printf("%d", (int16_t)a);  //==> -1
+printf("%d", (uint16_t)b); //==> 65535
+
+==> Why???
+    搜噶，符号位的扩展。32bit的PC中，不足32bit的数据会在内存或寄存器中扩展成为32bit，导致符号位扩展。

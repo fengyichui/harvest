@@ -1,0 +1,26 @@
+1、atoi()加强版：strtol() _tcstol()
+	原型：
+		long int strtol(const char *nptr,char **endptr,int base);
+	说明：
+	　　这个函数会将参数nptr字符串根据参数base来转换成长整型数。
+	参数base范围从2至36，或0。参数base代表采用的进制方式，如base值为10则采用10进制，若base值为16则采用16进制等。
+	当base值为0时则是采用10进制做转换，但遇到如’0x’前置字符则会使用16进制做转换、遇到’0’前置字符而不是’0x’的时候会使用8进制做转换。
+	一开始strtol()会扫描参数nptr字符串，跳过前面的空格字符，直到遇上数字或正负符号才开始做转换，再遇到非数字或字符串结束时('\0')结束转换，并将结果返回。
+	若参数endptr不为NULL，则会将遇到不合条件而终止的nptr中的字符指针由endptr返回；若参数endptr为NULL，则会不返回非法字符串。
+	
+2、获取当前系统tick，用于计时（最大返回值为49.7天）
+	DWORD GetTickCount(VOID)
+	
+	1、Return Values：ms
+		The return value is the number of milliseconds that have elapsed since the system was started. 
+	
+	2、Remarks
+		The following table describes the resolution of the system timer. 
+		Windows NT 3.5 and later The system timer runs at approximately 10ms. 
+		Windows NT 3.1 The system timer runs at approximately 16ms. 
+		Windows 95 and later The system timer runs at approximately 55ms. 
+	
+	3、The elapsed time is stored as a DWORD value. Therefore, the time will wrap around to zero if the system is run continuously for 49.7 days. 
+	
+	
+	

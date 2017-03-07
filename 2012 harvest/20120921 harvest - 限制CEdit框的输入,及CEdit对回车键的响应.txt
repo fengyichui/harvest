@@ -1,0 +1,29 @@
+1、限制CEdit框的输入,及CEdit对回车键的响应
+	重载：
+	BOOL TestDlg::PreTranslateMessage(MSG* pMsg)
+	{
+		CEdit* m_edit_atf = (CEdit*)GetDlgItem(IDC_EDIT_APP_ADDR);
+		if(pMsg->hwnd == m_edit_atf->m_hWnd)
+		{
+			switch(pMsg->message)
+			{
+				case WM_KEYDOWN:
+					if (pMsg->wParam==VK_RETURN) //对输入的回车键的响应
+					{
+						;
+					}
+					break;
+				case WM_CHAR:
+					if(IsNotMyNeed(pMsg->wParam)) //对输入CEdit的字符的响应（pMsg->wParam即是输入到CEdit框的ASCII码）
+						return TRUE;              //不是我需要的就直接返回
+					break;
+				default:
+					break;
+			}
+		}
+	
+		return CDialog::PreTranslateMessage(pMsg);
+	}
+	
+2、限制CEdit框输入的字符的个数
+	m_cedit.SetLimitText(8);

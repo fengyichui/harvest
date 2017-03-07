@@ -1,0 +1,39 @@
+
+*sed*
+
+$ sed -r 's/<.*>//g' html.txt
+
+$ sed "s/my/Hao Chen's/g" pets.txt    # 
+$ sed -i "s/my/Hao Chen's/g" pets.txt # -i 直接修改文件内容
+$ sed 's/^/#/g' pets.txt
+$ sed 's/<[^>]*>//g' html.txt
+$ sed "3s/my/your/g" pets.txt
+$ sed "3,6s/my/your/g" pets.txt
+$ sed 's/s/S/1' my.txt
+$ sed 's/s/S/2' my.txt
+$ sed 's/s/S/3g' my.txt
+$ sed '1,3s/my/your/g; 3,$s/This/That/g' my.txt
+$ sed 's/my/[&]/g' my.txt
+$ sed 's/This is my \([^,]*\),.*is \(.*\)/\1:\2/g' my.txt
+$ sed 'N;s/my/your/' pets.txt
+$ sed 'N;s/\n/,/' pets.txt
+$ sed "1 i This is my monkey, my monkey's name is wukong" my.txt
+$ sed "$ a This is my monkey, my monkey's name is wukong" my.txt
+$ sed "/fish/a This is my monkey, my monkey's name is wukong" my.txt
+$ sed "/my/a ----" my.txt
+$ sed "2 c This is my monkey, my monkey's name is wukong" my.txt
+$ sed "/fish/c This is my monkey, my monkey's name is wukong" my.txt
+$ sed '/fish/d' my.txt
+$ sed '2d' my.txt
+$ sed '2,$d' my.txt
+$ sed '/fish/p' my.txt
+$ sed -n '/fish/p' my.txt   #仅打印match的行
+$ sed -n '/dog/,/fish/p' my.txt
+$ sed -n '1,/fish/p' my.txt
+$ sed '/dog/,+3s/^/# /g' pets.txt
+$ sed '3,6 {/This/d}' pets.txt
+$ sed '3,6 {/This/{/fish/d}}' pets.txt
+$ sed '1,${/This/d;s/^ *//g}' pets.txt
+$ awk '/RAM_RESIDENT_BOOT_DATA/' $mapfile | sed 's/^ *Execution Region */#define /' # sed the awk stdout
+$ sed -n 's/fish/dog/p' my.txt    # -n p 仅打印match的行
+

@@ -1,0 +1,139 @@
+
+*awk*
+
+by liqiang 20130222 
+update: 20130328
+
+AWK总结
+
+awk处理的单位为行(record), 即对每一行调用处理操作. 
+
+1、基本命令格式为：
+    Patterns and Actions
+    AWK是一种基于行的语言。
+    语言格式是：
+        patterns{actions} 即：先patterns后大括号action;
+        解释：模式成功则执行{}内的actions;
+    1、有patterns没actions，则默认action为 ：{print}
+    2、有patterns有actions，则默认patterns一定匹配该行
+    actions 可以包括各种函数和逻辑控制语言。
+    Patterns包括的内容在下面
+
+    Patterns包括：
+        BEGIN                          :所有操作的开始
+        END                            :所有操作的结束
+        BEGINFILE                      :当前文件的开始
+        ENDFILE                        :当前文件的结束
+        /regular expression/           :正在表达式
+        relational expression          :关系运算
+        pattern && pattern || pattern  :逻辑运算符
+        pattern ? pattern : pattern    ：
+        (pattern)                      ：
+        ! pattern                      ：
+        pattern1, pattern2             ：
+
+    逻辑控制：
+        if (condition) statement [ else statement ]
+        while (condition) statement
+        do statement while (condition)
+        for (expr1; expr2; expr3) statement
+        for (var in array) statement
+        break
+        continue
+        delete array[index]
+        delete array
+        exit [ expression ]
+        { statements }
+        switch (expression) {
+        case value|regex : statement
+        ...
+        [ default: statement ]
+        }
+
+2、常用内嵌函数：*sub* *gsub*
+    大部分C库函数可以使用
+
+    替换第一个：sub(/regexp/, replacement [, target])
+    全局替换  ：gsub(/regexp/, replacement [, target])
+    长度      ：length([string])
+    变小写    ：tolower(string)
+    变大写    ：toupper(string)
+    
+3、内建变量
+    $0       当前记录（这个变量中存放着整个行的内容）
+    $1~$n    当前记录的第n个字段，字段间由FS分隔
+
+    FS       输入字段分隔符 默认是空格 field separator
+    RS       输入的记录分隔符， 默认为换行符\n record separator
+
+    OFS      输出字段分隔符， 默认也是空格 
+    ORS      输出的记录分隔符，默认为换行符
+
+    NF       当前记录中的字段个数，就是有多少列。number of fields
+    NR       已经读出的记录数，就是行号，从1开始，如果有多个文件话，这个值也是不断累加中。 number of records
+    FNR      当前记录数，与NR不同的是，这个值会是各个文件自己的行号
+
+    FILENAME 当前输入文件的名字
+
+    IGNORECASE=1 忽略大小写
+
+4、常用选项：
+    -v ：-var 设置变量值，就像在BEGIN{}中定义的一样 eg: $ awk -v FS='-' 'print $1' a.txt
+    -f ：使用awk脚本文件。eg: $ awk -f script.awk a.txt
+
+5、在shell中单引号和双引号的区别。(都表示字符串)
+    双引号: 内部的 \what、 $x、`what 会被shell解析成为其他的值。
+    单引号: 内部的值不会被shell解析。
+    所以在使用awk时候一定要使用单引号
+
+7、使用例子：
+
+    格式化输出
+    $ awk '{print $1, $4}' netstat.txt
+    $ awk '{printf "%-8s %-8s %-8s %-18s %-22s %-15s\n",$1,$2,$3,$4,$5,$6}' netstat.txt
+
+    使用比较运算符
+    $ awk '$6=="LISTEN" || $3>0 || NR==1' netstat.txt
+
+    使用正则表达式
+    $ awk '/LISTEN/' netstat.txt
+    $ awk '!/LISTEN/' netstat.txt
+    $ awk '$6 ~ /TIME/ || NR==1 {print NR}' netstat.txt
+    $ awk '$6 !~ /WAIT/ || NR==1 {print NR}' netstat.txt
+
+    使用BEGIN 和 END
+    $ awk 'BEGIN{FS=":"} {print $1, $2}' OFS="-" a.txt
+    $ awk '{sum+=$5} END {print sum}' netstat.txt
+
+    for的使用
+    $ awk '{for(i=1;i<=NF;i++)printf("%dx%d=%d%s", i, NR, i*NR, i==NR?"\n":"\t")}' a.txt
+    $ awk 'NR!=1{a[$6]++;} END {for (i in a) print i ", " a[i];}' netstat.txt
+
+    替换(sub & gsub)：    
+    $ du -a | awk -v IGNORECASE=1 'sub(/^[.0-9A-Z]+\s+/, ""){}; gsub(/ /, "\\ "){}; /\.((h)|(c))/' | xargs perl -i $0
+
+    使用脚本文件
+    $ awk -f cal.awk score.txt
+    $ cat cal.awk
+        #运行前
+        BEGIN {
+            math = 0
+            english = 0
+            computer = 0
+            printf "NAME    NO.   MATH  ENGLISH  COMPUTER   TOTAL\n"
+            printf "---------------------------------------------\n"
+        }
+        #运行中
+        {
+            math+=$3
+            english+=$4
+            computer+=$5
+            printf "%-6s %-6s %4d %8d %8d %8d\n", $1, $2, $3,$4,$5, $3+$4+$5
+        }
+        #运行后
+        END {
+            printf "---------------------------------------------\n"
+            printf "  TOTAL:%10d %8d %8d \n", math, english, computer
+            printf "AVERAGE:%10.2f %8.2f %8.2f\n", math/NR, english/NR, computer/NR
+        }
+

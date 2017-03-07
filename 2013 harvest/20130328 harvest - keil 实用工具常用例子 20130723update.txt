@@ -1,0 +1,28 @@
+
+*Keil* *fromelf*  
+
+1. 产生bin文件   *fromelf-bin*         
+    fromelf --bin --output gpio.bin gpio.axf   ~
+
+2. 产生源文件的汇编文件  *fromelf-asm*
+    fromelf --text -c --output=outfile.asm infile.axf  ~
+
+3. 计算前导0个数的指令   *__clz* *__CLZ*
+    int i = __clz(0x01);       ~
+    result: i == 31                  ~
+
+4. 编译完成后拷贝库文件到指定目录  *keil-cmd*
+    cmd.exe /C copy "%L" "..\..\src\lib\keil\@L.lib"   ~
+
+5.  移除所有未使用的函数:
+    方法: a. 编译器选项: |--split_sections| (或C/C++选项卡的"One ELF Section per Function")
+          b. 链接器选项: |--remove|
+          c. 使用链接器选项 |--keep=section_id| 保留某些段或函数 (section_id可以包含通配符 * 和 ? )
+             例如: --keep=foo.o              => 保留文件foo.o内的所有符号
+                   --keep=int_handler        => 保留函数int_handler()
+                   --keep=foo.o(int_handler) => 保留文件foo.o内的函数int_handler()
+
+    保留所有函数, 包括未使用的函数:
+    方法: 链接器选项: |--noremove|
+
+vim:tw=78:ts=8:ft=help:norl:

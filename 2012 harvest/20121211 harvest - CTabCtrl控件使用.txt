@@ -1,0 +1,63 @@
+CTabCtrl控件使用
+
+
+下面发一个最简单的代码，使用CTabCtrl控件实现属性页功能
+
+
+1、建立一个基于对话框的应用程序
+
+2、 画CTabCtrl控件，类向导中关联变量名为m_tab。
+	新建三个对话框，属性设为style:Child,Border:None。
+	用ClassWizard生成新的类，基类为Cdialog，分别为Cpage0，Cpage1，Cpage2，ID号分别为IDD_DIALOG0，IDD_DIALOG1，IDD_DIALOG2。
+	在主对话框中加入三个变量，Cpage0 page0; Cpage1 page1; Cpage2 page2;
+ 
+3、在主对话框的OnInitDialog()内初始化:
+	//初始化m_tab控件
+	m_tab.InsertItem(0,"第一页"); 
+	m_tab.InsertItem(1,"第二页"); 
+	m_tab.InsertItem(2,"第三页");
+	//建立属性页各页
+	page0.Create(IDD_DIALOG0,GetDlgItem(IDC_TAB1));
+	page1.Create(IDD_DIALOG1,GetDlgItem(IDC_TAB1));
+	page2.Create(IDD_DIALOG2,GetDlgItem(IDC_TAB1));
+	//设置页面的位置在m_tab控件范围内
+	CRectrect; 
+	m_tab.GetClientRect(&rect); 
+	rect.top+=20;
+	rect.bottom-=4;
+	rect.left+=4;
+	rect.right-=4;
+	page0.MoveWindow(&rect); 
+	page1.MoveWindow(&rect); 
+	page2.MoveWindow(&rect); 
+	page1.ShowWindow(TRUE);
+	m_tab.SetCurSel(1);
+    
+4、m_tab控件属性页选择时显示各页:
+voidCMy3Dlg::OnSelchangeTab1(NMHDR*pNMHDR,LRESULT*pResult)
+{ 
+	//TODO:Addyourcontrolnotificationhandlercodehere 
+	intCurSel;
+	CurSel=m_tab.GetCurSel();
+	switch(CurSel)
+	{
+		case0:
+			page0.ShowWindow(TRUE); 
+			page1.ShowWindow(FALSE);
+			page2.ShowWindow(FALSE);
+			break;
+		case1:
+			page0.ShowWindow(FALSE); 
+			page1.ShowWindow(TRUE);
+			page2.ShowWindow(FALSE);
+			break;
+		case2:
+			page0.ShowWindow(FALSE); 
+			page1.ShowWindow(FALSE);
+			page2.ShowWindow(TRUE);
+			break;
+		default:
+			break;
+	}
+	*pResult=0; 
+}

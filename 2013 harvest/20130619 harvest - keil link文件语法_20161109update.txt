@@ -1,0 +1,205 @@
+
+Keil 分散加载文件详解:
+
+    +------------------------------------------+
+    |  首先来个例子:                           |
+    |  (功能: 中断向量表放到0x10000000, 紧跟   |
+    |  中断向量表的是ResetHandle, 然后是其     |
+    |  他的所有)                               |
+    +------------------------------------------+
+    |   LR_ROM1 0x10000000 0x10000             |
+    |   {                                      |
+    |       EXEC_APP_START 0x10000000 0x10000  |
+    |       {                                  |
+    |           *.o (RESET, +First)            |
+    |           startup.o (RESET_HDL)          |
+    |       }                                  |
+    |                                          |
+    |       EXEC_APP_OTHER +0                  |
+    |       {                                  |
+    |           .ANY (+RO)                     |
+    |           .ANY (+RW +ZI)                 |
+    |       }                                  |
+    |   }                                      |
+    +------------------------------------------+
+    +-------------------------+-----------------------------+
+    | 例子解释:               |                             |
+    | LR_ROM1                 | <-- load_region_name        |
+    |     0x10000000          | <-- start_address           |
+    |         0x10000         | <-- max_size                |
+    | {                       |                             |
+    |    EXEC_APP_START       | <-- execution_region_name   |
+    |         0x10000000      | <-- start_address           |
+    |             0x10000     | <-- max_size                |
+    |     {                   |                             |
+    |         *.o             | <-- module_select_pattern   |
+    |             (RESET,     | <-- input_section_pattern   |
+    |              +First)    | <-- +input_section_attr     |
+    |         startup.o       | <-- module_select_pattern   |
+    |             (RESET_HDL) | <-- input_section_pattern   |
+    |     }                   |                             |
+    |                         |                             |
+    |     EXEC_APP_OTHER      | <-- execution_region_name   |
+    |         +0              | <-- +offset                 |
+    |     {                   |                             |
+    |         .ANY            | <-- module_select_pattern   |
+    |             (+RO)       | <-- +input_section_attr     |
+    |         .ANY            | <-- module_select_pattern   |
+    |             (+RW +ZI)   | <-- +input_section_attr (2) |
+    |     }                   |                             |
+    | }                       |                             |
+    +-------------------------+-----------------------------+
+
+分散加载能够将加载和运行时存储器中的代码和数据描述在被称为分散加载描述文件的一个文本描述文件中，以供连接时使用。
+1. 分散加载区
+    分散加载区域分为两类：
+    加载区，包含应用程序复位和加载时的代码和数据。
+    执行区，包含应用程序执行时的代码和数据。应用程序启动过程中，从每个加载区可创建一个或多个执行区。
+    映象中所有的代码和数据准确地分为一个加载区和一个执行区。
+
+2. 分散加载文件语法
+    load_region_name  start_address | "+"offset  [attributes] [max_size]
+    {
+        execution_region_name  start_address | "+"offset  [attributes][max_size]
+        {
+            module_select_pattern  ["("
+                                        ("+" input_section_attr | input_section_pattern)
+                                        ([","] "+" input_section_attr | "," input_section_pattern)) *
+                                   ")"]
+        }
+    } 
+
+    load_region：          加载区，用来保存永久性数据（程序和只读变量）的区域；
+    execution_region：     执行区，程序执行时，从加载区域将数据复制到相应执行区后才能被正确执行；
+    load_region_name：     加载区域名，用于"Linker"区别不同的加载区域，最多31个字符；
+    start_address：        起始地址，指示区域的首地址；
+    +offset：              前一个加载区域尾地址＋offset 做为当前的起始地址，且"offset"应为"0"或"4"的倍数；
+    attributes：           区域属性，可设置如下属性：
+                           PI       与地址无关方式存放；
+                           RELOC    重新部署，保留定位信息，以便重新定位该段到新的执行区；
+                           OVERLAY  覆盖，允许多个可执行区域在同一个地址，ADS不支持；
+                           ABSOLUTE 绝对地址（默认）；
+    max_size：             该区域的大小； 
+    execution_region_name：执行区域名；
+    start_address：        该执行区的首地址，必须字对齐；
+    +offset：              同上；
+    attributes：           同上；
+                           PI          与地址无关，该区域的代码可任意移动后执行；
+                           OVERLAY     覆盖；
+                           ABSOLUTE    绝对地址（默认）；
+                           FIXED       固定地址；
+                           UNINIT      不用初始化该区域的ZI段；
+    module_select_pattern：目标文件滤波器，支持通配符 "*" 和 "?" ；
+                           *.o匹配所有目标，* （或".ANY"）匹配所有目标文件和库。
+    input_section_attr：   每个input_section_attr必须跟随在 "+" 后；且大小写不敏感；
+                           RO-CODE 或 CODE
+                           RO-DATA 或 CONST
+                           RO或TEXT, selects both RO-CODE and RO-DATA
+                           RW-DATA
+                           RW-CODE
+                           RW 或 DATA, selects both RW-CODE and RW-DATA
+                           ZI 或 BSS
+                           ENTRY, that is a section containing an ENTRY point.
+                           FIRST，用于指定存放在一个执行区域的第一个或最后一个区域；
+                           LAST，同上；
+    input_section_pattern：段名；
+                           1>. 汇编中指定段：
+                                AREA    section_name, CODE, READONLY
+                           2>. C语言中指定段：
+                               a. #pragma arm section [sort_type[[=]"name"]] [,sort_type="name"]*
+                                      sort_type:  code、rwdata、rodata、zidata
+                                      如果"sort_type"指定了但没有指定"name"，那么之前的修改的段名将被恢复成默认值。
+                               b. #pragma arm section     // 恢复所有段名为默认设置。
+                                  eg：#pragma arm section rwdata = "SRAM",zidata = "SRAM"
+                                      static OS_STK  SecondTaskStk[256];              // "rwdata""zidata"将定位在"sram"段中。
+                                      #pragma arm section                                 // 恢复默认设置
+3. 程序中对区域地址引用的方法
+    3.1 引用名字:
+            Load$$region_name$$Base             Load address of the region.
+            Image$$region_name$$Base            Execution address of the region.
+            Image$$region_name$$Length          Execution region length in bytes (multiple of 4).
+            Image$$region_name$$Limit           Address of the byte beyond the end of the execution region. 
+            Image$$region_name$$ZI$$Base        Execution address of the ZI output section in this region.
+            Image$$region_name$$ZI$$Length      Length of the ZI output section in bytes (multiple of 4).
+            Image$$region_name$$ZI$$Limit       Address of the byte beyond the end of the ZI output sectionin the execution region. 
+            SectionName$$Base                   Input Address of the start of the consolidated section called SectionName.
+            SectionName$$Limit                  Input Address of the byte beyond the end of the consolidated section called SectionName. 
+            解释:
+                Load：          加载区，即存放地址；
+                Image：         执行区，即运行地址；
+                Base：          区首地址；
+                Limit：         区尾地址；
+                Length：        区长度；
+                region_name：   RO、RW、ZI、load_region_name、execution_region_name； 
+            例如：
+                "RAM1"区域的首地址：      Image$$RAM1$$Base
+                上例中"sram"段首地址：    sram$$Base 
+
+    3.2 汇编引用示例：
+        IMPORT |Load$$Exec_RAM1$$Base|              // Exec_RAM1 为"RW"段
+        IMPORT |Image$$Exec_RAM1$$Base|
+        IMPORT |Image$$Exec_RAM1$$Length|
+        IMPORT |Image$$Exec_RAM1$$Limit| 
+        LDR  R0, = |Load$$Exec_RAM1$$Base|
+        LDR  R1, = |Image$$Exec_RAM1$$Base|
+        LDR  R2, = |Image$$Exec_RAM1$$Limit|
+        CMP  R1,   R2
+        LDRCC R3,   [R0], #4
+        STRCC R3,   [R1], #4
+        BCC  %b0
+
+    3.3 C语言引用示例：
+        extern unsigned char Load$$Exec_RAM1$$Base;
+        extern unsigned char Image$$Exec_RAM1$$Base;
+        extern unsigned char Image$$Exec_RAM1$$Length; 
+        void MoveRO(void)
+        {
+            unsigned char * psrc, *pdst;
+            unsigned int  count; 
+            count = (unsigned int)   &Image$$Exec_RAM1$$Length;
+            psrc  = (unsigned char *)&Load$$Exec_RAM1$$Base;
+            pdst  = (unsigned char *)&Image$$Exec_RAM1$$Base; 
+            while (count--) 
+            {
+                *pdst++ = *psrc++;
+            }
+        } 
+
+4. 表达式
+    - Expressions.
+    - ScatterAssert function with load address related functions that take an expression as a parameter.
+    - #define BASE_ADDRESS 0x8000
+    - defined(version1) ? 0x8000 : 0x10000
+    - ImageBase(region_name), ImageLength(region_name), ImageLimit(region_name)
+    - AlignExpr(expr, align)
+    - LoadBase(region_name), LoadLength(region_name), LoadLimit(region_name)
+    NOTE: sct文件的行首必须加入: "#! armcc -E"
+
+    - Example:
+        #! armcc -E
+        #define START_ADDRESS  0x100000
+        #define PAGE_ALIGNMENT 0x100000
+        LR1 0x8000
+        {
+            ER0 +0
+            {
+                *(InRoot$$Sections)
+            }
+            ER1 START_ADDRESS
+            {
+                file1.o(*)
+            }
+            ER2 AlignExpr(ImageLimit(ER1), PAGE_ALIGNMENT)
+            {
+                file2.o(*)
+            }
+            ER3 AlignExpr(ImageLimit(ER2), PAGE_ALIGNMENT)
+            {
+                file3.o(*)
+            }
+        }
+
+5. 符号导入导出：
+    导出：linker框内加入: --symdefs=.\symdefs.o (多用于ROM符号导出)
+    导入：文件列表内加入导出的目标文件:symdefs.o
+

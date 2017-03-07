@@ -1,0 +1,460 @@
+匿名和命名管道(windows)
+
+一、概述
+
+　　管道（Pipe）实际是用于进程间通信的一段共享内存，创建管道的进程称为管道服务器，连接到一个管道的进程为管道客户机。一个进程在向管道写入数据后，另一进程就可以从管道的另一端将其读取出来。匿名管道（Anonymous Pipes）是在父进程和子进程间单向传输数据的一种没有名字的管道，只能在本地计算机中使用，而不可用于网络间的通信。
+
+二、匿名管道
+
+　　匿名管道由CreatePipe()函数创建，该函数在创建匿名管道的同时返回两个句柄：管道读句柄和管道写句柄。CreatePipe()的函数原型为：　
+　 
+BOOL CreatePipe(PHANDLE hReadPipe,                      // 指向读句柄的指针
+  PHANDLE hWritePipe,                     // 指向写句柄的指针
+  LPSECURITY_ATTRIBUTES lpPipeAttributes, // 指向安全属性的指针
+  DWORD nSize                             // 管道大小 
+  );
+
+如果函数成功返回TRUE，否则返回FALSE，可以使用GetLastError()得到错误值。
+其中，第3个参数的定义为：
+
+typedef struct _SECURITY_ATTRIBUTES{
+    DWORD  nLength;               // 本结构的字节数
+    LPVOID lpSecurityDescriptor;  // 安全描述符地址
+    BOOL   bInheritHandle;        // 是否可以被子进程继承
+}SECURITY_ATTRIBUTES;
+
+这个结构包含了一个对象的安全描述信息，并且指定了管道是否可以被自进程继承。
+
+　　通过hReadPipe和hWritePipe所指向的句柄可分别以只读、只写的方式去访问管道。但是在同一个进程中去读写管道是没有意义的，我们常常需要的是在父子进程中传递数据，也就是父写数据，子读数据，或者子写数据，子读数据。我们这里仅讨论后一种情况，一个典型是示例就是一个有窗口的程序调用控制台程序，把控制台的输出信息在父窗口中输出。
+
+    当父进程执行CreateProcess()启动子进程时，系统会检查父进程内可以继承的内核对象句柄，复制到子进程空间，这样子进程就有了和父进程一样的匿名管道句柄，子进程对管道的写端放入数据，父进程就可以从读端取到数据。同样，父进程在写端放入数据，子进程也可以从读端取出数据。也就是说，一个匿名管道同时拥有了两个写端和读端。当父子进程任何一个关闭的时候，无论时候显式的关闭读写句柄，系统都会帮进程关闭所拥有的管道句柄。正常情况下，控制台进程的输输入出是在控制台窗口的，但是如果我们在创建子进程的时候指定了其输入输出，那么子进程就会从我们的管道读数据，把输出数据写到我们指定的管道。CreateProcess()定义如下：
+
+BOOL CreateProcess(
+    LPCTSTR  lpApplicationName,                 // 执行程序的名字 
+    LPTSTR  lpCommandLine,                 // 命令行字符串
+    LPSECURITY_ATTRIBUTES  lpProcessAttributes, // 进程的安全属性的指针
+    LPSECURITY_ATTRIBUTES  lpThreadAttributes, // 主线程安全属性指针 
+    BOOL  bInheritHandles,                 // 是否继承父进程句柄的标志
+    DWORD  dwCreationFlags,                 // 创建时候的标志位
+    LPVOID  lpEnvironment,                 // 环境变量块指针
+    LPCTSTR  lpCurrentDirectory,         // 指定工作目录的字符串指针 
+    LPSTARTUPINFO  lpStartupInfo,         // 启动信息指针
+    LPPROCESS_INFORMATION  lpProcessInformation // 进程信息指针 
+   );
+
+    在创建子进程时候，指定了子进程的输出管道，我们在管道另一端读取就可以了。那么存在一个问题，我们什么时候能知道子进程结束了，或者说不再写数据了呢？ReadFile()函数会阻塞到读到数据或者出错的后才会返回，也就是说当管道的所有写端都关闭的时候，读会出错，能够使函数在一个循环中返回，那么，我们应该在创建子进程后立即关闭父进程所拥有的写句柄，那么当子进程结束时候，读到0字节返回。
+
+　　同样的道理，在用WriteFile()函数向管道写入数据时，只有在向管道写完指定字节的数据后或是在有错误发生时函数才会返回。如管道缓冲已满而数据还没有写完，WriteFile（）将要等到另一进程对管道中数据读取以释放出更多可用空间后才能够返回。管道服务器在调用CreatePipe（）创建管道时以参数nSize对管道的缓冲大小作了设定。 匿名管道并不支持异步读、写操作，这也就意味着不能在匿名管道中使用ReadFileEx()和WriteFileEx()，而且ReadFile()和WriteFile()中的lpOverLapped参数也将被忽略。
+
+具体的代码为：
+
+The following is the parent process. 
+
+#include <stdio.h> 
+#include <windows.h> 
+ 
+#define BUFSIZE 4096 
+ 
+HANDLE hChildStdinRd, hChildStdinWr, hChildStdinWrDup, 
+   hChildStdoutRd, hChildStdoutWr, hChildStdoutRdDup, 
+   hInputFile, hSaveStdin, hSaveStdout; 
+ 
+BOOL CreateChildProcess(VOID); 
+VOID WriteToPipe(VOID); 
+VOID ReadFromPipe(VOID); 
+VOID ErrorExit(LPTSTR); 
+VOID ErrMsg(LPTSTR, BOOL); 
+ 
+DWORD main(int argc, char *argv[]) 
+{ 
+   SECURITY_ATTRIBUTES saAttr; 
+   BOOL fSuccess; 
+ 
+// Set the bInheritHandle flag so pipe handles are inherited. 
+ 
+   saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
+   saAttr.bInheritHandle = TRUE; 
+   saAttr.lpSecurityDescriptor = NULL; 
+ 
+   // The steps for redirecting child process's STDOUT: 
+   //     1. Save current STDOUT, to be restored later. 
+   //     2. Create anonymous pipe to be STDOUT for child process. 
+   //     3. Set STDOUT of the parent process to be write handle to 
+   //        the pipe, so it is inherited by the child process. 
+   //     4. Create a noninheritable duplicate of the read handle and
+   //        close the inheritable read handle. 
+ 
+// Save the handle to the current STDOUT. 
+ 
+   hSaveStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
+ 
+// Create a pipe for the child process's STDOUT. 
+ 
+   if (! CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) 
+      ErrorExit("Stdout pipe creation failed\n"); 
+ 
+// Set a write handle to the pipe to be STDOUT. 
+ 
+   if (! SetStdHandle(STD_OUTPUT_HANDLE, hChildStdoutWr)) 
+      ErrorExit("Redirecting STDOUT failed"); 
+ 
+// Create noninheritable read handle and close the inheritable read 
+// handle. 
+
+    fSuccess = DuplicateHandle(GetCurrentProcess(), hChildStdoutRd,
+        GetCurrentProcess(), &hChildStdoutRdDup , 0,
+        FALSE,
+        DUPLICATE_SAME_ACCESS);
+    if( !fSuccess )
+        ErrorExit("DuplicateHandle failed");
+    CloseHandle(hChildStdoutRd);
+
+   // The steps for redirecting child process's STDIN: 
+   //     1.  Save current STDIN, to be restored later. 
+   //     2.  Create anonymous pipe to be STDIN for child process. 
+   //     3.  Set STDIN of the parent to be the read handle to the 
+   //         pipe, so it is inherited by the child process. 
+   //     4.  Create a noninheritable duplicate of the write handle, 
+   //         and close the inheritable write handle. 
+ 
+// Save the handle to the current STDIN. 
+ 
+   hSaveStdin = GetStdHandle(STD_INPUT_HANDLE); 
+ 
+// Create a pipe for the child process's STDIN. 
+ 
+   if (! CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) 
+      ErrorExit("Stdin pipe creation failed\n"); 
+ 
+// Set a read handle to the pipe to be STDIN. 
+ 
+   if (! SetStdHandle(STD_INPUT_HANDLE, hChildStdinRd)) 
+      ErrorExit("Redirecting Stdin failed"); 
+ 
+// Duplicate the write handle to the pipe so it is not inherited. 
+ 
+   fSuccess = DuplicateHandle(GetCurrentProcess(), hChildStdinWr, 
+      GetCurrentProcess(), &hChildStdinWrDup, 0, 
+      FALSE,                  // not inherited 
+      DUPLICATE_SAME_ACCESS); 
+   if (! fSuccess) 
+      ErrorExit("DuplicateHandle failed"); 
+ 
+   CloseHandle(hChildStdinWr); 
+ 
+// Now create the child process. 
+ 
+   if (! CreateChildProcess()) 
+      ErrorExit("Create process failed"); 
+ 
+// After process creation, restore the saved STDIN and STDOUT. 
+ 
+   if (! SetStdHandle(STD_INPUT_HANDLE, hSaveStdin)) 
+      ErrorExit("Re-redirecting Stdin failed\n"); 
+ 
+   if (! SetStdHandle(STD_OUTPUT_HANDLE, hSaveStdout)) 
+      ErrorExit("Re-redirecting Stdout failed\n"); 
+ 
+// Get a handle to the parent's input file. 
+ 
+   if (argc > 1) 
+      hInputFile = CreateFile(argv[1], GENERIC_READ, 0, NULL, 
+         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL); 
+   else 
+      hInputFile = hSaveStdin; 
+ 
+   if (hInputFile == INVALID_HANDLE_VALUE) 
+      ErrorExit("no input file\n"); 
+ 
+// Write to pipe that is the standard input for a child process. 
+ 
+   WriteToPipe(); 
+ 
+// Read from pipe that is the standard output for child process. 
+ 
+   ReadFromPipe(); 
+ 
+   return 0; 
+} 
+ 
+BOOL CreateChildProcess() 
+{ 
+   PROCESS_INFORMATION piProcInfo; 
+   STARTUPINFO siStartInfo; 
+ 
+// Set up members of STARTUPINFO structure. 
+ 
+   ZeroMemory( &siStartInfo, sizeof(STARTUPINFO) );
+   siStartInfo.cb = sizeof(STARTUPINFO); 
+ 
+// Create the child process. 
+ 
+   return CreateProcess(NULL, 
+      "child",       // command line 
+      NULL,          // process security attributes 
+      NULL,          // primary thread security attributes 
+      TRUE,          // handles are inherited 
+      0,             // creation flags 
+      NULL,          // use parent's environment 
+      NULL,          // use parent's current directory 
+      &siStartInfo,  // STARTUPINFO pointer 
+      &piProcInfo);  // receives PROCESS_INFORMATION 
+}
+ 
+VOID WriteToPipe(VOID) 
+{ 
+   DWORD dwRead, dwWritten; 
+   CHAR chBuf[BUFSIZE]; 
+ 
+// Read from a file and write its contents to a pipe. 
+ 
+   for (;;) 
+   { 
+      if (! ReadFile(hInputFile, chBuf, BUFSIZE, &dwRead, NULL) || 
+         dwRead == 0) break; 
+      if (! WriteFile(hChildStdinWrDup, chBuf, dwRead, 
+         &dwWritten, NULL)) break; 
+   } 
+ 
+// Close the pipe handle so the child process stops reading. 
+ 
+   if (! CloseHandle(hChildStdinWrDup)) 
+      ErrorExit("Close pipe failed\n"); 
+} 
+ 
+VOID ReadFromPipe(VOID) 
+{ 
+   DWORD dwRead, dwWritten; 
+   CHAR chBuf[BUFSIZE]; 
+   HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
+
+// Close the write end of the pipe before reading from the 
+// read end of the pipe. 
+ 
+   if (!CloseHandle(hChildStdoutWr)) 
+      ErrorExit("Closing handle failed"); 
+ 
+// Read output from the child process, and write to parent's STDOUT. 
+ 
+   for (;;) 
+   { 
+      if( !ReadFile( hChildStdoutRdDup, chBuf, BUFSIZE, &dwRead, 
+         NULL) || dwRead == 0) break; 
+      if (! WriteFile(hSaveStdout, chBuf, dwRead, &dwWritten, NULL)) 
+         break; 
+   } 
+} 
+ 
+VOID ErrorExit (LPTSTR lpszMessage) 
+{ 
+   fprintf(stderr, "%s\n", lpszMessage); 
+   ExitProcess(0); 
+} 
+ 
+// The code for the child process. 
+
+#include <windows.h> 
+#define BUFSIZE 4096 
+ 
+VOID main(VOID) 
+{ 
+   CHAR chBuf[BUFSIZE]; 
+   DWORD dwRead, dwWritten; 
+   HANDLE hStdin, hStdout; 
+   BOOL fSuccess; 
+ 
+   hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
+   hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+   if ((hStdout == INVALID_HANDLE_VALUE) || 
+      (hStdin == INVALID_HANDLE_VALUE)) 
+      ExitProcess(1); 
+ 
+   for (;;) 
+   { 
+   // Read from standard input. 
+      fSuccess = ReadFile(hStdin, chBuf, BUFSIZE, &dwRead, NULL); 
+      if (! fSuccess || dwRead == 0) 
+         break; 
+ 
+   // Write to standard output. 
+      fSuccess = WriteFile(hStdout, chBuf, dwRead, &dwWritten, NULL); 
+      if (! fSuccess) 
+         break; 
+   } 
+} 
+ 
+
+
+三、命名管道
+
+命名管道作为一种通信方法，有其独特的优越性，这主要表现在它不完全依赖于某一种协议，而是适用于任何协议——只要能够实现通信。
+　　命名管道具有很好的使用灵活性，表现在：
+　　1) 既可用于本地，又可用于网络。
+　　2) 可以通过它的名称而被引用。
+　　3) 支持多客户机连接。
+　　4) 支持双向通信。
+　　5) 支持异步重叠I/O操作。
+
+ 
+
+ 
+
+客户端源码
+
+view plaincopy to clipboardprint?
+#include <windows.h>   
+#include <iostream>   
+using namespace std;   
+const TCHAR szPipeName[] = L"////hello//pipe//lvbin";   
+int main(void)   
+{   
+    HANDLE hPipe = CreateFile(szPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);   
+    if (hPipe == INVALID_HANDLE_VALUE)   
+    {   
+        printf("CreateFile return [%d]!/n", GetLastError());   
+        return -1;   
+    }   
+    DWORD dwRead, dwWrite;   
+    char szBuf[1024] = {0};   
+       
+    for (int i = 0; i < 10; ++i)   
+    {   
+        sprintf(szBuf, "%d", i);   
+        WriteFile(hPipe, szBuf, strlen(szBuf), &dwWrite, 0);   
+        printf("Send %s/n", szBuf);   
+        memset(szBuf, 0, sizeof(szBuf));   
+        ReadFile(hPipe, szBuf, sizeof(szBuf), &dwRead, 0);   
+        printf("Recv %s/n", szBuf);   
+    }   
+}  
+#include <windows.h>
+#include <iostream>
+using namespace std;
+const TCHAR szPipeName[] = L"////hello//pipe//lvbin";
+int main(void)
+{
+ HANDLE hPipe = CreateFile(szPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+ if (hPipe == INVALID_HANDLE_VALUE)
+ {
+  printf("CreateFile return [%d]!/n", GetLastError());
+  return -1;
+ }
+ DWORD dwRead, dwWrite;
+ char szBuf[1024] = {0};
+ 
+ for (int i = 0; i < 10; ++i)
+ {
+  sprintf(szBuf, "%d", i);
+  WriteFile(hPipe, szBuf, strlen(szBuf), &dwWrite, 0);
+  printf("Send %s/n", szBuf);
+  memset(szBuf, 0, sizeof(szBuf));
+  ReadFile(hPipe, szBuf, sizeof(szBuf), &dwRead, 0);
+  printf("Recv %s/n", szBuf);
+ }
+}
+
+服务器端源码
+
+view plaincopy to clipboardprint?
+#include <iostream>   
+#include <Windows.h>   
+using namespace std;   
+  
+int main(void)   
+{   
+    TCHAR strPipeName[] = L"////.//pipe//lvbin";   
+    PSECURITY_DESCRIPTOR psd;   
+    psd = (PSECURITY_DESCRIPTOR) LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);   
+    if (!InitializeSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION))   
+    {   
+        LocalFree((HLOCAL)psd);   
+        return -1;   
+    }   
+    if (!SetSecurityDescriptorDacl(psd, TRUE, (PACL)NULL, FALSE))   
+    {   
+        LocalFree((HLOCAL)psd);   
+        return -1;   
+    }   
+    SECURITY_ATTRIBUTES saAttr;   
+    saAttr.nLength =sizeof(SECURITY_ATTRIBUTES);   
+    saAttr.lpSecurityDescriptor = psd;   
+    saAttr.bInheritHandle = TRUE;   
+    HANDLE hIPC = CreateNamedPipe(strPipeName,    
+                                                                        PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,    
+                                                                        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,    
+                                                                        1, 0, 0, 1000, &saAttr);   
+    if (hIPC == INVALID_HANDLE_VALUE)   
+    {   
+        return -1;   
+    }   
+    char szBuf[1024] = {0};   
+    DWORD dwRead, dwWrite;   
+    char szWrite[] = "Get You/n";   
+    ConnectNamedPipe(hIPC, NULL);   
+    while(1)   
+    {   
+        if (!ReadFile(hIPC, szBuf, sizeof(szBuf), &dwRead, 0))   
+        {   
+            break;   
+        }   
+        printf("%s/n", szBuf);   
+        memset(szBuf, 0, sizeof(szBuf));   
+           
+        if (!WriteFile(hIPC, szWrite, strlen(szWrite), &dwWrite, NULL))   
+        {   
+            break;   
+        }          
+    }   
+    return 0;   
+};  
+#include <iostream>
+#include <Windows.h>
+using namespace std;
+
+int main(void)
+{
+ TCHAR strPipeName[] = L"////.//pipe//lvbin";
+ PSECURITY_DESCRIPTOR psd;
+ psd = (PSECURITY_DESCRIPTOR) LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
+ if (!InitializeSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION))
+ {
+  LocalFree((HLOCAL)psd);
+  return -1;
+ }
+ if (!SetSecurityDescriptorDacl(psd, TRUE, (PACL)NULL, FALSE))
+ {
+  LocalFree((HLOCAL)psd);
+  return -1;
+ }
+ SECURITY_ATTRIBUTES saAttr;
+ saAttr.nLength =sizeof(SECURITY_ATTRIBUTES);
+ saAttr.lpSecurityDescriptor = psd;
+ saAttr.bInheritHandle = TRUE;
+ HANDLE hIPC = CreateNamedPipe(strPipeName, 
+                  PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, 
+                  PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 
+                  1, 0, 0, 1000, &saAttr);
+ if (hIPC == INVALID_HANDLE_VALUE)
+ {
+  return -1;
+ }
+ char szBuf[1024] = {0};
+ DWORD dwRead, dwWrite;
+ char szWrite[] = "Get You/n";
+ ConnectNamedPipe(hIPC, NULL);
+ while(1)
+ {
+  if (!ReadFile(hIPC, szBuf, sizeof(szBuf), &dwRead, 0))
+  {
+   break;
+  }
+  printf("%s/n", szBuf);
+  memset(szBuf, 0, sizeof(szBuf));
+  
+  if (!WriteFile(hIPC, szWrite, strlen(szWrite), &dwWrite, NULL))
+  {
+   break;
+  }  
+ }
+ return 0;
+};

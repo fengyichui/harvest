@@ -1,0 +1,43 @@
+CRect 矩形类
+
+1、命名：
+	CRect rcItem, rcSumItem; 以rc开头。
+
+2、构造方法：
+	CRect();
+	CRect(int left, int top, int right, int bottom); //左上右下，类似左上点(前两个值)，右下点(后两个值)
+	CRect(const RECT& srcRect);                      
+	CRect(LPCRECT lpSrcRect);
+	CRect(POINT point, SIZE size);                   //左上点，大小
+	CRect(POINT topLeft, POINT bottomRight);         //左上点，右下点
+
+3、常用方法小结：
+	1)、交并集：
+		a、并集 : rcSumItem |= rcItem; 同UnionRect();
+	 	b、交集 ：rcSumItem &= rcItem; 同IntersectRect();
+	2)、平移:  
+		a、向右下平移：rcItem += CPoint(1, 2); 或 rcItem += CSize(1, 2); 向右平移1，向下平移2; 同OffsetRect();
+		b、向左上平移：rcItem -= CPoint(1, 2); 或 rcItem -= CSize(1, 2); 向左平移1，向上平移2; 同OffsetRect();
+	3)、伸缩：
+		a、缩小：rcItem -= CRect(1,2,3,4); 左缩小1，上缩小2，右缩小3，下缩小4; 同InflateRect();
+	    b、放大：rcItem += CRect(1,2,3,4); 左放大1，上放大2，右放大3，下放大4; 同DeflateRect();
+	4)、判断是否为空：
+		IsRectEmpty(): 长宽是否全为0;
+		IsRectNull() : 左上右下是否全为0;
+	5)、获取坐标：
+		a、左上点：CPoint& TopLeft();
+		b、右下点：CPoint& BottomRight();
+		c、中心点：CPoint CenterPoint();
+	6)、获取大小：
+		a、宽  ：int Width();
+		b、高  : int Height(); 
+		c、大小：CSize Size();		
+	6)、点是否在矩形内：
+		BOOL PtInRect(POINT point)；
+	7)、重新设置矩形数据：
+		SetRect();
+	8)、其他：
+ 		==, !=, =
+
+4、WM_SIZE消息传递来的cx和cy可以当做对话框窗口的右下点坐标；
+		

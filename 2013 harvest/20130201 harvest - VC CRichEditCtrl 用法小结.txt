@@ -1,0 +1,285 @@
+
+*CRichEditCtrl*
+
+CRichEditCtrl 常见使用问题
+
+一.常见问题
+    a.可以编译,不能执行的
+        在需要在相应的对话框中加上InitInstance（void）函数中添加
+        AfxInitRichEdit();
+    b.升级默认的Riched版本(默认的有一些bug)，如
+        可在InitInstance中添加
+        LoadLibrary("RICHED20.DLL")
+        最后注意 FreeLibrary
+        如果是CRichEditView基类的可用
+        BOOL CXXXXXXView::PreCreateWindow(CREATESTRUCT& cs)
+        {
+            //装入rich edit version 2.0
+            if (LoadLibraryA("RICHED20.DLL") == NULL)
+            {
+                AfxMessageBox(_T("Fail to load \"riched20.dll\"."),MB_OK | MB_ICONERROR);
+                PostMessage(WM_QUIT,0,0);
+                return FALSE;
+            }
+            m_strClass = RICHEDIT_CLASSA;//for 2.0 class
+            return CRichEditView::PreCreateWindow(cs);
+        }
+    c.最后追加行
+        richeditctrl.SetSel(-1, -1);
+        richeditctrl.ReplaceSel( (LPCTSTR)str );
+    d.字数限制
+        CRichEditCtrl::LimitText(long nChars)
+    e.换行切换
+        CRichEditView的OnInitialUpdate()函数中加入下面两句：
+        m_nWordWrap = WrapNone;
+        WrapChanged();
+        WrapChanged实际上也是调用
+        ctrl.SetTargetDevice(NULL, 1); //m_nWordWrap == WrapNone
+        ctrl.SetTargetDevice(NULL, 0); //m_nWordWrap == WrapToWindow
+        还有不常用的 m_nWordWrap == WrapToTargetDevice
+        ctrl.SetTargetDevice(m_dcTarget, GetPrintWidth());
+        如果是在Dialog中，可使用SetTargetDevice，注意在属性里面加上want return
+    f.有时候不希望带格式的数据粘贴，可通过PasteSpecial选择性粘贴
+        pmyRichEditCtrl->PasteSpecial(CF_TEXT);
+    g.随着输入随着自动滚动条滚动到最后一行
+        int nFirstVisible = pmyRichEditCtrl->GetFirstVisibleLine();
+        if (nFirstVisible > 0)
+        {
+            pmyRichEditCtrl->LineScroll(-nFirstVisible, 0);
+        }
+        或
+        m_cRichEdit.PostMessage(WM_VSCROLL, SB_BOTTOM,0);
+
+    h.设置UNDO的次数(只能用在RICHED20以上，即默认不支持，必须升级)
+        SendMessage(EM_SETTEXTMODE,TM_MULTILEVELUNDO,0);
+        TM_MULTILEVELUNDO 支持多取消(默认值).可通过EM_SETUNDOLIMIT设置最大次数
+        SendMessage(EM_SETUNDOLIMIT,100,0);
+    i.响应OnChange
+        EM_SETEVENTMASK 设置 ENM_CHANGE
+        long lMask = GetEventMask();
+        lMask |= ENM_CHANGE;
+        lMask &= ~ENM_PROTECTED;
+        SetEventMask(lMask);
+    j.设置只读
+        CRichEditCtrl::SetReadOnly( BOOL bReadOnly = TRUE );
+    通过设置PROTECTED实现选中的文本只读，参见
+        http://www.codeguru.com/Cpp/controls/richedit/article.php/c2401/
+
+二.函数应用
+    a.设置字体（主要是通过SetSelectionCharFormat）
+        CHARFORMAT cf;
+        rich.GetSelectionCharFormat(cf);
+        cf.dwMask|=CFM_BOLD;
+        cf.dwEffects|=CFE_BOLD;//设置粗体，取消用cf.dwEffects&=~CFE_BOLD;
+        cf.dwMask|=CFM_ITALIC;
+        cf.dwEffects|=CFE_ITALIC;//设置斜体，取消用cf.dwEffects&=~CFE_ITALIC;
+        cf.dwMask|=CFM_UNDERLINE;
+        cf.dwEffects|=CFE_UNDERLINE;//设置斜体，取消用cf.dwEffects&=~CFE_UNDERLINE;
+        cf.dwEffects &= ~CFE_AUTOCOLOR; //取消自动字体
+        cf.dwMask|=CFM_COLOR;
+        cf.crTextColor = RGB(255,0,0);//设置颜色
+        cf.dwMask|=CFM_SIZE;
+        cf.yHeight =200;//设置高度
+        cf.dwMask|=CFM_FACE;
+        strcpy(cf.szFaceName ,_T("隶书"));//设置字体
+        rich.SetSelectionCharFormat(cf);
+    b.设置字体的行间距
+        要用richedit2.0以上
+        试试
+        PARAFORMAT2 pf;
+        pf.cbSize = sizeof(PARAFORMAT2);
+        pf.dwMask = PFM_NUMBERING | PFM_OFFSET;
+        pf.wNumbering = PFN_BULLET;//注意PFM_NUMBERING
+        pf.dxOffset = 10;
+        VERIFY(SetParaFormat(pf));
+        常用的dwMask有
+        PFM_NUMBERING 成员 wNumbering 才起作用，项目符号，默认用PFN_BULLET
+        2 使用阿拉伯数字 (1, 2, 3, ...). 
+        3 使用小写字母 (a, b, c, ...). 
+        4 使用大写字母 (A, B, C, ...). 
+        5 使用小写罗马数字 (i, ii, iii, ...). 
+        6 使用大写罗马数字 (I, II, III, ...). 
+        7 自定义，字符见成员 wNumberingStart. 
+        PFM_OFFSET 成员 dxOffset 才起作用，缩进，单位twips
+        PFM_STARTINDENT 成员 dxStartIndent 才起作用，首行缩进
+        PFM_SPACEAFTER 成员 dySpaceAfter 才起作用，段间距
+        PFM_LINESPACING 成员 dyLineSpacing 才起作用，行间距
+    c.设置CRichEditCtrl(2.0)背景透明
+        long style = ::GetWindowLong(GetSafeHwnd(), GWL_EXSTYLE);
+        style &= WS_EX_TRANSPARENT;
+        ::SetWindowLong(GetSafeHwnd(), GWL_EXSTYLE, style);
+        或 CreateEx，然后把WS_EX_TRANSPARENT样式加上
+    e.得到内容有三种
+        1)GetWindowText
+        2)使用EM_GETTEXTEX
+        GETTEXTEX gt;
+        gt.cb = 200;
+        gt.flags = GT_DEFAULT;
+        gt.codepage = CP_ACP ;
+        gt.lpDefaultChar = NULL;
+        gt.lpUsedDefChar = NULL;
+        SendMessage(EM_GETTEXTEX,(WPARAM)&gt,(LPARAM)text);
+        3)StreamOut(主要用于RTF等格式输出)
+            static DWORD CALLBACK
+            MyStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+            {
+                CFile* pFile = (CFile*) dwCookie;
+                pFile->Write(pbBuff, cb);
+                *pcb = cb;
+                return 0;
+            }
+
+                CFile cFile(TEXT("myfile.rtf"), CFile::modeCreate|CFile::modeWrite);
+                EDITSTREAM es;
+                es.dwCookie = (DWORD) &cFile;//设置用例参数,以便回调函数调用
+                es.pfnCallback = MyStreamOutCallback;
+                pmyRichEditCtrl->StreamOut(SF_RTF, es);
+            读入可以此类推，SetWindowText,EM_SETTEXTEX,StreamIn
+    f.查找字符串
+        FINDTEXTEX ft;
+        ft.chrg.cpMin = 0;
+        ft.chrg.cpMax = -1;
+        ft.lpstrText = "|";
+        long lPos = FindText(0, &ft);
+        如果要继续查找，修改cpMin,如
+        int nCount = 0;
+        do
+        {
+        long lPos = GetRichEditCtrl().FindText(0, &ft);
+        if( -1 == lPos) break;
+        ft.chrg.cpMin = lPos + strlen(ft.lpstrText);
+        ++nCount;
+        }while(TRUE);
+    g.以Html格式保存
+        目前做法可先转为RTF格式，再通过RTF-to-HTML Converter
+        http://www.codeguru.com/Cpp/controls/richedit/conversions/article.php/c5377/
+    h.重载OnProtected函数得到对应的消息，如粘贴等
+        void CMYichEditorView::OnProtected(NMHDR* pNMHDR, LRESULT* pResult)
+        {
+            ENPROTECTED* pEP = (ENPROTECTED*)pNMHDR;
+            switch (pEP->msg) {
+                case WM_KEYDOWN://按键，判断pEP->wParam
+                case WM_PASTE://粘贴
+                case WM_CUT://剪切
+                case EM_SETCHARFORMAT:
+                default:
+                    break;
+            };
+            *pResult = FALSE;
+        }
+
+三.聊天常用 
+    a.LINK 链接功能
+        1.   LoadLibrary(_T("Riched20.dll"));
+        2. 创建RichEdit2.0控件
+            CreateEx(0, _T("RichEdit20A"), NULL, WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_TABSTOP
+            |ES_READONLY|ES_WANTRETURN|ES_MULTILINE,
+                       rect.left, rect.top, cx, cy,
+               pParentWnd->m_hWnd, (HMENU)nID, NULL);
+        3. 设定选中的文字为链接显示
+            CHARFORMAT2 cf2;
+            ZeroMemory(&cf2, sizeof(CHARFORMAT2));//
+            cf2.cbSize = sizeof(CHARFORMAT2);
+            cf2.dwMask = CFM_LINK;
+            cf2.dwEffects |= CFE_LINK;
+            m_cRichEdit.SendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+        4.支持链接的点击响应
+            m_cRichEdit.SetEventMask(ENM_LINK);
+        5.响应链接的点击EN_LINK
+            BEGIN_MESSAGE_MAP(CMyRichEdit, CRichEditCtrl)
+            ON_NOTIFY_REFLECT(EN_LINK,OnURL)
+            END_MESSAGE_MAP()
+            ......
+            void CMyRichEdit::OnURLClick(NMHDR *pNmhdr, LRESULT *pResult)
+            {
+                TCHAR LinkChar[512];
+                ENLINK *pLink = (ENLINK *)pNmhdr;
+                if (pLink->msg == WM_LBUTTONUP)
+                {
+                    SetSel(penLink->chrg);//这是链接的文字范围
+                    long Res = GetSelText((char *)LinkChar);//这是链接文字
+                    //后面是你的处理过程
+                    ......
+                }
+            }
+    b.插入位图
+        http://www.codeguru.com/Cpp/controls/richedit/article.php/c2417/
+        http://www.codeguru.com/Cpp/controls/richedit/article.php/c5383/
+        自定义在RichEdit中插入对象的图标
+        http://www.blogcn.com/user3/jiangsheng/blog/1319738.html
+        方法基本同Knowledge Base文章Q220844 HOWTO: Insert a Bitmap Into an RTF Document Using the RichEdit Control
+        只是在最后插入之前调用一下IOleCache::SetData,用一个HGLOBAL作为参数，HGLOBAL里面的数据是一个METAFILEPICT结构，包含自己提供的图片
+        使用CRichEditView::InsertFileAsObject就可以插入图像。VC++带有一个例子WordPad。
+        另外可以参考“Insert any HBITMAP (Bitmap) in your RichEdit Control”(http://www.codeguru.com/richedit/richeditrc.html)。
+    c.显示GIF动画
+        常用的是通过qq的imageole.dll(也有用Gif89.dll的)
+        http://www.xiaozhou.net/cooldog/blogview.asp?logID=82
+        http://www.codeproject.com/richedit/AnimatedEmoticon.asp
+        在richedit控件中插入动态GIF (Native C++版)
+        http://blog.joycode.com/jiangsheng/archive/2004/12/15/41209.aspx
+    d.IRichEditOleCallback的使用
+        http://61.186.252.131/Expert/topic/905/905844.xml?temp=.8379022
+        类似 MSN 信息发送框的制作(上)
+        http://www.vckbase.com/document/viewdoc/?id=1087
+        内容包含：实现右键菜单，图片插入，读取/写入RTF格式字符串
+        自定义 CRichEditCtrl 控件
+        http://www.vckbase.com/document/viewdoc/?id=328
+        内容包含：鼠标右键消息，消息映射，字体变换
+         
+        PS.richedit控件升级到2.0后，先把字体设为楷体，输入汉字没有问题，但输入字母时，字母自动跳转为Arial字体，而1.0却没有这个文题，仍然是用楷体显示字母
+        是一个专门的设计 Dual-font, Smart font apply, 参见 http://61.186.252.131/Expert/topic/913/913807.xml?temp=.3753778
+         
+        不能显示图片等其他OLE对象
+        MFC提供的CRichEditCtrl没有提供直接显示图片等OLE对象的属性或方法设置，但是提供了一个接口SetOLECallback( IRichEditOleCallback* pCallback );
+        要让CRichEditCtrl显示图片，就得在IRichEditOleCallback上下功夫。
+        IRichEditOleCallback是windows中的接口，它的定义如下：
+        ContextSensitiveHelp:
+            通过该方法通知应用程序它将以上下文关联方式调度帮助。
+        DeleteObject:
+            通过该方法发出通知：一个对象即将从RichEdit控件中删除
+        GetClipboardData:
+            通过该方法允许RichEdit的客户端（调用程序）提供自己的粘贴对象
+        GetContextMenu:
+            通过该方法向应用程序提出通过鼠标右键事件来获取上下文菜单的请求
+        GetDragDropEffect:
+            通过该方法允许RichEdit的客户端（调用程序）设置拖动操作的效果
+        GetInPlaceContext:
+           通过该方法提供了应用程序级和文档级接口，以及必要的支持In-place激活的信息
+        GetNewStrorage:
+            通过该方法存储从粘贴板或超文本流(RTF)中读取的新对象
+        QueryAcceptData:
+            通过该方法决定在粘贴操作或拖放操作中引入的数据是否可以被接受。
+        QueryInsertObject:
+            通过该方法向应用程序询问某个对象是否可以被插入
+        ShowContainerUI:
+            通过该方法告知应用程序是否显示自己的操作界面
+        大致了解了IRichEditOleCallback接口后，就应该清楚，要显示图片等ole对象，至少应该实现GetNewStorage方法，因为该方法是存储ole对象的接口方法。
+        以下是接口声明的代码：
+        interface IExRichEditOleCallback;   // forward declaration (see below in this header file)
+        IExRichEditOleCallback* m_pIRichEditOleCallback;
+        BOOL m_bCallbackSet;
+        interface IExRichEditOleCallback : public IRichEditOleCallback
+        {
+        public:
+            IExRichEditOleCallback();
+            virtual ~IExRichEditOleCallback();
+            int m_iNumStorages;
+            IStorage* pStorage;
+            DWORD m_dwRef;
+            virtual HRESULT STDMETHODCALLTYPE GetNewStorage(LPSTORAGE* lplpstg);
+            virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void ** ppvObject);
+            virtual ULONG STDMETHODCALLTYPE AddRef();
+            virtual ULONG STDMETHODCALLTYPE Release();
+            virtual HRESULT STDMETHODCALLTYPE GetInPlaceContext(LPOLEINPLACEFRAME FAR *lplpFrame,
+                    LPOLEINPLACEUIWINDOW FAR *lplpDoc, LPOLEINPLACEFRAMEINFO lpFrameInfo);
+            virtual HRESULT STDMETHODCALLTYPE ShowContainerUI(BOOL fShow);
+            virtual HRESULT STDMETHODCALLTYPE QueryInsertObject(LPCLSID lpclsid, LPSTORAGE lpstg, LONG cp);
+            virtual HRESULT STDMETHODCALLTYPE DeleteObject(LPOLEOBJECT lpoleobj);
+            virtual HRESULT STDMETHODCALLTYPE QueryAcceptData(LPDATAOBJECT lpdataobj, CLIPFORMAT FAR *lpcfFormat,
+                    DWORD reco, BOOL fReally, HGLOBAL hMetaPict);
+            virtual HRESULT STDMETHODCALLTYPE ContextSensitiveHelp(BOOL fEnterMode);
+            virtual HRESULT STDMETHODCALLTYPE GetClipboardData(CHARRANGE FAR *lpchrg, DWORD reco, LPDATAOBJECT FAR *lplpdataobj);
+            virtual HRESULT STDMETHODCALLTYPE GetDragDropEffect(BOOL fDrag, DWORD grfKeyState, LPDWORD pdwEffect);
+            virtual HRESULT STDMETHODCALLTYPE GetContextMenu(WORD seltyp, LPOLEOBJECT lpoleobj, CHARRANGE FAR *lpchrg,
+                    HMENU FAR *lphmenu);
+        };

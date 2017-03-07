@@ -1,0 +1,39 @@
+//by liqiang
+
+
+vc 使VC的应用程序不用导入微软的MFC库(mfc100.dll或mfc100u.dll)和实时运行库(msvcr100.dll);
+vs2010:
+    1、Property -> Configurion Properties -> General -> Use of MFC(select: Use MFC in a Static Library)
+       => 使用静态库MFC库，取消mfc100.dll的引用，
+    2、Property -> Configurion Properties -> C/C++ -> Code Generation -> Runtime Library(select: /MT) 
+       => 使用静态的C实时运行库，取消msvcr100.dll的引用
+    3、取消 stdafx.h 代码中 前几行的 #define _AFXDLL 的宏定义
+       => 对上面的/MT的附加设置
+    4、可能需要加入 #pragma comment(lib, "Windowscodecs.lib")
+
+
+关于实时运行库(Runtime Library)：
+    实时运行库包含C语言中所有的库函数等。
+        
+    标准C++实时运行库：库、选项、定义的宏：
+         Standard C++ Library         Characteristics                                               Option   Defined 
+      1、LIBCP.LIB                    Single threaded, static link                                  /ML   
+      2、LIBCPMT.LIB                  Multithreaded, static link                                    /MT      _MT 
+      3、MSVCPRT.LIB                  Multithreaded, dynamic link (import library for MSVCRT.DLL)   /MD      _MT, _DLL 
+
+         Standard C++ Debug Library   Characteristics                                               Option   Defined 
+      4、LIBCPD.LIB                   Single-threaded, static link                                  /MLd     _DEBUG 
+      5、LIBCPMTD.LIB                 Multithreaded, static link                                    /MTd     _DEBUG, _MT 
+      6、MSVCPRTD.LIB                 Multithreaded, dynamic link (import library for MSVCRTD.DLL)  /MDd     _DEBUG, _MT, _DLL 
+    
+    例如：如果在工程的属性中Runtime Library选择的是 /MT 
+          则相当于在代码中加入了代码：#pragma comment(lib, "LIBCPMT.LIB") => 该预处理命令的作用是，如果是静态库则导入静态库，如果是动态库则导入其符号
+
+    注意：1、因为以上的实时运行库都包含了几乎相同的函数命名，所以在使用其中一个库的时候必须忽略所有其他的库！！！否则会出现函数符号重定义的后果！！
+          2、如果程序中用到了其他的库，则那些库使用的实时运行库要和本程序中使用的库相同！！！否则会出现函数符号重定义的后果！！！
+             如：错误
+
+    常见问题：1、error LNK2001: 无法解析的外部符号 __"C库函数" 
+                 ==> 原因可能是未使用C实时运行库，方法：在选项中添加或看看是否忽略了响应的库 vs的link->input中有忽略库的设置
+              2、MSVCRT.lib(MSVCR100.dll) : error LNK2005: _abort（C库函数） 已经在 LIBCMTD.lib(abort.obj) 中定义
+                 ==> 原因是导入的lib使用的实时运行库和程序本身的实时运行库不一致，改成一致的就OK

@@ -1,0 +1,56 @@
+
+===========Run-time ABI for the ARM Architecture, IHI0043D_rtabi.pdf=========
+
+
+64bit (long long) 算数运算 ~
++------------+--------------------------------------------------------+-------------------------------------------+
+| 有符号乘法 |-> long long __aeabi_lmul(long long, long long)         |-> multiplication [1]                      |
+| 有符号除法 |-> __value_in_regs lldiv_t __aeabi_ldivmod(long long n, |-> signed long long division and remainder,|
+|            |           long long d)                                 |       {q, r} = n / d [2]                  |
+| 无符号除法 |-> __value_in_regs ulldiv_t __aeabi_uldivmod(           |-> unsigned signed ll division, remainder, |
+|            |           unsigned long long n, unsigned long long d)  |       {q, r} = n / d [2]                  |
+| 逻辑左移位 |-> long long __aeabi_llsl(long long, int)               |-> logical shift left [1]                  |
+| 逻辑右移位 |-> long long __aeabi_llsr(long long, int)               |-> logical shift right [1]                 |
+| 算数右移位 |-> long long __aeabi_lasr(long long, int)               |-> arithmetic shift right [1]              |
+| 有符号比较 |-> int __aeabi_lcmp(long long, long long)               |-> signed long long comparison [3]         |
+| 无符号比较 |-> int __aeabi_ulcmp(unsigned long long,                |-> unsigned long long comparison [3]       |
+|            |          unsigned long long)                           |                                           |
++------------+--------------------------------------------------------+-------------------------------------------+
+1. Because of 2’s complement number representation, these functions work identically with long long replaced uniformly
+    by unsigned long long. Each returns its result in {r0, r1}, as specified by the [AAPCS].
+2. A pair of (unsigned) long longs is returned in {{r0, r1}, {r2, r3}}, the quotient in {r0, r1}, and the remainder in
+    {r2, r3}. The description above is written using ARM-specific function prototype notation, though no prototype need
+    be read by any compiler. (In the table above, think of __value_in_regs as a structured comment).
+3. The comparison functions return negative, zero, or a positive integer according to whether the comparison result is
+    <, ==, or >, respectively (like strcmp). In practice, compilers can inline all comparisons using SUBS, SBCS (the
+    test for equality needs 3 Thumb instructions).
+
+例子(64bit乘除法在keil和IAR): >
+    #ifdef __ICCARM__ // for IAR compiler
+    #define __QAEABI __nounwind __interwork __softfp __aapcs_core
+    #else // for KEIL compiler
+    #define __QAEABI
+    #endif
+
+    typedef struct ulldiv_t {uint64_t quot, rem; } ulldiv_t;
+
+    //64bit unsigned division
+    extern __value_in_regs ulldiv_t __aeabi_uldivmod(uint64_t n, uint64_t d);
+
+    //64bit signed multiplication
+    extern __QAEABI int64_t __aeabi_lmul(int64_t x, int64_t y);
+<
+
+
+双精度浮点数(double) 比较操作 ~
++------------------------------------+-----------------------------------------------------------------+
+| int __aeabi_dcmpeq(double, double) |-> result (1, 0) denotes (=, ?<>) [2], use for C == and !=       |
+| int __aeabi_dcmplt(double, double) |-> result (1, 0) denotes (<, ?>=) [2], use for C <               |
+| int __aeabi_dcmple(double, double) |-> result (1, 0) denotes (<=, ?>) [2], use for C <=              |
+| int __aeabi_dcmpge(double, double) |-> result (1, 0) denotes (>=, ?<) [2], use for C >=              |
+| int __aeabi_dcmpgt(double, double) |-> result (1, 0) denotes (>, ?<=) [2], use for C >               |
+| int __aeabi_dcmpun(double, double) |-> result (1, 0) denotes (?, <=>) [2], use for C99 isunordered() |
++------------------------------------+-----------------------------------------------------------------+
+
+
+vim:tw=78:ts=8:ft=help:norl:

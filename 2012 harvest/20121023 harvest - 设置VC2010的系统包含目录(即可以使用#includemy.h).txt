@@ -1,0 +1,2 @@
+设置VC2010的系统包含目录(即可以使用#include<my.h>)：
+	属性管理器中 => Microsoft.Cpp.Win32.user => 右键“属性” => VC++目录 => 包含目录

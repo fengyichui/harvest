@@ -1,0 +1,624 @@
+
+1. MODE
+  |-- Discoverability Modes:
+  |   |---Non-discoverable               => ADV-DATA: 02 01 04 (bit0:limited, bit1:General, bit2:BR/EDR not Support)
+  |   |---Limited Discoverable           => ADV-DATA: 02 01 05 (A limited period of time)
+  |   `---General Discoverable           => ADV-DATA: 02 01 06
+  |-- Connectability Modes
+  |   |---Non-connectable
+  |   |   |-- Scannable Undirected       => ADV-PARAM: ADV_SCAN_IND (Should set SCAN_RSP_DATA)
+  |   |   |-- Non-connectable Undirected => ADV-PARAM: ADV_NONCONN_IND
+  |   `---Connectable
+  |       |-- Connectable Undirected     => ADV-PARAM: ADV_IND
+  |       `-- Connectable Directed       => ADV-PARAM: ADV_DIRECT_IND
+  `-- Bondable Modes
+      |-- Non-bondable Mode              => Not accept a pairing request
+      `-- Bondable Mode                  => Accept a pairing request
+
+
+2. When adv is ADV_SCAN_IND & ADV_NONCONN_IND, the adv interval must bigger than 160 (100ms)
+
+3. 单位
+    625us : scan_interval
+            scan_window
+            adv_interval (>=32*625us)
+    1.25ms: connection_interval
+            WinSize
+            WinOffset
+    10ms  : connection_supperv_timeout
+
+4. BLE带宽是1MHZ,所以传输1bit耗时1us,1byte耗时8us.
+    一个空中数据包的最大长度是47byte, 于是一次BLE通信需要：2 * (47 * 8 + 150) - 150 = (1052-150)us, N次需要 N*1052-150 us
+
+5. SMP Key管理:
+    第一种管理方法: 保存所有Key: LTK, IRK, CSRK
+        ==> LE_Long_Term_Key_Request_Event: <Rand>, <EDIV>
+        <== LE_Long_Term_Key_Request_Reply_Command: *LTK*
+
+    第二种管理方法: 仅仅保存 |ER| 和 |IR|
+        LTK, IRK, CSRK 产生过程:
+        ==> LE_Long_Term_Key_Request_Event: <Rand>, <EDIV>
+            DHK = d1(|IR|, 3, 0);
+            Y = dm(DHK, <Rand>);
+            DIV = Y xor <EDIV>;
+            *LTK* = d1(|ER|, DIV, 0);
+            *CSRK* = d1(|ER|, DIV, 1);
+            *IRK* = d1(|IR|, 1, 0);
+        <== LE_Long_Term_Key_Request_Reply_Command: *LTK*
+        note: d1和dm方法都需要AES128加密算法
+
+    <DIV> 和 <Rand> 其实都是随机数，且这个随机数都可以从controller获取
+
+    下次重新链接使用配对过程中Slave分发的Key来进行链路加密
+    Master应该存储slave的 LTK, CSRK, IRK, RAND, EDIV, 以备下次链接时候使用。
+    Slave可以存储Master的Keys，如果以后有机会翻转角色
+
+6. SMP常规加密链路过程（配对之后，重连）：
+    Master, host -> controller ~
+    |LE_Start_Encryption_Command|: con_handle, <Rand>, <EDIV>, *LTK*
+    Note：这个命令只有Master有, 且 <Rand><EDIV> 发送给Slave, *LTK* Master自己用
+
+    mater-controller -> slave-controller ~
+    |LL_ENC_REQ|: <Rand>, <EDIV>, <SKDm>, <IVm>
+    Note: 这个命令只能Master发送
+
+    slave-controller -> master-controller ~
+    |LL_ENC_RSP|: <SKDs>, <IVs>
+
+    Slave, controller -> host ~
+    |LE_Long_Term_Key_Request_Event|: con_handle <Rand>, <EDIV>
+    Note: 这个命令只有Slave有
+
+    Slave, host -> controller ~
+    |LE_Long_Term_Key_Request_Reply_Command|: con_handle, *LTK*
+    Note: *LTK* 可以是Slave本地存储的也可以是使用ER,IR,Rand,EDIV算出来的，且LTK应该和Master的相同
+
+    slave-controller -> master-controller ~
+    |LL_START_ENC_REQ|, No Encrypt MIC
+    Note: 这个命令只能Slave发送
+
+    master-controller -> slave-controller ~
+    |LL_START_ENC_RSP|, With Encrypt MIC
+    Note: link Encrypt Begin
+
+    slave-controller -> master-controller ~
+    |LL_START_ENC_RSP|, With Encrypt MIC
+
+7. att，当比较16bit的UUID和128bit时，需要转换16bit到128bit，然后再比较
+
+8. MTU:
+    LL_ MTU:   max47(data39) (Fix)
+    L2CAP_MTU: min48(ACL-U) min23(LE-U) (Change: CONFIGURATION REQUEST, L2CAP)
+    ATT_MTU:   min48(BR/EDR) min23(LE) (Change: Attribute Protocol Exchange MTU Request , ATT)
+    HCI ACL:   min27
+
+9. 关于l2cap拆包组包: 
+    ACL Data Packets, l2cap的Packet_Boundary_Flag表示start包或continue包，并发送或接收这个信息通过HCI。
+    LL接收或者发送这个信息。空中数据传输，使用LLID标识当前包是start包后continue包。
+
+10. SMP.
+    经典蓝牙使用了椭圆曲线加密技术(ECC，elliptic curve cryptography and Diffie-Hellman)，该技术可以防止窃听，但是当前版本的BLE(4.0,4.1)
+    没有使用该技术，所以BLE无法阻止配对过程的窃听行为。但是未来版本的BLE中可能会加入ECC。
+
+    None of the pairing methods provide protection against a passive eavesdropper during the pairing 
+    process as predictable or easily established values for TK are used. If the pairing information 
+    is distributed without an eavesdropper being present then all the pairing methods provide confidentiality.
+    Note: A future version of this specification will include elliptic curve cryptography and 
+    Diffie-Hellman public key exchanges that will provide passive eavesdropper protection.
+
+    现行的公钥加密技术：
+        椭圆曲线加密技术 (ECC) 是一种基于椭圆曲线的代数在有限域上的公共密钥加密技术。 
+        基于因数分解问题的因数分解密码系统，典型代表为RSA；
+        基于离散对数问题的离散对数密码系统，典型代表为DSA;
+        基于椭圆曲线离散对数问题的椭圆曲线密码系统（ECC）;
+
+11. OOB (out of band)
+    Out of Band An out of band mechanism may be used to communicate information to help with device discovery,
+    for example device address, and the 128-bit TK value used in the pairing process.
+    OOB Data Block Format: Core_4.1.pdf-P1960
+    Rules for using Out-of-Band and MITM flags: Core_4.1.pdf-P2253
+
+12. Acknowledgement and Flow Control
+    进入连接状态SN, NESN都设置成0 ~
+
+    任何一方的连续两次的SN,NESN一一相同时，则第二包肯定是它的重传包并且要求对方重传。~
+
+    空中NESN&SN重复过程及发送者意愿: ~
+      +---------+       +-----------------------------------+
+      | NESN SN |       | 发送者意愿:                       |
+      |         |       |                                   |
+      |  0   0  |       | SN                                |
+      |    X    |       | \:相同 √ 发送者是发送的新数据     |
+      |  1   0  |  ==>  | \:相反 x 发送者是重发的旧数据     |
+      |    X    |       |                                   |
+      |  1   1  |       | NESN                              |
+      |    X    |       | /:相同 x nack 要求对方重发旧数据  |
+      |  0   1  |       | /:相反 √ ack  要求对方发送新数据  |
+      +---------+       +-----------------------------------+
+
+    接收到了一个数据通道的数据包时候，应该按如下判断：~
+           +-----------------------+               +-----------------------+
+           | local_sn == rx_nesn ? |               | local_nesn == rx_sn ? |
+           +-----+------------+----+               +----+--------------+---+
+                 |different   |same                     |same          |different
+                 |(ack)       |(nack)                   |(new data)    |(old data)
+    +------------V-----+ +----V-----------+  +----------V-----+ +------V---------+
+    | local_sn=rx_nesn | |                |  | Inc local_nesn | |                |
+    | TX NEW DATA      | | RE-TX OLD DATA |  | RX NEW DATA    | | Ignore RX DATA |
+    +------------------+ +----------------+  +----------------+ +----------------+
+
+13. HCI, BLE only 时候支持的HCI与所有HCI的对比
+
+    //#define HCI_INQUIRY                                     (0x0001 + LC_G)
+    //#define HCI_INQUIRY_CANCEL                              (0x0002 + LC_G)
+    //#define HCI_PERIODIC_INQUIRY_MODE                       (0x0003 + LC_G)
+    //#define HCI_EXIT_PERIODIC_INQUIRY_MODE                  (0x0004 + LC_G)
+    //#define HCI_CREATE_CONNECTION                           (0x0005 + LC_G)
+    #define HCI_DISCONNECT                                  (0x0006 + LC_G) ~
+    //#define HCI_ADD_SCO_CONNECTION                          (0x0007 + LC_G)
+    //#define HCI_CREATE_CONNECTION_CANCEL                    (0x0008 + LC_G)
+    //#define HCI_ACCEPT_CONNECTION_REQUEST                   (0x0009 + LC_G)
+    //#define HCI_REJECT_CONNECTION_REQUEST                   (0x000A + LC_G)
+    //#define HCI_LINK_KEY_REQUEST_REPLY                      (0x000B + LC_G)
+    //#define HCI_LINK_KEY_REQUEST_NEGATIVE_REPLY             (0x000C + LC_G)
+    //#define HCI_PIN_CODE_REQUEST_REPLY                      (0x000D + LC_G)
+    //#define HCI_PIN_CODE_REQUEST_NEGATIVE_REPLY             (0x000E + LC_G)
+
+    //#define HCI_CHANGE_CONNECTION_PACKET_TYPE               (0x000F + LC_G)
+    //#define HCI_AUTHENTICATION_REQUESTED                    (0x0011 + LC_G)
+    //#define HCI_SET_CONNECTION_ENCRYPTION_ENABLE            (0x0013 + LC_G)
+    //#define HCI_CHANGE_CONNECTION_LINK_KEY                  (0x0015 + LC_G)
+    //#define HCI_MASTER_LINK_KEY                             (0x0017 + LC_G)
+    //#define HCI_REMOTE_NAME_REQUEST                         (0x0019 + LC_G)
+    //#define HCI_REMOTE_NAME_REQUEST_CANCEL                  (0x001A + LC_G)
+    //#define HCI_READ_REMOTE_FEATURES                        (0x001B + LC_G)
+    //#define HCI_READ_REMOTE_EXTENDED_FEATURES               (0x001C + LC_G)
+    #define HCI_READ_REMOTE_VER_INFO                        (0x001D + LC_G) ~
+    //#define HCI_READ_CLOCK_OFFSET                           (0x001F + LC_G)
+
+    //#define HCI_READ_LMP_HANDLE                             (0x0020 + LC_G)
+    //#define HCI_EXCHANGE_FIXED_INFO                         (0x0021 + LC_G)
+    //#define HCI_EXCHANGE_ALIAS_INFO                         (0x0022 + LC_G)
+    //#define HCI_PRIVATE_PAIRING_REQUEST_REPLY               (0x0023 + LC_G)
+    //#define HCI_PRIVATE_PAIRING_REQUEST_NEGATIVE_REPLY      (0x0024 + LC_G)
+    //#define HCI_GENERATED_ALIAS                             (0x0025 + LC_G)
+    //#define HCI_ALIAS_ADDRESS_REQUEST_REPLY                 (0x0026 + LC_G)
+    //#define HCI_ALIAS_ADDRESS_REQUEST_NEGATIVE_REPLY        (0x0027 + LC_G)
+    //#define HCI_SETUP_SYNCHRONOUS_CONNECTION                (0x0028 + LC_G)
+    //#define HCI_ACCEPT_SYNCHRONOUS_CONNECTION_REQUEST       (0x0029 + LC_G)
+    //#define HCI_REJECT_SYNCHRONOUS_CONNECTION_REQUEST       (0x002A + LC_G)
+
+    //#define HCI_IO_CAPABILITY_REQUEST_REPLY                 (0x002B + LC_G)
+    //#define HCI_USER_CONFIRMATION_REQUEST_REPLY             (0x002C + LC_G)
+    //#define HCI_USER_CONFIRMATION_REQUEST_NEGATIVE_REPLY    (0x002D + LC_G)
+    //#define HCI_USER_PASSKEY_REQUEST_REPLY                  (0x002E + LC_G)
+    //#define HCI_USER_PASSKEY_REQUEST_NEGATIVE_REPLY         (0x002F + LC_G)
+    //#define HCI_REMOTE_OOB_DATA_REQUEST_REPLY               (0x0030 + LC_G)
+    //#define HCI_REMOTE_OOB_DATA_REQUEST_NEGATIVE_REPLY      (0x0033 + LC_G)
+    //#define HCI_IO_CAPABILITY_REQUEST_NEGATIVE_REPLY        (0x0034 + LC_G)
+
+    //#define HCI_HOLD_MODE                                   (0x0001 + LP_G)
+    //#define HCI_SNIFF_MODE                                  (0x0003 + LP_G)
+    //#define HCI_EXIT_SNIFF_MODE                             (0x0004 + LP_G)
+    //#define HCI_PARK_MODE                                   (0x0005 + LP_G)
+    //#define HCI_EXIT_PARK_MODE                              (0x0006 + LP_G)
+    //#define HCI_QOS_SETUP                                   (0x0007 + LP_G)
+    //#define HCI_ROLE_DISCOVERY                              (0x0009 + LP_G)
+    //#define HCI_SWITCH_ROLE                                 (0x000B + LP_G)
+    //#define HCI_READ_LINK_POLICY_SETTINGS                   (0x000C + LP_G)
+    //#define HCI_WRITE_LINK_POLICY_SETTINGS                  (0x000D + LP_G)
+    //#define HCI_READ_DEFAULT_LINK_POLICY_SETTINGS           (0x000E + LP_G)
+    //#define HCI_WRITE_DEFAULT_LINK_POLICY_SETTINGS          (0x000F + LP_G)
+    //#define HCI_FLOW_SPECIFICATION                          (0x0010 + LP_G)
+    //#define HCI_SNIFF_SUBRATING                             (0x0011 + LP_G)
+
+    #define HCI_SET_EVENT_MASK                              (0x0001 + HC_G) ~
+    #define HCI_RESET                                       (0x0003 + HC_G) ~
+    //#define HCI_SET_EVENT_FILTER                            (0x0005 + HC_G)
+    #define HCI_FLUSH                                       (0x0008 + HC_G) ~
+    //#define HCI_READ_PIN_TYPE                               (0x0009 + HC_G)
+    //#define HCI_WRITE_PIN_TYPE                              (0x000A + HC_G)
+    //#define HCI_CREATE_NEW_UNIT_KEY                         (0x000B + HC_G)
+    //#define HCI_READ_STORED_LINK_KEY                        (0x000D + HC_G)
+    //#define HCI_WRITE_STORED_LINK_KEY                       (0x0011 + HC_G)
+    //#define HCI_DELETE_STORED_LINK_KEY                      (0x0012 + HC_G)
+    //#define HCI_CHANGE_LOCAL_NAME                           (0x0013 + HC_G)
+    //#define HCI_READ_LOCAL_NAME                             (0x0014 + HC_G)
+    //#define HCI_READ_CONNECT_ACCEPT_TO                      (0x0015 + HC_G)
+    //#define HCI_WRITE_CONNECT_ACCEPT_TO                     (0x0016 + HC_G)
+    //#define HCI_READ_PAGE_TIMEOUT                           (0x0017 + HC_G)
+    //#define HCI_WRITE_PAGE_TIMEOUT                          (0x0018 + HC_G)
+    //#define HCI_READ_SCAN_ENABLE                            (0x0019 + HC_G)
+    //#define HCI_WRITE_SCAN_ENABLE                           (0x001A + HC_G)
+
+    //#define HCI_READ_PAGE_SCAN_ACT                          (0x001B + HC_G)
+    //#define HCI_WRITE_PAGE_SCAN_ACT                         (0x001C + HC_G)
+    //#define HCI_READ_INQUIRY_SCAN_ACT                       (0x001D + HC_G)
+    //#define HCI_WRITE_INQUIRY_SCAN_ACT                      (0x001E + HC_G)
+    //#define HCI_READ_AUTHENTICATION_ENABLE                  (0x001F + HC_G)
+    //#define HCI_WRITE_AUTHENTICATION_ENABLE                 (0x0020 + HC_G)
+    //#define HCI_READ_ENCRYPTION_MODE                        (0x0021 + HC_G)
+    //#define HCI_WRITE_ENCRYPTION_MODE                       (0x0022 + HC_G)
+    //#define HCI_READ_CLASS_OF_DEVICE                        (0x0023 + HC_G)
+    //#define HCI_WRITE_CLASS_OF_DEVICE                       (0x0024 + HC_G)
+    //#define HCI_READ_VOICE_SETTINGS                         (0x0025 + HC_G)
+    //#define HCI_WRITE_VOICE_SETTINGS                        (0x0026 + HC_G)
+    //#define HCI_READ_AUTOMATIC_FLUSH_TIMEOUT                (0x0027 + HC_G)
+    //#define HCI_WRITE_AUTOMATIC_FLUSH_TIMEOUT               (0x0028 + HC_G)
+    //#define HCI_READ_NUM_BROADCAST_RETRANSMISSIONS          (0x0029 + HC_G)
+    //#define HCI_WRITE_NUM_BROADCAST_RETRANSMISSIONS         (0x002A + HC_G)
+    //#define HCI_READ_HOLD_MODE_ACTIVITY                     (0x002B + HC_G)
+    //#define HCI_WRITE_HOLD_MODE_ACTIVITY                    (0x002C + HC_G)
+    #define HCI_READ_TRANSMIT_POWER_LEVEL                   (0x002D + HC_G) ~
+    //#define HCI_READ_SYNCHRONOUS_FLOW_CONTROL_ENABLE        (0x002E + HC_G)
+    //#define HCI_WRITE_SYNCHRONOUS_FLOW_CONTROL_ENABLE       (0x002F + HC_G)
+    #define HCI_SET_HOST_CONTROLLER_TO_HOST_FLOW_CONTROL    (0x0031 + HC_G) ~
+    #define HCI_HOST_BUFFER_SIZE                            (0x0033 + HC_G) ~
+    #define HCI_HOST_NUMBER_OF_COMPLETED_PACKETS            (0x0035 + HC_G) ~
+    //#define HCI_READ_SUPERVISION_TIMEOUT                    (0x0036 + HC_G)
+    //#define HCI_WRITE_SUPERVISION_TIMEOUT                   (0x0037 + HC_G)
+    //#define HCI_READ_NUMBER_OF_SUPPORTED_IAC                (0x0038 + HC_G)
+    //#define HCI_READ_CURRENT_IAC_LAP                        (0x0039 + HC_G)
+    //#define HCI_WRITE_CURRENT_IAC_LAP                       (0x003A + HC_G)
+    //#define HCI_READ_PAGE_SCAN_PERIOD_MODE                  (0x003B + HC_G)
+    //#define HCI_WRITE_PAGE_SCAN_PERIOD_MODE                 (0x003C + HC_G)
+    //#define HCI_READ_PAGE_SCAN_MODE                         (0x003D + HC_G)
+    //#define HCI_WRITE_PAGE_SCAN_MODE                        (0x003E + HC_G)
+
+    //#define HCI_SET_AFH_HOST_CHANNEL_CLASSIFICATION         (0x003F + HC_G)
+
+    //#define HCI_READ_INQUIRY_SCAN_TYPE                      (0x0042 + HC_G)
+    //#define HCI_WRITE_INQUIRY_SCAN_TYPE                     (0x0043 + HC_G)
+    //#define HCI_READ_INQUIRY_MODE                           (0x0044 + HC_G)
+    //#define HCI_WRITE_INQUIRY_MODE                          (0x0045 + HC_G)
+    //#define HCI_READ_PAGE_SCAN_TYPE                         (0x0046 + HC_G)
+    //#define HCI_WRITE_PAGE_SCAN_TYPE                        (0x0047 + HC_G)
+    //#define HCI_READ_AFH_CHANNEL_ASSESSMENT_MODE            (0x0048 + HC_G)
+    //#define HCI_WRITE_AFH_CHANNEL_ASSESSMENT_MODE           (0x0049 + HC_G)
+    //#define HCI_RESET_FIXED_ADDRESS_ATTEMPTS_COUNTER        (0x0050 + HC_G)
+    //#define HCI_READ_EXTENDED_INQUIRY_RESPONSE_COMMAND      (0x0051 + HC_G)
+    //#define HCI_WRITE_EXTENDED_INQUIRY_RESPONSE_COMMAND     (0x0052 + HC_G)
+    //#define HCI_REFRESH_ENCRYPTION_KEY                        (0x0053 + HC_G)
+    //#define HCI_READ_SIMPLE_PAIRING_MODE                    (0x0055 + HC_G)
+    //#define HCI_WRITE_SIMPLE_PAIRING_MODE                   (0x0056 + HC_G)
+    //#define HCI_READ_LOCAL_OOB_DATA                         (0x0057 + HC_G)
+    //#define HCI_READ_INQUIRY_RESPONSE_TRANSMIT_POWER_LEVEL  (0x0058 + HC_G)
+    //#define HCI_WRITE_INQUIRY_TRANSMIT_POWER_LEVEL          (0x0059 + HC_G)
+    //#define HCI_READ_DEFAULT_ERRONEOUS_DATA_REPORTING       (0x005A + HC_G)
+    //#define HCI_WRITE_DEFAULT_ERRONEOUS_DATA_REPORTING      (0x005B + HC_G)
+    //#define HCI_ENHANCED_FLUSH                              (0x005F + HC_G)
+    //#define HCI_SEND_KEYPRESS_NOTIFICATION                  (0x0060 + HC_G)
+    //#define HCI_READ_ENHANCED_TRANSMIT_POWER_LEVEL          (0X0068 + HC_G)
+
+    #define HCI_READ_LE_HOST_SUPPORT                        (0X006C + HC_G) ~
+    #define HCI_WRITE_LE_HOST_SUPPORT                       (0X006D + HC_G) ~
+
+    //#define HCI_READ_AUTHENTICATED_PAYLOAD_TIMEOUT          (0x007B + HC_G)
+    //#define HCI_WRITE_AUTHENTICATED_PAYLOAD_TIMEOUT         (0x007C + HC_G)
+
+    #define HCI_READ_LOCAL_VER_INFO                         (0x0001 + HI_G) ~
+    #define HCI_READ_LOCAL_COMMANDS                         (0x0002 + HI_G) ~
+    #define HCI_READ_LOCAL_FEATURES                         (0x0003 + HI_G) ~
+    //#define HCI_READ_LOCAL_EXTENDED_FEATURES                (0x0004 + HI_G)
+    #define HCI_READ_BUFFER_SIZE                            (0x0005 + HI_G) ~
+    //#define HCI_READ_COUNTRY_CODE                           (0x0007 + HI_G)
+    #define HCI_READ_BD_ADDR                                (0x0009 + HI_G) ~
+
+    //#define HCI_READ_FAILED_CONTACT_COUNTER                 (0x0001 + HS_G)
+    //#define HCI_RESET_FAILED_CONTACT_COUNTER                (0x0002 + HS_G)
+    //#define HCI_GET_LINK_QUALITY                            (0x0003 + HS_G)
+    #define HCI_READ_RSSI                                   (0x0005 + HS_G) ~
+    //#define HCI_READ_AFH_CHANNEL_MAP                        (0x0006 + HS_G)
+    //#define HCI_READ_CLOCK                                  (0x0007 + HS_G)
+    //#define HCI_READ_ENCRYPTION_KEY_SIZE                    (0x0008 + HS_G)
+
+    //#define HCI_READ_LOOPBACK_MODE                          (0x0001 + HT_G)
+    //#define HCI_WRITE_LOOPBACK_MODE                         (0x0002 + HT_G)
+    //#define HCI_ENABLE_DEVICE_UNDER_TEST_MODE               (0x0003 + HT_G)
+    //#define HCI_WRITE_SIMPLE_PAIRING_DEBUG_MODE             (0x0004 + HT_G)
+
+
+    #define HCI_LE_SET_EVENT_MASK                          (0x0001 + LE_G) ~
+    #define HCI_LE_READ_BUFFER_SIZE                        (0x0002 + LE_G) ~
+    #define HCI_LE_READ_LOCAL_SUPPORTED_FEATURES           (0x0003 + LE_G) ~
+    #define HCI_LE_SET_RANDOM_ADDRESS                      (0x0005 + LE_G) ~
+    #define HCI_LE_SET_ADVERTISING_PARAMETERS              (0x0006 + LE_G) ~
+    #define HCI_LE_READ_ADVERTISING_CHANNEL_TX_POWER       (0x0007 + LE_G) ~
+    #define HCI_LE_SET_ADVERTISING_DATA                    (0x0008 + LE_G) ~
+    #define HCI_LE_SET_SCAN_RESPONSE_DATA                  (0x0009 + LE_G) ~
+    #define HCI_LE_SET_ADVERTISE_ENABLE                    (0x000A + LE_G) ~
+    #define HCI_LE_SET_SCAN_PARAMETERS                     (0x000B + LE_G) ~
+    #define HCI_LE_SET_SCAN_ENABLE                         (0x000C + LE_G) ~
+    #define HCI_LE_CREATE_CONNECTION                       (0x000D + LE_G) ~
+    #define HCI_LE_CREATE_CONNECTION_CANCEL                (0x000E + LE_G) ~
+    #define HCI_LE_READ_WHITE_LIST_SIZE                    (0x000F + LE_G) ~
+    #define HCI_LE_CLEAR_WHITE_LIST                        (0x0010 + LE_G) ~
+    #define HCI_LE_ADD_DEVICE_TO_WHITE_LIST                (0x0011 + LE_G) ~
+    #define HCI_LE_REMOVE_DEVICE_FROM_WHITE_LIST           (0x0012 + LE_G) ~
+    #define HCI_LE_CONNECTION_UPDATE                       (0x0013 + LE_G) ~
+    #define HCI_LE_SET_HOST_CHANNEL_CLASSIFICATION         (0x0014 + LE_G) ~
+    #define HCI_LE_READ_CHANNEL_MAP                        (0x0015 + LE_G) ~
+    #define HCI_LE_READ_REMOTE_USED_FEATURES               (0x0016 + LE_G) ~
+    #define HCI_LE_ENCRYPT                                 (0x0017 + LE_G) ~
+    #define HCI_LE_RAND                                    (0x0018 + LE_G) ~
+    #define HCI_LE_START_ENCRYPTION                        (0x0019 + LE_G) ~
+    #define HCI_LE_LONG_TERM_KEY_REQUEST_REPLY             (0x001A + LE_G) ~
+    #define HCI_LE_LONG_TERM_KEY_REQUEST_NEGATIVE_REPLY    (0x001B + LE_G) ~
+    #define HCI_LE_READ_SUPPORTED_STATES                   (0x001C + LE_G) ~
+    #define HCI_LE_RECEIVER_TEST                           (0x001D + LE_G) ~
+    #define HCI_LE_TRANSMITTER_TEST                        (0x001E + LE_G) ~
+    #define HCI_LE_TEST_END                                (0x001F + LE_G) ~
+    #define HCI_LE_REMOTE_CONNECTION_PARAM_REQUEST_REPLY   (0x0020 + LE_G) ~
+    #define HCI_LE_REMOTE_CONNECTION_PARAM_REQUEST_NEGATIVE_REPLY  (0x0021 + LE_G) ~
+    #define MAX_HC_LE_COMMAND_OPCODE                       0x21 ~
+
+    //#define HCI_INQUIRY_COMPLETE_EVENT                         0x01
+    //#define HCI_INQUIRY_RESULT_EVENT                           0x02
+    //#define HCI_CONNECTION_COMPLETE_EVENT                      0x03
+    //#define HCI_CONNECTION_REQUEST_EVENT                       0x04
+    #define HCI_DISCONNECTION_COMPLETE_EVENT                   0x05 ~
+    //#define HCI_AUTHENTICATION_COMPLETE_EVENT                  0x06
+    //#define HCI_READ_REMOTE_NAME_REQUEST_COMPLETE_EVENT        0x07
+    #define HCI_ENCRYPTION_CHANGE_EVENT                        0x08 ~
+    //#define HCI_CHANGE_CONNECTION_LINK_KEY_COMPLETE_EVENT      0x09
+    //#define HCI_MASTER_LINK_KEY_COMPLETE_EVENT                 0x0A
+    //#define HCI_READ_REMOTE_SUPPORTED_FEATURES_COMPLETE_EVENT  0x0B
+    #define HCI_READ_REMOTE_VERSION_INFORMATION_COMPLETE_EVENT 0x0C ~
+    //#define HCI_QoS_SETUP_COMPLETE_EVENT                       0x0D
+    #define HCI_COMMAND_COMPLETE_EVENT                         0x0E ~
+    #define HCI_COMMAND_STATUS_EVENT                           0x0F ~
+    #define HCI_HARDWARE_ERROR_EVENT                           0x10 ~
+    #define HCI_FLUSH_OCCURED_EVENT                            0x11 ~
+    #define HCI_ROLE_CHANGE_EVENT                              0x12 ~
+    #define HCI_NUMBER_OF_COMPLETED_PACKETS_EVENT              0x13 ~
+    //#define HCI_MODE_CHANGE_EVENT                              0x14
+    //#define HCI_RETURN_LINK_KEYS_EVENT                         0x15
+    //#define HCI_PIN_CODE_REQUEST_EVENT                         0x16
+    //#define HCI_LINK_KEY_REQUEST_EVENT                         0x17
+    //#define HCI_LINK_KEY_NOTIFICATION_EVENT                    0x18
+    //#define HCI_LOOPBACK_COMMAND_EVENT                         0x19
+    #define HCI_DATA_BUFFER_OVERFLOW_EVENT                     0x1A ~
+    //#define HCI_MAX_SLOTS_CHANGE_EVENT                         0x1B
+    //#define HCI_READ_CLOCK_OFFSET_EVENT                        0x1C
+    //#define HCI_CONNECTION_PACKET_TYPE_CHANGED_EVENT           0x1D
+    //#define HCI_CONNECTION_PACKET_TYPE_CHANGED_EVENT           0x1D
+    //#define HCI_QOS_VIOLATION_EVENT                            0x1E
+    //#define HCI_PAGE_SCAN_MODE_CHANGE_EVENT                    0x1F
+    //#define HCI_PAGE_SCAN_REPETITION_MODE_CHANGE_EVENT         0x20
+
+    //#define HCI_FLOW_SPECIFICATION_COMPLETE_EVENT              0x21
+    //#define HCI_INQUIRY_RESULT_EVENT_WITH_RSSI                 0x22
+    //#define HCI_READ_REMOTE_EXTENDED_FEATURES_COMPLETE_EVENT   0x23
+
+    //#define HCI_DEBUG_EVENT                                    0x24
+
+    //#define HCI_ALIAS_ADDRESS_EVENT                            0x25
+    //#define HCI_ACTIVE_ADDRESS_EVENT                           0x27
+    //#define HCI_SYNCHRONOUS_CONNECTION_COMPLETE_EVENT          0x2C
+    //#define HCI_SYNCHRONOUS_CONNECTION_CHANGED_EVENT           0x2D
+    //#define HCI_SNIFF_SUBRATING_EVENT                          0x2E
+    //#define HCI_EXTENDED_INQUIRY_RESULT_EVENT                  0x2F
+    #define HCI_ENCRYPTION_KEY_REFRESH_COMPLETE_EVENT          0x30 ~
+    //#define HCI_ALIAS_NOT_RECOGNIZED_EVENT                      TBD
+    //#define HCI_FIXED_ADDRESS_ATTEMPT_EVENT                     TBD
+
+    //#define HCI_IO_CAPABILITY_REQUEST_EVENT                    0x31
+    //#define HCI_IO_CAPABILITY_RESPONSE_EVENT                   0x32
+    //#define HCI_USER_CONFIRMATION_REQUEST_EVENT                0x33
+    //#define HCI_USER_PASSKEY_REQUEST_EVENT                     0x34
+    //#define HCI_REMOTE_OOB_DATA_REQUEST_EVENT                  0x35
+    //#define HCI_SIMPLE_PAIRING_COMPLETE_EVENT                  0x36
+
+    //#define HCI_LINK_SUPERVISION_TIMEOUT_CHANGED_EVENT         0x38
+    //#define HCI_ENHANCED_FLUSH_COMPLETE_EVENT                  0x39
+    //#define HCI_USER_PASSKEY_NOTIFICATION_EVENT                0x3B
+    //#define HCI_KEYPRESS_NOTIFICATION_EVENT                    0x3C
+    //#define HCI_REMOTE_HOST_SUPPORTED_FEATURES_NOTIFICATION_EVENT 0x3D
+    //#define HCI_AUTHENTICATION_PAYLOAD_TIMEOUT_EXCEEDED        0x57
+    #define HCI_LE_EVENT                                       0x3E ~
+
+    #define LE_SUBEVENT_CONNECTION_COMPLETE                    0x01 ~
+    #define LE_SUBEVENT_ADVERTISING_REPORT                     0x02 ~
+    #define LE_SUBEVENT_CONNECTION_UPDATE_COMPLETE             0x03 ~
+    #define LE_SUBEVENT_READ_REMOTE_USED_FEATURES_COMPLETE     0x04 ~
+    #define LE_SUBEVENT_LONG_TERM_KEY_REQUEST                  0x05 ~
+    #define LE_SUBEVENT_REMOTE_CONNECTION_PARAMETER_REQUEST    0x06 ~
+
+    //#define SMP_USER_PASSKEY_NOTIFICATION_EVENT                0x21
+    //#define SMP_USER_PASSKEY_REQUEST_EVENT                     0x22
+    //#define SMP_USER_OOB_DATA_REQUEST_EVENT                    0x23
+    //#define SMP_PAIRING_COMPLETE_EVENT                         0x24
+    //#define SMP_PAIRING_REQUEST_EVENT                          0x25
+    //#define SMP_SECURITY_REQUEST_EVENT                         0x26
+
+    //#define GATT_COMMAND_COMPLETE_EVENT                        0x41
+    //#define GATT_DISCOVER_SERVICES_EVENT                       0x42
+    //#define GATT_DISCOVER_SERVICES_BY_UUID_EVENT               0x43
+    //#define GATT_DISCOVER_CHARACTERISTICS_EVENT                0x44
+    //#define GATT_DISCOVER_DESCRIPTORS_EVENT                    0x45
+    //#define GATT_READ_RESPONSE_EVENT                           0x46
+    //#define GATT_READ_BY_TYPE_RESPONSE_EVENT                   0x47
+    //#define GATT_DISCOVER_INCLUDED_SERVICES_EVENT              0x48
+    //#define GATT_MAX_MTU_EVENT                                 0x49
+    //#define GATT_RELIABLE_WRITE_COMPLETE_EVENT                 0x4A  - Deprecated
+    //#define GATT_WRITE_COMPLETE_EVENT                          0x4B
+    //#define GATT_READ_LONG_RESPONSE_EVENT                      0x4C
+    //#define GATT_WRITE_RESPONSE_EVENT                          0x4D  - Deprecated
+    //#define GATT_VALUE_NOTIFICATION_EVENT                      0x4E
+    //#define GATT_VALUE_INDICATION_EVENT                        0x4F
+    //#define GATT_VALUE_CONFIRMATION_EVENT                      0x50
+    //#define GATT_WRITE_INDICATION_EVENT                        0x51
+
+    //#define L2CAP_CONNECTION_UPDATE_RESPONSE_EVENT             0x61
+
+    //#define HCI_LE_APP_EVENT                                   0x71
+
+    //#define GAP_CONNECTION_COMPLETE_EVENT                      0x81
+
+14. BLE 初始化流程 (ref: core_4.1.pdf, Vol2-PartE)
+    1. 7.3.2 => Reset (Must)
+    2. 7.4.1 => Read Local Version Infomation (option) 
+    3. 7.4.2 => Read Local Supported Commands (option)
+    4. 7.4.6 => Read BD_ADDR Command
+    5. 7.3.1 => Set Event Mask Command (option) (0x3FFFFFFFFFFFFFFF)
+    6. 7.8.1 => LE Set Event Mask (option) (0x000000000000001F, config)
+    7. 7.4.5 => Read Buffer Size Command
+    8. 7.8.2 => LE Read Buffer Size (Must) 
+    9. 7.8.3 => LE Read Local Support Features (option)
+
+15. Filter Policy (White List)
+    a. Advertiser: (Config: LE_SET_ADVERTISING_PARAMETERS_COMMAND) ~
+        - Accept all;
+        - Accept SCAN_REQ from wlist;
+        - Accept CONNECT_REQ from wlist;
+        - Accept SCAN_REQ & CONNECT_REQ from wlist;
+
+    b. Scanner: (Config: LE_SET_SCAN_PARAMETERS_COMMAND) ~
+        - Accept all (Except ADV_DIRECT_IND's InitA&RxAdd not match Scanner own address);
+        - Accept from wlists (Except ADV_DIRECT_IND's InitA&RxAdd not match Scanner own address);
+        + Accept all (If ADV_DIRECT_IND's InitA&RxAdd is RPA, Resolve it);
+        + Accept from wlists (If ADV_DIRECT_IND's InitA&RxAdd is RPA, Resolve it);
+
+    c. Initiator: (Config: LE_CREATE_CONNECTION_COMMAND) ~
+        - Accept host assign (Except ADV_DIRECT_IND's InitA&RxAdd not match Initiator own address);
+        - Accept from wlist (Except ADV_DIRECT_IND's InitA&RxAdd not match Initiator own address);
+
+16. Privacy (RPA, Resolving List)
+    Config: LE_SET_ADDRESS_RESOLUTION_ENABLE_COMMAND
+    以下均为Privacy打开的情况。
+
+    接收者地址解析过程如下:
+
+    |Advertiser|
+        TX: ADV_IND: AdvA={Non-RPA|RPA=[Host(NoLocalIRK)|controller(localIRK)]} ~
+            RX: SCAN_REQ: >
+                接受条件1: AdvA和发送的相同
+                接受条件2：(ID-ScanA && PeerIRK==0 && ID-ScanA==PeerID) ||
+                           (Non-RPA-ScanA && WList-Enable) ||
+                           (RPA-ScanA && PeerIRK!=0 && Resolved)
+<            RX: CONNECT_REQ: >
+                接受条件1: AdvA和发送的相同
+                接受条件2：(ID-InitA && PeerIRK==0 && ID-InitA==PeerID) ||
+                           (Non-RPA-InitA && WList-Enable) ||
+                           (RPA-InitA && PeerIRK!=0 && Resolved)
+<        TX: ADV_DIRECT_IND: AdvA=RPA; InitA=RPA(PeerIRK)|ID-Address(PeerIRK=0 or NO) ~
+            RX: CONNECT_REQ: >
+                接受条件1: AdvA和发送的相同
+                接受条件2：(ID-InitA && PeerIRK==0 && ID-InitA==PeerID) ||
+                           (Non-RPA-InitA && WList-Enable) ||
+                           (RPA-InitA && PeerIRK!=0 && Resolved && RPA-InitA!=TxPeerAddr)
+<        TX: ADV_SCAN_IND: AdvA={Non-RPA|RPA=[Host(NoLocalIRK)|controller(localIRK)]} ~
+            RX: SCAN_REQ: >
+                接受条件：同ADV_IND's SCAN_REQ
+<        TX: ADV_NONCONN_IND: AdvA={Non-RPA|RPA=[Host(NoLocalIRK)|controller(localIRK)]} ~
+            RX: ignore
+    |Scanner| *(acive)*
+        RX: ADV_IND, ADV_SCAN_IND, SCAN_RSP: >
+            接受条件：(ID-AdvA && PeerIRK==0 && ID-AdvA==PeerID) ||
+                      (Non-RPA-AdvA && WList-Enable) ||
+                      (RPA-AdvA && PeerIRK!=0 && Resolved)
+<            TX: SCAN_REQ: AdvA=RX_ADV_PKT_AdvA RxAdd=RX_ADV_PKT_TxAdd ScanA={Non-RPA|RPA=[Host(NoLocalIRK)|controller(localIRK)]} ~
+        RX: ADV_DIRECT_IND: >
+            接受条件1：(ID-AdvA && PeerIRK==0 && ID-AdvA==PeerID) ||
+                       (Non-RPA-AdvA && WList-Enable) ||
+                       (RPA-AdvA && PeerIRK!=0 && Resolved)
+            接受条件2：(ID-InitA && LocalIRK==0 && ID-InitA==Local) ||
+                       (Non-RPA-InitA && Non-RPA-InitA==Local) ||
+                       (RPA-InitA && LocalIRK!=0 && Resolved)
+<            TX: NO ~
+        RX: ADV_NONCONN_IND: >
+            接受条件：同ADV_IND
+<            TX: NO ~
+    |Scanner| *(passive)*
+        RX: ADV_IND, ADV_SCAN_IND: >
+            接受条件：同Scaner(active)'s ADV_IND
+<            TX: No ~
+        RX: ADV_DIRECT_IND: >
+            接受条件：同Scaner(active)'s ADV_DIRECT_IND
+<            TX: NO ~
+        RX: ADV_NONCONN_IND: >
+            接受条件：同ADV_IND
+<            TX: NO ~
+    |Initiating|
+        RX: ADV_IND: >
+            接受条件：同Scanner's ADV_IND
+<            TX: CONNECT_REQ: AdvA=RX_ADV_PKT_AdvA RxAdd=RX_ADV_PKT_TxAdd InitA=Host(NoLocalIRK)|controller(localIRK) ~
+        RX: ADV_DIRECT_IND: >
+            接受条件：同Scanner's ADV_DIRECT_IND
+<            TX: CONNECT_REQ: AdvA=RX_ADV_PKT_AdvA RxAdd=RX_ADV_PKT_TxAdd InitA=Host(NoLocalIRK)|controller(localIRK, not same as RX_ADV_PKT_InitA) ~
+        RX: ADV_SCAN_IND, ADV_NONCONN_IND: >
+            Ignore
+<
+    NOTE: 解析过程为：先遍历可解析表的所有PeerIRK去解析PeerAddress, 如果可解析, 再使用对应的LocalIRK继续解析LocalAddress(如果需要);
+    NOTE: local IRK只有2种值：全0和非全0, 非全0的都一样;
+    NOTE: IRK如果为全0, 则表示期望相应地址为ID-Address (这种情况是违背Privacy的, 但允许出现);
+    NOTE: 如果接受条件不成立, 则忽略该数据包;
+    NOTE: Privacy接受后, 如果过滤协议打开, 需要把可解析表内对应的ID-Address再使用白名单过滤;
+    NOTE: 接受条件1和接受条件2是"并且"的关系, 并且先判断条件1再判断条件2;
+    NOTE: 如果接受条件1地址为Non-RPA-InitA，则LocalIRK和PeerIRK都无效，例如：LocalIRK==0和LocalIRK!=0均为False;
+    NOTE: 如果可解析表内包含PeerID==0, 则接受任何数据包;
+    NOTE: 缩写解释：
+            - ID:       Identity Address (Public Address or Static Address)
+            - RPA:      Resolving Pravite Address
+            - Non-RPA:  Non Resolving Pravite Address
+            - WList:    White List
+            - ID-InitA: InitA为Identity Address
+            - InitA==Local : InitA和本地target地址寄存器值相同
+            - IRK==0:   IRK的每个Bit都等于0
+            - IRK!=0:   并非IRK的每个Bit都等于0
+            - &&:       逻辑并且
+            - ||:       逻辑或者
+    NOTE: 地址从属关系:
+            *Advertiser*
+                AdvA: local
+                ScanA: peer
+                InitA: peer
+            *Scanner*
+                AdvA: peer
+                ScanA: local
+                InitA: local
+            *Initiating*
+                AdvA: peer
+                InitA: local
+
+17. iOS连接参数
+    连接上的默认参数：
+        interval = 30ms
+        timeout = 720ms
+        latency = 0
+    Slave可请求的最小连接参数
+        最小interval为18.75ms, 请求信息如下:
+        - IOS_MIN_PARAM_INTV_MIN = 0x08
+        - IOS_MIN_PARAM_INTV_MAX = 0x10
+        - IOS_MIN_PARAM_TIME_OUT = 100
+        - IOS_MIN_PARAM_LATENCY  = 0
+
+18. Preamble 个数
+    Broadcom：16bit
+    CSR：8bit
+    Huntersun：8bit
+
+19. CBT报错解析：
+    a. BIT zero not found >
+       我们发送的数据包的preamble的前面被截断了。检查radio控制的TX-setup时间是否过短
+
+20. HS6620 CEVA RX窗口 (RX_MODE == Normal):
+    数字窗口：
+        经典时序：
+            窗口开始：tim_bit_cnt = 647 + RX_DELAY - WIN_EXT
+                      /* `c_rx_pos2(625) - `c_half_win(11) + `c_crl_delay_le(40) - `c_hab_fixed_delay(5) - `c_jal_fixed_delay(2)  + s_rx_delay - rgf_win_ext; */
+            窗口大小：WIN_EXT*2 + 23
+                      /* {rgf_win_ext[9:0],1'b0} + `c_win_size(23)) */
+        LE时序：
+            窗口开始：le_cnt_ifs = 186 + SEARCH_WIN_DELAY - WIN_EXT
+                      /* ((`c_ifs_val(150) - 8'd4 + 8'd40) - rgf_win_ext + r_le_delay_srch_win) */
+            窗口大小：WIN_EXT*2 + 8
+                      /* {rgf_win_ext[9:0],1'b0} + `c_win_size_tifs(8)) */
+    射频RX_EN：
+        拉高软件控制，拉低数字控制。
+        窗口开始：HIGH_REG - WIN_EXT (EARLY和LATE被置1时)
+        窗口大小：WIN_EXT*2 (EARLY和LATE被置1时)
+
+
+
+vim: ft=help

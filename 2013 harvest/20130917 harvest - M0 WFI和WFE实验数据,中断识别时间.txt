@@ -1,0 +1,145 @@
+
+===================WFI/WFE M0中断识别时间 (编译器KEIL,优化等级为3,芯片QN9020B0)==================
+
+///////////////////////////////////////总结论////////////////////////////////////////////////
+总结论: M0的中断会在2-3个指令周期内被芯片内部识别, 注意该时间不同于"Interrupt Latency"  ~
+
+关于M0的Interrupt Latency:~
+    Under normal situations, the interrupt latency of the Cortex-M0 processor is |16| cycles. The
+    interrupt latency is defined as from the processor clock cycle the interrupt is asserted, to the
+    start of the execution of the interrupt handler. This interrupt latency assumes the following:
+    => The interrupt is enabled and is not masked by PRIMASK or other executing exception
+       handlers.
+    => The memory system does not have any wait state. If the memory system has wait state, the
+       interrupt could be delayed by wait states that occur at the last bus transfer before interrupt
+       processing, stacking, vector fetch, or instruction fetch at the start of the interrupt handler.
+
+
+////////////////////////////////////////实验数据//////////////////////////////////////////////
+
+    void IRQ0_Handler(void)
+    {
+        printf("3");
+    }
+
++---------------------|WFI|----------------------------+
+|  int main(void)                                    |
+|  {                                                 |
+|      SystemInit();                                 |
+|      printf("1");                                  |
+|                                                    |
+|      NVIC->ICER[0] = ~0;    // Disable all irq     |
+|      NVIC->ISPR[0] = 1<<0;  // Set irq 0 pending   |
+|                                                    |
+|      do                                            |
+|      {                                             |
+|          __WFI(); //或__WFE();                     |
+|          printf("2");                              |
+|      }while(1);                                    |
+|  }//输出 ==> 1                                     | ~
++----------------------------------------------------+
+|  结论: WFI和WFE都不能从未使能的中断pengding中退出  | ~
++----------------------------------------------------+
+
++---------------------|WFI|----------------------------+
+|  int main(void)                                    |
+|  {                                                 |
+|      SystemInit();                                 |
+|      printf("1");                                  |
+|                                                    |
+|      NVIC->ICER[0] = ~0;    // Disable all irq     |
+|      NVIC->ISPR[0] = 1<<0;  // Set irq 0 pending   |
+|      NVIC->ISER[0] = 1<<0;  // Enable irq 0        |
+|                                                    |
+|      __NOP();                                      |
+|                                                    |
+|      do                                            |
+|      {                                             |
+|          __WFI();                                  |
+|          printf("2");                              |
+|      }while(1);                                    |
+|  }//输出 ==> 132                                   | ~
++----------------------------------------------------+
+|  int main(void)                                    |
+|  {                                                 |
+|      SystemInit();                                 |
+|      printf("1");                                  |
+|                                                    |
+|      NVIC->ICER[0] = ~0;    // Disable all irq     |
+|      NVIC->ISPR[0] = 1<<0;  // Set irq 0 pending   |
+|      NVIC->ISER[0] = 1<<0;  // Enable irq 0        |
+|                                                    |
+|      __NOP();                                      |
+|      __NOP();                                      |
+|                                                    |
+|      do                                            |
+|      {                                             |
+|          __WFI();                                  |
+|          printf("2");                              |
+|      }while(1);                                    |
+|  }//输出 ==> 13                                    | ~
++----------------------------------------------------+
+|结论: 使wfi从之前中断pending中退出的方法限制是:     | ~
+|      使能irq和wfi之间最多只能插入一条指令.         | ~
++----------------------------------------------------+
+
++----------------------|WFE|---------------------------+
+|  int main(void)                                    |
+|  {                                                 |
+|      SystemInit();                                 |
+|      printf("1");                                  |
+|                                                    |
+|      NVIC->ICER[0] = ~0;    // Disable all irq     |
+|      NVIC->ISPR[0] = 1<<0;  // Set irq 0 pending   |
+|      NVIC->ISER[0] = 1<<0;  // Enable irq 0        |
+|                                                    |
+|      __NOP();                                      |
+|                                                    |
+|      do                                            |
+|      {                                             |
+|          __WFE();                                  |
+|          printf("2");                              |
+|      }while(1);                                    |
+|  }//输出 ==> 1322                                  |~
++----------------------------------------------------+
+|  int main(void)                                    |
+|  {                                                 |
+|      SystemInit();                                 |
+|      printf("1");                                  |
+|                                                    |
+|      NVIC->ICER[0] = ~0;    // Disable all irq     |
+|      NVIC->ISPR[0] = 1<<0;  // Set irq 0 pending   |
+|      NVIC->ISER[0] = 1<<0;  // Enable irq 0        |
+|                                                    |
+|      __NOP();                                      |
+|      __NOP();                                      |
+|                                                    |
+|      do                                            |
+|      {                                             |
+|          __WFE();                                  |
+|          printf("2");                              |
+|      }while(1);                                    |
+|  }//输出 ==> 132                                   |~
++----------------------------------------------------+
+| 结论: 如果之前的发生过的中断 WFE会从中退出,WFI不会.|~
++----------------------------------------------------+
+
++------------------------|WFE|-------------------------+
+|   int main(void)                                   |
+|   {                                                |
+|       SystemInit();                                |
+|       printf("1");                                 |
+|                                                    |
+|       do                                           |
+|       {                                            |
+|           __SEV();                                 |
+|           __WFE();                                 |
+|           printf("2");                             |
+|       }while(1);                                   |
+|   }//输出 ==> 1222222222222...                     |
++----------------------------------------------------+
+| 结论: SEV和中断一样, 都会设置event寄存器,从而让WFE |~
+|       直接退出                                     |~
++----------------------------------------------------+
+
+vim:tw=78:ts=8:ft=help:norl:

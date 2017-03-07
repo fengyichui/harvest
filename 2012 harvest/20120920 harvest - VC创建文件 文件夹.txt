@@ -1,0 +1,51 @@
+1、创建文件夹：
+	原型：
+		BOOL CreateDirectory(LPCTSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+	例子：
+		CreateDirectory(_T("c:\\my_test"), 0);
+
+2、创建文件：
+	方法1：(windows api)
+		例子：
+			HANDLE m_hfile;
+			m_hfile = CreateFile(_T("c:\\my_test\\test.ini"),						
+							     GENERIC_ALL,	          //GENERIC_READ、GENERIC_WRITE、GENERIC_ALL
+							     0,								
+							     NULL,							
+							     CREATE_NEW,		      //注1			
+							     FILE_ATTRIBUTE_NORMAL,		
+							     NULL);	
+			if (m_hfile != INVALID_HANDLE_VALUE)
+				CloseHandle(m_hfile);
+		注1：
+			CREATE_NEW    :Creates a new file. The function fails if the specified file already exists. 
+			CREATE_ALWAYS :Creates a new file. If the file exists, the function overwrites the file and clears the existing attributes. 
+			OPEN_EXISTING :Opens the file. The function fails if the file does not exist. 
+			OPEN_ALWAYS   :Opens the file, if it exists. If the file does not exist, the function creates the file as if dwCreationDisposition were CREATE_NEW. 
+	
+	方法2：(c库)
+		例子：
+			FILE *pf = _tfopen(m_szFileName, 
+			                  _T("ab"));      //注2
+			if(pf != NULL)
+				fclose(pf);
+		注1：
+			The character string mode specifies the type of access requested for the file, as follows:
+				"r" ：Opens for reading. If the file does not exist or cannot be found, the fopen call fails.
+				"w" ：Opens an empty file for writing. If the given file exists, its contents are destroyed.
+				"a" ：Opens for writing at the end of the file (appending) without removing the EOF marker before writing new data to the file; creates the file first if it doesn’t exist.
+				"r+"：Opens for both reading and writing. (The file must exist.)
+				"w+"：Opens an empty file for both reading and writing. If the given file exists, its contents are destroyed.
+				"a+"：Opens for reading and appending; the appending operation includes the removal of the EOF marker before new data is written to the file and the EOF marker is restored after writing is complete; creates the file first if it doesn’t exist.
+				
+				When a file is opened with the "a" or "a+" access type, all write operations occur at the end of the file. The file pointer can be repositioned using fseek or rewind, but is always moved back to the end of the file before any write operation is carried out. Thus, existing data cannot be overwritten.
+				The "a" mode does not remove the EOF marker before appending to the file. After appending has occurred, the MS-DOS TYPE command only shows data up to the original EOF marker and not any data appended to the file. The "a+" mode does remove the EOF marker before appending to the file. After appending, the MS-DOS TYPE command shows all data in the file. The "a+" mode is required for appending to a stream file that is terminated with the CTRL+Z EOF marker.
+				When the "r+", "w+", or "a+" access type is specified, both reading and writing are allowed (the file is said to be open for “update”). However, when you switch between reading and writing, there must be an intervening fflush, fsetpos, fseek, or rewind operation. The current position can be specified for the fsetpos or fseek operation, if desired.
+			
+			In addition to the above values, the following characters can be included in mode to specify the translation mode for newline characters:
+				t ：Open in text (translated) mode. In this mode, CTRL+Z is interpreted as an end-of-file character on input. In files opened for reading/writing with "a+", fopen checks for a CTRL+Z at the end of the file and removes it, if possible. This is done because using fseek and ftell to move within a file that ends with a CTRL+Z, may cause fseek to behave improperly near the end of the file. Also, in text mode, carriage return–linefeed combinations are translated into single linefeeds on input, and linefeed characters are translated to carriage return–linefeed combinations on output. When a Unicode stream-I/O function operates in text mode (the default), the source or destination stream is assumed to be a sequence of multibyte characters. Therefore, the Unicode stream-input functions convert multibyte characters to wide characters (as if by a call to the mbtowc function). For the same reason, the Unicode stream-output functions convert wide characters to multibyte characters (as if by a call to the wctomb function).
+				b ：Open in binary (untranslated) mode; translations involving carriage-return and linefeed characters are suppressed. 
+				
+				If t or b is not given in mode, the default translation mode is defined by the global variable _fmode. If t or b is prefixed to the argument, the function fails and returns NULL. 
+	
+			

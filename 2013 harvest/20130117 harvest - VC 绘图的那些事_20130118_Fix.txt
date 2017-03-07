@@ -1,0 +1,140 @@
+读Windows程序设计(第五版) 关于图的那些事 总结
+by lq
+
+设备环境 DC：
+    内存设备环境DC：
+        CDC dcMem;      
+        1、创建内存DC画布：
+           dcMem.CreateCompatibleDC(CDC* pDC); //创建和物理设备环境pDC兼容的内存DC画布，且初始化该画布的长宽都等于1, 左上点为(0,0)；
+        2、设置画布大小和图案:
+           dcMem.SelectObject( CBitmap* pBitmap );//由该bmp决定画布的大小和图案
+        3、使用CDC所有的绘图函数在该画布绘图
+        4、删除该画布：析构时候自动调用：DeleteDC();        
+    物理设备环境DC:
+        获取物理DC：                                                                                                                                                
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|
+      |   DC类型    |     获取方法      |           绘制范围             |           获取绘制范围矩形          |  内部调用   |           注意                      |
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|  
+      |   客户区DC  |CClientDC dc(this);| 整个客户区(CWnd)               | CWnd::GetClientRect(LPRECT lpRect); | GetDC()     | 在WM_PAINT更新绘图                  |  
+      |             |                   | DC的原点(0,0)在客户区的左上点。|                                     | ReleaseDC() |                                     |  
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|  
+      |    窗口DC   |CWindowDC dc(this);| 整个窗口(边框、客户区、菜单等) | CWnd::GetWindowRect(LPRECT lpRect); | GetDC()     | 需要响应WM_NCPAINT消息              |  
+      |             |                   | DC原点(0,0)在窗口的左上点。    |                                     | ReleaseDC() | 因为WM_PAINT消息只是客户区的        |  
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|       
+      | 按需无效DC  |CPaintDC dc(this); | 无效区域                       | dc.m_ps.rcPaint                     | BeginPaint()| 只能在响应WM_PAINT消息时调用        |       
+      | (WM_PAINT)  |                   |                                |                                     | EndPaint()  | 无效区域主动设置：                  |  
+      |             |                   |                                |                                     |             | 1、指定矩阵无效:                    |   
+      |             |                   |                                |                                     |             |    ValidateRect(LPCRECT lpRect);    |
+      |             |                   |                                |                                     |             | 2、所有客户区(CWnd)无效             |
+      |             |                   |                                |                                     |             |    (可指定背景是否重绘，闪屏)：     |
+      |             |                   |                                |                                     |             |    Invalidate(BOOL bErase = TRUE);  |
+      |             |                   |                                |                                     |             | 无效区域被动设置：窗口遮掩          |
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|
+      |    整屏DC   | CDC dc;           |                                |                                     |             |                                     |
+      |             |dc.CreateDC(       |                                |                                     |             |                                     |
+      |             |_T("DISPLAY"),     |                                |                                     |             |                                     |
+      |             |NULL,NULL,NULL);   |                                |                                     |             |                                     |
+      |             |或                 |                                |                                     |             |                                     |
+      |             |dc.GetDC(NULL);    |                                |                                     |             |                                     |
+      |-------------|-------------------|--------------------------------|-------------------------------------|-------------|-------------------------------------|
+                                                                                                                                                                    
+设备相关的位图(DDB)
+	CBitmap bmp;
+    创建和设备兼容的位图:
+       1、bmp.CreateCompatibleBitmap( CDC* pDC, int nWidth, int nHeight ); //创建和设备环境pDC兼容的空白位图
+       2、bmp.LoadBitmap( UINT nIDResource );//从资源中添加位图
+    获取位图信息：
+       bmp.GetBitmap( BITMAP* pBitMap );
+    删除该位图：
+       析构的时候自动调用：DeleteObject();
+
+关于画刷：
+CBrush brush;
+    背景画刷可以是：
+    1、单纯颜色 brush.CreateSolidBrush();
+    2、位图     brush.CreatePatternBrush( CBitmap* pBitmap );
+    3、系统图案 brush.CreateHatchBrush( int nIndex, COLORREF crColor ); //例如：nIndex=HS_DIAGCROSS 就是图案=> /* xxxxx */
+
+位块传输：
+    CDC dc; 
+    1、原始位图传输
+       dc.BitBlt( int x, int y, int nWidth, int nHeight, CDC* pSrcDC, int xSrc, int ySrc, DWORD dwRop );
+    2、带伸缩的位图传输
+       dc.StretchBlt( int x, int y, int nWidth, int nHeight, CDC* pSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, DWORD dwRop );
+    3、用于本位图和画刷的传输
+       dc.PatBlt( int x, int y, int nWidth, int nHeight, DWORD dwRop );
+    参数dwRop含义：
+       Raster-operation 光栅渲染参数：指定了源位图、目的位图、目的画刷之间的结合方式(与或非)，常用的是 SRCCOPY(源位图直接copy到目标位图)；
+       通过该参数可以实现很多高级功能。
+    所有坐标均为当前DC的逻辑坐标，例如同过CClientDC获得的DC的坐标原点就是单签客户区的左上点。
+
+在内存设备环境绘图要比直接使用物理设备环境绘图要快的多。
+
+以上所说的映射模式都是MM_TEXT, 原点在左上点，向右向下xy坐标增加。
+
+常用内存设备环境到物理设备环境传输示例：
+	CDC dcMem; 
+    CBitmap bmpMem; 
+    CRect rc;
+	CClientDC dc(this); //获取当前物理设备环境
+	GetClientRect(&rc); //获取当前客户区矩形
+	dcMem.CreateCompatibleDC(&dc); //创建一个和物理设备环境兼容的内存设备环境
+	bmpMem.CreateCompatibleBitmap(&dc, rc.Width(), rc.Height());//创建和物理设备环境兼容的位图，并且制定长宽
+	dcMem.SelectObject(bmpMem);//
+    /*......使用dcMem绘图......*/
+	dc.BitBlt(rc.left, rc.top, rc.Width(), rc.Height(), &dcMem, 0, 0, SRCCOPY);//位块传输 从内存DC到设备DC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

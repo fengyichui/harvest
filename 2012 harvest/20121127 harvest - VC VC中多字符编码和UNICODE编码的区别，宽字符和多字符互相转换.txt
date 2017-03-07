@@ -1,0 +1,108 @@
+
+这两个转换方法不够强大：wcstomb、 mbstowcs.
+建议使用：MultiByteToWideChar和WideCharToMultiByte进行转换
+
+//强哥总结：
+1、WideCharToMultiByte和MultiByteToWideChar的第一个参数CodePage：
+   a、CP_ACP  : ANSI code page 
+   b、CP_OEMCP: OEM code page 
+   c、CP_UTF7 : Translate using UTF-7 
+   d、CP_UTF8 : Translate using UTF-8 
+2、CodePage参数指的是多字符使用的编码方式；
+3、宽字符统一使用Unicode编码。
+4、CP_ACP(ANSI)和CP_OEMCP(OEM)编码方式在windows的api中常常指的是同一样东西，即本地的字符集了,中文为指的是GBK。
+5、联想到：可以使用MultiByteToWideChar和WideCharToMultiByte以宽字符为桥梁实现UTF-8和ANSI编码的相互转换。即UTF-8 -> UNICODE -> GBK 和 GBK -> UNICODE -> UTF-8.
+6、再说：
+   a、Unicode编码: 所有字符全占2Byte；
+   b、ANSI编码   : 中文(GBK)占2Byte,英文(ASCII)标点占1Byte;
+   c、UTF-8编码  : 中文占3Byte，英文(ASCII)占1Byte，带有附加符号的拉丁文、希腊文占2Byte(少用)。
+7、记事本默认使用的是多字符的ANSI编码，VC中的 "李9" 是多字节的ANSI编码，L"李9" 是Unicode编码。
+8、VC中多字符编码和UNICODE编码的区别：
+    多字符编码：程序:"李9"  -> 内存: c0 ee 39    (李:GB2312编码; 9:ASCII编码)(3Byte)
+    宽字符编码：程序:L"李9" -> 内存: 4e 67 39 00 (李9:Unicode编码)           (4Byte)
+    使用MultiByteToWideChar和WideCharToMultiByte的转换也是在以上两种方式之间进行转换(函数内的code page为：CP_OEMCP或CP_ACP)
+
+
+MultiByteToWideChar和WideCharToMultiByte用法详解：
+1.使用方法详解
+
+  在本文开始之处,先简要地说一下何为短字符和宽字符.
+  所谓的短字符,就是用8bit来表示的字符,典型的应用是ASCII码.而宽字符,顾名思义,就是用16bit表示的字符,典型的有UNICODE.关于windows下的ASCII和UNICODE的更多信息,可以参考这两本经典著作:《windows 程序设计》,《windows 核心编程》.这两本书关于这两种字符都有比较详细的解说.
+  
+  宽字符转换为多个短字符是一个难点,不过我们只要掌握到其中的要领,便可如鱼得水.
+  好吧,那就让我们开始吧.
+  
+  这个是我们需要转化的多字节字符串:  
+  char sText[20] = {"多字节字符串!OK!"};
+  
+  我们需要知道转化后的宽字符需要多少个数组空间.虽然在这个里程里面,我们可以直接定义一个20*2宽字符的数组,并且事实上将运行得非常轻松愉快.但假如多字节字符串更多,达到上千个乃至上万个,我们将会发现其中浪费的内存将会越来越多.所以以多字节字符的个数的两倍作为宽字符数组下标的声明绝对不是一个好主意.
+  所幸,我们能够确知所需要的数组空间.
+  我们只需要将MultiByteToWideChar()的第四个形参设为-1,即可返回所需的短字符数组空间的个数:
+  DWORD dwNum = MultiByteToWideChar (CP_ACP, 0, sText, -1, NULL, 0);
+  
+  接下来,我们只需要分配响应的数组空间:
+  wchar_t *pwText;
+  pwText = new wchar_t[dwNum];
+  if(!pwText)
+   delete []pwText;
+  
+  接着,我们就可以着手进行转换了.在这里以转换成ASCII码做为例子:
+  MultiByteToWideChar (CP_ACP, 0, psText, -1, sText, dwSize);
+  
+  最后,使用完毕当然要记得释放占用的内存:
+  delete []psText;
+  
+ 
+  同理,宽字符转为多字节字符的代码如下:  
+  wchar_t wText[20] = {L"宽字符转换实例!OK!"};
+  DWORD dwNum = WideCharToMultiByte(CP_OEMCP,NULL,lpcwszStr,-1,NULL,0,NULL,FALSE);
+  char *psText;
+  psText = new char[dwNum];
+  if(!psText)
+   delete []psText;
+  WideCharToMultiByte (CP_OEMCP,NULL,lpcwszStr,-1,psText,dwNum,NULL,FALSE);
+  delete []psText;
+  
+   如果之前我们已经分配好空间,并且由于字符串较短,可以不理会浪费的空间,仅仅只是想简单地将短字符和宽字符相互转换,那有没有什么简便的方法呢?
+   WIN32 API里没有符合这种要求的函数,但我们可以自己进行封装:
+     
+  BOOL MByteToWChar(LPCSTR lpcszStr, LPWSTR lpwszStr, DWORD dwSize)
+  {
+    // Get the required size of the buffer that receives the Unicode 
+    // string. 
+    DWORD dwMinSize;
+    dwMinSize = MultiByteToWideChar (CP_ACP, 0, lpcszStr, -1, NULL, 0);
+    if(dwSize < dwMinSize)
+     return FALSE;
+    // Convert headers from ASCII to Unicode.
+    MultiByteToWideChar (CP_ACP, 0, lpcszStr, -1, lpwszStr, dwMinSize);  
+    return TRUE;
+  }
+  
+
+  BOOL WCharToMByte(LPCWSTR lpcwszStr, LPSTR lpszStr, DWORD dwSize)
+  {
+   DWORD dwMinSize;
+   dwMinSize = WideCharToMultiByte(CP_OEMCP,NULL,lpcwszStr,-1,NULL,0,NULL,FALSE);
+   if(dwSize < dwMinSize)
+    return FALSE;
+   WideCharToMultiByte(CP_OEMCP,NULL,lpcwszStr,-1,lpszStr,dwSize,NULL,FALSE);
+   return TRUE;
+  }
+  
+  
+  使用方法也很简单,示例如下:
+  wchar_t wText[10] = {L"函数示例"};
+  char sText[20]= {0};
+  WCharToMByte(wText,sText,sizeof(sText)/sizeof(sText[0]));
+  MByteToWChar(sText,wText,sizeof(wText)/sizeof(wText[0]));
+  
+  这两个函数的缺点在于无法动态分配内存,在转换很长的字符串时可能会浪费较多内存空间;优点是,在不考虑浪费空间的情况下转换较短字符串非常方便.
+
+  
+2.MultiByteToWideChar()函数乱码的问题
+
+  有的朋友可能已经发现,在标准的WinCE4.2或WinCE5.0 SDK模拟器下,这个函数都无法正常工作,其转换之后的字符全是乱码.及时更改MultiByteToWideChar()参数也依然如此.
+  不过这个不是代码问题,其结症在于所定制的操作系统.如果我们定制的操作系统默认语言不是中文,也会出现这种情况.由于标准的SDK默认语言为英文,所以肯定会出现这个问题.而这个问题的解决,不能在简单地更改控制面板的"区域选项"的"默认语言",而是要在系统定制的时候,选择默认语言为"中文".
+  系统定制时选择默认语言的位置于:
+  Platform -> Setting... -> locale -> default language ,选择"中文",然后编译即可.

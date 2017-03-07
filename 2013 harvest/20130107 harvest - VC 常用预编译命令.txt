@@ -1,0 +1,183 @@
+VC常用预编译指令：(MSDN摘抄)
+
+语法：
+#pragma token-string
+
+token-string常用字段:
+1、comment : 主要用于连接库
+2、message : 编译期间输出消息
+3、once    : 该文件编译一次
+4、pack    : 对齐
+5、warning : 主用用于取消某些警告
+
+详细描述: 
+1、comment
+	#pragma comment( comment-type [, commentstring] )
+	
+	Places a comment record into an object file or executable file. The comment-type is one of five predefined identifiers, described below, that specify the type of comment record. The optional commentstring is a string literal that provides additional information for some comment types. Because commentstring is a string literal, it obeys all the rules for string literals with respect to escape characters, embedded quotation marks ("), and concatenation.
+	
+	compiler
+	
+	Places the name and version number of the compiler in the object file. This comment record is ignored by the linker. If you supply a commentstring parameter for this record type, the compiler generates a warning.
+	
+	exestr
+	
+	Places commentstring in the object file. At link time, this string is placed in the executable file. The string is not loaded into memory when the executable file is loaded; however, it can be found with a program that finds printable strings in files. One use for this comment-record type is to embed a version number or similar information in an executable file.
+	
+	lib
+	
+	Places a library-search record in the object file. This comment type must be accompanied by a commentstring parameter containing the name (and possibly the path) of the library that you want the linker to search. Since the library name precedes the default library-search records in the object file, the linker searches for this library just as if you had named it on the command line. You can place multiple library-search records in the same source file; each record appears in the object file in the same order in which it is encountered in the source file.
+	
+	linker
+	
+	Places a linker option in the object file. You can use this comment-type to specify a linker option instead  placing the option on the Link tab of the Project Settings dialog box. For example, you can specity the /include option to force the inclusion of a symbol:
+	
+	#pragma comment(linker, "/include:__mySymbol")
+	
+	user
+	
+	Places a general comment in the object file. The commentstring parameter contains the text of the comment. This comment record is ignored by the linker.
+	
+	The following pragma causes the linker to search for the EMAPI.LIB library while linking. The linker searches first in the current working directory and then in the path specified in the LIB environment variable.
+	
+	#pragma comment( lib, "emapi" )
+	
+	The following pragma causes the compiler to place the name and version number of the compiler in the object file:
+	
+	#pragma comment( compiler )
+	
+	Note   For comments that take a commentstring parameter, you can use a macro in any place where you would use a string literal, provided that the macro expands to a string literal. You can also concatenate any combination of string literals and macros that expand to string literals. For example, the following statement is acceptable:
+	
+	#pragma comment( user, "Compiled on " __DATE__ " at " __TIME__ ) 
+
+2、message
+	#pragma message( messagestring )
+	
+	Sends a string literal to the standard output without terminating the compilation. A typical use of the message pragma is to display informational messages at compile time.
+	
+	The following code fragment uses the message pragma to display a message during compilation:
+	
+	#if _M_IX86 == 500
+	#pragma message( "Pentium processor build" )
+	#endif
+	
+	The messagestring parameter can be a macro that expands to a string literal, and you can concatenate such macros with string literals in any combination. For example, the following statements display the name of the file being compiled and the date and time when the file was last modified:
+	
+	#pragma message( "Compiling " __FILE__ ) 
+	#pragma message( "Last modified on " __TIMESTAMP__ ) 
+
+3、once
+	#pragma once
+	
+	Specifies that the file, in which the pragma resides, will be included (opened) only once by the compiler in a build. A common use for this pragma is the following:
+	
+	//header.h
+	#pragma once
+	// Your C or C++ code would follow:
+
+4、pack
+	#pragma pack( [ n] )
+	
+	Specifies packing alignment for structure and union members. Whereas the packing alignment of structures and unions is set for an entire translation unit by the /Zp option, the packing alignment is set at the data-declaration level by the pack pragma. The pragma takes effect at the first structure or union declaration after the pragma is seen; the pragma has no effect on definitions.
+	
+	When you use #pragma pack(n), where n is 1, 2, 4, 8, or 16, each structure member after the first is stored on the smaller member type or n-byte boundaries. If you use #pragma pack without an argument, structure members are packed to the value specified by /Zp. The default /Zp packing size is /Zp8.
+	
+	The compiler also supports the following enhanced syntax:
+	
+	#pragma pack( [ [ { push | pop}, ] [  identifier, ] ] [ n ] )
+	
+	This syntax allows you to combine program components into a single translation unit if the different components use pack pragmas to specify different packing alignments. 
+	
+	Each occurrence of a pack pragma with a push argument stores the current packing alignment on an internal compiler stack. The pragma’s argument list is read from left to right. If you use push, the current packing value is stored. If you provide a value for n, that value becomes the new packing value. If you specify an identifier, a name of your choosing, the identifier is associated with the new packing value.
+	
+	Each occurrence of a pack pragma with a pop argument retrieves the value at the top of an internal compiler stack and makes that value the new packing alignment. If you use pop and the internal compiler stack is empty, the alignment value is that set from the command-line and a warning is issued. If you use pop and specify a value for n, that value becomes the new packing value. If you use pop and specify an identifier, all values stored on the stack are removed from the stack until a matching identifier is found. The packing value associated with the identifier is also removed from the stack and the packing value that existed just before the identifier was pushed becomes the new packing value. If no matching identifier is found, the packing value set from the command line is used and a level-one warning is issued. The default packing alignment is 8.
+	
+	The new, enhanced functionality of the pack pragma allows you to write header files that ensure that packing values are the same before and after the header file is encountered:
+	
+	/* File name: include1.h
+	*/
+	#pragma pack( push, enter_include1 )
+	/* Your include-file code ... */
+	#pragma pack( pop, enter_include1 )
+	/* End of include1.h */
+	
+	In the previous example, the current pack value is associated with the identifier enter_include1 and pushed, remembered, on entry to the header file. The pack pragma at the end of the header file removes all intervening pack values that may have occurred in the header file and removes the pack value associated with enter_include1. The header file thus ensures that the pack value is the same before and after the header file.
+	
+	The new functionality also allows you to use code, such as header files, that uses pack pragmas to set packing alignments that differ from the packing value set in your code:
+	
+	#pragma pack( push, before_include1 )
+	#include "include1.h"
+	#pragma pack( pop, before_include1 )
+	
+	In the previous example, your code is protected from any changes to the packing value that might occur in include.h. 
+
+5、warning
+	#pragma warning( warning-specifier : warning-number-list [,warning-specifier : warning-number-list...] )
+	#pragma warning( push[ , n ] )
+	#pragma warning( pop )
+	
+	Allows selective modification of the behavior of compiler warning messages.
+	
+	The warning-specifier can be one of the following.
+	
+	Warning-specifier  Meaning 
+	once               Display the specified message(s) only once. 
+	default            Apply the default compiler behavior to the specified message(s). 
+	1, 2, 3, 4         Apply the given warning level to the specified warning message(s). 
+	disable            Do not issue the specified warning message(s). 
+	error              Report the specified warnings as errors. 
+	
+	
+	The warning-number-list can contain any warning numbers. Multiple options can be specified in the same pragma directive as follows:
+	
+	#pragma warning( disable : 4507 34; once : 4385; error : 164 )
+	
+	This is functionally equivalent to:
+	
+	#pragma warning( disable : 4507 34 )  // Disable warning messages	                             //  4507 and 34.
+	#pragma warning( once : 4385 )        // Issue warning 4385	                                      //  only once.
+	#pragma warning( error : 164 )        // Report warning 164
+	                                      //  as an error.
+	
+	For warning numbers greater than 4699, those associated with code generation, the warning pragma has effect only when placed outside function definitions. The pragma is ignored if it specifies a number greater than 4699 and is used inside a function. The following example illustrates the correct placement of warning pragmas to disable, and then restore, the generation of a code-generation warning message:
+	
+	int a;
+	#pragma warning( disable : 4705 )
+	void func()
+	{
+	    a;
+	}
+	#pragma warning( default : 4705 )
+	
+	The warning pragma also supports the following syntax:
+	
+	#pragma warning( push [ ,n ] )	
+	#pragma warning( pop )
+	
+	Where n represents a warning level (1 through 4). 
+	
+	The pragma warning( push ) stores the current warning state for all warnings. The pragma warning( push, n) stores the current state for all warnings and sets the global warning level to n. 
+	
+	The pragma warning( pop ) pops the last warning state pushed onto the stack. Any changes made to the warning state between push and pop are undone. Consider this example:
+	
+	#pragma warning( push )
+	#pragma warning( disable : 4705 )
+	#pragma warning( disable : 4706 )
+	#pragma warning( disable : 4707 )
+	// Some code
+	#pragma warning( pop ) 
+	
+	At the end of this code, pop restores the state of all warnings (including 4705, 4706, and 4707) to what it was at the beginning of the code.
+	
+	When you write header files, you can use push and pop to ensure that changes to warning states made by the user do not prevent your headers from compiling properly. Use push at the beginning of the header and pop at the end. Suppose, for example, you have a header that does not compile cleanly at warning level 4. The following code changes the warning level to 3, then restores the original warning level at the end of the header:
+	
+	#pragma warning( push, 3 )
+	// Declarations/ definitions
+	#pragma warning( pop ) 
+	
+	
+	
+	
+
+
+

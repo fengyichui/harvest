@@ -1,0 +1,56 @@
+/*******************************************************************************
+ * 使用窗口类(继承CWnd)的步骤是：
+ * 1、定义：CMatrix *pMyBt = new CMatrix;
+ * 2、创建：pMyBt1->Create(_T("WNliqiang"), WS_CHILD | WS_VISIBLE, CRect(40, 40, 100, 60), this, IDC_BUTTON_MY_1);
+ * 3、显示：pMyBt1->ShowWindow(SW_SHOW); //WS_VISIBLE属性和该ShowWindow任选其一 默认情况是隐藏窗口的。
+ *******************************************************************************/
+
+/*******************************************************************************
+ * 继承CWnd，自定义窗口的步骤：byLQ
+ * 1、注册窗口类:AfxRegisterClass();
+ * 2、创建窗口:->Create();
+ * 3、响应WM_PAINT消息，绘制窗口: OnPaint();
+ * 4、响应任何其他的消息
+ * 见以下程序：
+ *******************************************************************************/
+
+CMatrix::CMatrix() //构造
+{
+	WNDCLASS wndc;
+	//--步骤1：注册窗口类
+	HINSTANCE hinstance = AfxGetInstanceHandle();
+	if(!(::GetClassInfo(hinstance, MY_CLASS_NAME, &wndc)))//防止多次注册
+	{
+		wndc.style = CS_SAVEBITS;
+		wndc.lpfnWndProc = ::DefWindowProc;
+		wndc.cbClsExtra = wndc.cbWndExtra=0;
+		wndc.hInstance = hinstance;
+		wndc.hIcon = NULL;
+		wndc.hCursor = LoadCursor(hinstance,IDC_ARROW);
+		wndc.hbrBackground = (HBRUSH)(COLOR_HIGHLIGHT);
+		wndc.lpszMenuName = NULL;
+		wndc.lpszClassName = MY_CLASS_NAME;//类名
+		if (!AfxRegisterClass(&wndc))
+			AfxThrowResourceException();
+	}
+}
+
+BOOL CMatrix::Create(LPCTSTR lpszCaption, DWORD dwStyle, CWnd* pParentWnd, UINT nID)
+{
+	CWnd* pWnd = this;
+	pParent = pParentWnd;//保留父窗口类指针
+	//--步骤2：创建窗口。使用指针的好处是：虚函数，我知道你明白了。。
+	return pWnd->Create(MY_CLASS_NAME, lpszCaption, dwStyle, m_rect, pParentWnd, nID);
+}
+//--步骤3：响应WM_PAINT消息，绘制窗口
+void CMatrix::OnPaint()
+{
+	CWnd::OnPaint();
+	CClientDC dc(this);
+	GetClientRect(&rc);
+}
+//--步骤4：响应任何其他的消息
+void CMatrix::OnMouseMove(UINT nFlags, CPoint point)
+{
+	CWnd::OnMouseMove(nFlags, point);
+}

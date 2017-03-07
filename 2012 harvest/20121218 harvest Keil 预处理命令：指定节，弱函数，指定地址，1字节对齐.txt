@@ -1,0 +1,26 @@
+
+1、定义“变量”所在的节：
+	汇编： AREA    SECTION_NAME, CODE, READONLY
+	C语言：int descriptor[3] __attribute__ ((section ("descr"))) = { 1,2,3 };
+
+
+2、弱变量和函数声明，如果别处定义了相同的函数或变量则不引用此处定义的，而引用别处定义的
+	汇编：
+	NMI_Handler     PROC
+					EXPORT  NMI_Handler               [WEAK]
+					B       .
+					ENDP
+	C语言:
+	extern int Variable_Attributes_weak_1 __attribute__((weak));
+	extern int Function_Attributes_weak_0 (int b) __attribute__ ((weak));
+
+
+3、指定“变量”的绝对地址：
+	C语言：int x4 __attribute__((at(0x16000))); /* ZI */
+
+4、1字节对齐: 用于协议构造
+	struct PACKET
+	{
+		char a;
+		int b；	
+	}__attribute__ ((packed));

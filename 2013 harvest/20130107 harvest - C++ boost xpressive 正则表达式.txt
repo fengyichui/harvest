@@ -1,0 +1,463 @@
+xpressive:
+ 正则表达式是处理文本强有力的工具，它使用一套复杂的语法规则，能够解决文本处理领域的绝大多数问题，如验证，匹配，查找，替换等，这些问题用通常的字符串算法是很难甚至无法解决的。
+ xpressive是一个先进的，灵活的，功能强大的正则表达式库，提供了对正则表达式的全面支持，而且比原正则表达式库boost.regex要好的是它不需要编译，速度快，同时语法又很类似。
+
+两种使用方式：
+ xpressive不仅是一个类似boost.regex的正则表达式解析器，同时它还是一个类似于boost.spirit的语法分析器，并且将这两种完全不相交的文本处理方式完美地融合在了一起。
+ 因此xpressive提供动态和静态两种使用方式，静态方式类似于spirit，使用操作符重载生成编译期的表达式对象，可以再编译期进行正则表达式的语法检查，动态方式则是较传统的用法，与boost.regex或Python中的re模块很相似，以字符串作为一个表达式对象，在运行时进行语法检查和处理。
+ xpressive把这两种方式融合成了一体，两者可以再程序中以任意的形式组合混用。
+ 【1】如果想混用两种方式或不关心两种方式，可以包含头文件<boost/xpressive/xpressive.hpp>
+ 【2】如果仅想使用静态方式，可以只包含头文件<boost/xpressive/xpressive_static.hpp>
+ 【3】如果仅想使用动态方式，可以只包含头文件<boost/xpressive/xpressive_dynamic.hpp>.
+本章讨论动态用法:
+#include <boost/xpressive/xpressive_dynamic.hpp>
+using namespace boost::xpressive;
+
+正则表达式语法简介：
+ 正则表达式定义了一套完善而复杂的语法规则，用于匹配有特定模式的字符串。在正则表达式中，大部分字符都匹配自己(即普通字符),只有少量的字符被用于定义特殊的匹配模式语法，它们是：.^$()*+?{}[]\|。
+ 【1】点号(.)可以匹配任意的单个字符，是单字符的通配符.
+ 【2】^匹配行的开头。
+ 【3】$匹配行的末尾.
+ 【4】()用于定义一个正则表达式匹配子元素(子表达式)，可以被引用或者重复.
+ 【5】*表示前面的元素可以重复任意多次(n>=0).
+ 【6】+表示前面的元素可以重复一次或多次(n>0);
+ 【7】?表示前面的元素可以重复0次或1次(n = 0,1)。
+ 【8】{}可以手工指定元素重复的次数。{n}重复x=n次，{n,}重复x>=n次，{n,m}重复n次到m次之间的次数，即n<=x<=m。
+ 【9】[]用于定义字符集，可以列出单个字符，也可以定义范围，或者是集合的补集。
+ 【10】\是转义字符(与C/C++)类似，特殊字符经转义后与自身匹配。
+ 【11】|表示逻辑或的概念，匹配它两侧的元素之一。
+示例；
+例1："a."表示字符a和任意一个字符构成的字符串，如ab，a0，但不是abb。
+例2："(a*)(b|c+)"同括号定义了两个子表达式，表示任意数量的a，然后接一个b或者一个以上的c，如：aaab,aaccc,但不是bcc，abccc。
+例3"[abc]?.\{\}"表示abc三个字符之一可以出现0次或一次，然后是一个任意字符，在接一个{}，如:a={},c2{},但不是ua{},ab。
+
+ 正则表达式还使用转义字符斜杠预定义了一些匹配概念，如\d匹配数字相当于([0-9]),\w匹配字母(相当于[a-z]),\s匹配空格等.
+
+ 注意：由于c++没有如c#和python那样提供"原始字符串"的表达式，而正则表达式里会经常使用斜杠，在c++代码中就要变成双斜杠，建议在使用正则表达式前可先在普通的文本编辑器里写好，然后用替换功能把所有的单斜杠替换为双斜杠，在代码中使用正则表达式时，一定要在语句前用注释说明其原始表达式，以方便将来的调试和维护。
+
+类摘要：
+ xpressive库提供了3个重要的类，分别是：basic_regex,match_results和sub_match。
+basic_regex:
+ 模板类basic_regex是xpressive库的核心，它封装了正则表达式的解析和编译:
+template<typename BidiIter>
+struct basic_regex
+{
+ basic_regex();
+ basic_regex(basic_regex<BidiIter>const &);
+
+ regex_id_type regex_id() const;
+ std::size_t mark_count() const;
+ void swap(basic_regex<BidiIter> &);
+ 
+ static basic_regex<BidiIter> compile(InputRange const &pat);
+};
+
+typedef basic_regex<std::string::const_iterator> sregex;
+typedef basic_regex<char const*> cregex;
+
+ basic_regex是正则表达式的基本类，它常用的是两个typedef:sregex和cregex;sregex用于操作标准字符串类std::string,cregex用于操作字符数组(C风格字符串).
+ basic_regex的构造函数，默认构造一个空的正则表达式，支持从另一个basic_regex拷贝构造和赋值，成员函数regex_id()返回正则表达式的唯一标志，mark_count()可以返回表达式中匹配的子表达式的个数，对于空的正则表达式对象，这两个函数都会返回0.
+ basic_regex的核心功能是静态成员函数compile(),它是一个工厂方法，可以根据正则表达式参数创建出一个basic_regex对象，compile()有多个重载形式，最常用的是传入一个字符串，否则会运行时发生错误。
+
+match_results:
+ match_results是xpressive库里另一个重要类，保存了正则表达式匹配的结果：
+template<typename BidiIter>
+struct match_results
+{
+ size_type size() const;
+ bool empty() const;
+ template<typename Sub> const_reference operator[](Sub const & i) const;
+};
+typedef match_results<std::string::const_iterator> smatch;
+typedef match_results<char const*> cmatch;
+ match_results为正则表达式的匹配结果提供了一个类似容器的视图，可以用size()和empty()判断匹配结果中子表达式的数量，operator[]返回第i个子表达式，如果i == 0,则返回整个表达式的匹配对象。
+ 同样，为了支持不同的字符串类型，match_results有两个方便的typedef，分别是smatch和cmatch，用于支持str::string和字符数组，它们命名风格与sregex，cregex是相同的，使用同样的前缀.
+
+sub_match:
+ sub_match是一个类似迭代器对的对象，继承自std::pair,可以把它当作一个字符串的区间表示：
+template<typename BidiIter>
+struct sub_match : public std::pair<BidiIter, BidiIter>
+{
+ string_type str() const;
+ difference_type length() const;
+ bool operator!() const;
+ int compare(string_type const &) const;
+ bool matched;
+}
+
+\\匹配：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+ 自由函数regex_match()用来检查一个字符串是否完全匹配一个正则表达式，返回一个bool结果，有很多重载形式：
+ bool regex_match(string, basic_regex const& re);
+ bool regex_match(string, match_results& what, basic_regex const &re);
+ regex_match()最简单用法是接受两个参数，它的第一个参数是要匹配检查的字符串，第二个参数是正则表达式对象(sregex和cregex).
+ regex_match()的第二种重载形式多了个match_results输出参数，可以返回查找到得字串.
+示范：
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		cregex reg = cregex::compile("a.c"); //c字符串则正表达式对象
+		assert(regex_match("abc", reg));
+		assert(regex_match("a+c", reg));
+		assert(!regex_match("ac", reg));
+		assert(!regex_match("abd", reg));
+		system("pause");
+		return 0;
+	}
+
+ 使用cregex类的工厂方法compile()创建了一个正则表达式对象reg，它可以对字符数组进行正则表达式匹配。
+ 
+示例:匹配身份证号码
+ 身份证的基本编码规则,它是由18位数字组成的，前6位是地区编码，中间8位是年月日，最后4位数字可能有一个x。
+ 使用\d来表示数字，那么前6位的正则表达式是\d{6},
+                   后4位的正则表达式是:\d{3}(X|\d)。
+                   中间的年月日的检验要稍微复杂一些，不检查闰年和月份天数的有效性，
+                   可以写成：(1|2)\d{3}(0|1)\d[0-3]\d。其中的(1|2)\d{3}检查4位的年份,第一个数字必须是1或2,(0|1)\d检查月份，[0-3]\d检查天.
+ 把这些组合起来得到:\d{6}(1|2)\d{3}(0|1)\d[0-3]\d\d{3}(X|\d),在转换成C字符串就是:"\\d{6}(1|2)\\d{3}(0|1)\\d[0-3]\\d\\d{3}(X|\\d)"
+示范:
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		//c字符串则正表达式对象, 最后参数icase用于指示匹配时忽略大小写
+		cregex reg = cregex::compile("\\d{6}(1|2)\\d{3}(0|1)\\d[0-3]\\d\\d{3}(X|\\d)", icase);
+		assert(regex_match("999555197001019999", reg));  //自由函数regex_match()用来检查一个字符串是否完全匹配一个正则表达式
+		assert(regex_match("99955519700101999X", reg));
+		assert(regex_match("99955520100101999x", reg));
+		assert(!regex_match("99955520100101999Z", reg));
+		assert(!regex_match("99955530100101999X", reg));
+		assert(!regex_match("999555201099019998", reg));
+		assert(!regex_match("999555201022419991", reg));
+		system("pause");
+		return 0;
+	}
+ 下面增加子表达式，使用match_results来提取匹配结果中的年月日信息:
+ 首先是修改正则表达式，改为:
+ "\\d{6}((1|2)\\d{3})((0|1)\\d)([0-3]\\d)(\\d{3}(X|\\d))"
+ 这里增加了四个括号，分别定义了四个子表达式，它们是:((1|2)\\d{3}),((0|1)\\d),([0-3]\\d)和(\\d{3}(X|\\d)),注意，子表达式里的括号也仍然是一个子表达式，因此这个正则表达式里共有七个子表达式，按照出现顺序从1至7编号.
+ 
+示例:
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/assign.hpp>
+	#include <boost/typeof/typeof.hpp>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		//c字符串则正表达式对象, 最后参数icase用于指示匹配时忽略大小写
+		cregex reg = cregex::compile("\\d{6}((1|2)\\d{3})((0|1)\\d)([0-3]\\d)(\\d{3}(X|\\d))", icase);
+		cmatch what;      //匹配结果对象
+		assert(regex_match("999555197001019999", what, reg));
+		for (BOOST_AUTO(pos, what.begin()); pos != what.end(); ++pos)
+		{
+			cout<<"["<<*pos<<"]";
+		}
+		cout<<endl;
+		cout<<"date:"<<what[1]<<what[3]<<what[5]<<endl;
+		system("pause");
+		return 0;
+	}
+输出：
+	[999555197001019999][1970][1][01][0][01][9999][9]
+	date:19700101
+
+ regex_match()还可以替代部分string_algo库的判断式算法的功能，例如:使用sregex实现了starts_with和ends_with算法:
+ sregex实现了starts_with和ends_with算法:
+ string str("readme.txt");
+ sregex start_reg = sregex::compile("^re.*"); //匹配开头
+ sregex end_reg = sregex::compile(".*txt$"); //匹配末尾
+ assert(regex_match(str, start_reg));
+ assert(regex_match(str, end_reg));
+
+\\查找:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ 使用正则表达式的查找功能，要用到另外一个自由函数regex_search().
+ 它与regex_match()的区别是:
+ regex_match()要求输入字符串必须要与正则表达式完全匹配，而regex_search()则检测输入表达式中是否包含正则表达式，即存在一个匹配正则表达式的子串。
+ regex_search()与regex_match()相似，也有很多重载形式以支持各种应用情况，基本声明大概是这样的:
+ bool regex_search(string, basic_regex const & re);
+ bool regex_search(string,match_results& what, basic_regex const &re);
+ regex_search()的调用形式与regex_match()完全相同，有一点除外，即它不要求完全匹配，只有找到有匹配的子串就返回true。
+示范：使用了正则表达式"(power) - (.{4})"在搜索power+连字符+4个任意字符.
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/assign.hpp>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		char* str = "there is a POWER-suit item";
+		cregex reg = cregex::compile("(power)-(.{4})", icase);
+		assert(regex_search(str, reg));  //可搜索到字符串
+		cmatch what;
+		regex_search(str, what, reg);  //保存搜索结果
+		assert(what.size() == 3);   //共3个子表达式
+		cout<< what[0]<<","<< what[1]<<","<<what[2]<<endl;
+		assert(!regex_search("error message", reg));
+		system("pause");
+		return 0;
+	}
+ regex_search()可以替代string_algo的contains，starts_with,ends_with和查找算法
+例如:
+string str("readme.TXT");
+sregex start_reg = sregex::compile("^re");
+sregex end_reg = sregex::compile("txt$", icase);
+assert(regex_search(str, start_reg));   //starts_with
+assert(regex_search(str, end_reg));   //ends_with
+assert(regex_search(str, cregex::compile("me"))); //contains
+
+\\替换:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ xpressive的替换功能使用的函数是regex_replace(),它先使用正则表达式查找匹配的字符串，然后再用指定的格式替换，基本声明如下：
+string regex_replace(string, basic_regex const &re, Format);
+ 前两个参数与regex_match(),regex_search()相同，第三个参数Format可以是一个简单字符串，也可以是一个符合ECMA-262定义的带格式的字符串，它可以用$N引用正则表达式匹配的子表达式，$&引用全匹配。在替换完成后，regex_replace()返回一个字符串的拷贝.
+ 
+示范:
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/assign.hpp>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		string str("readme.txt");
+		sregex reg1 = sregex::compile("(.*)(me)");
+		sregex reg2 = sregex::compile("(t)(.)(t)");
+		cout<< regex_replace(str, reg1, "manual")<<endl;
+		cout<< regex_replace(str, reg1, "$1you")<<endl;
+		cout<< regex_replace(str, reg1, "$&$&")<<endl;
+		cout<< regex_replace(str, reg2, "$1N$3")<<endl;
+		str = regex_replace(str, reg2, "$1$3");
+		cout<<str<<endl;
+		system("pause");
+		return 0;
+	}
+输出：
+	manual.txt
+	readyou.txt
+	readmereadme.txt
+	readme.tNt
+	readme.tt	
+
+regex_replace()可以替代string_algo库中的修剪和删除算法，例如：
+string str("2010 Happy new Year!!!");
+sregex reg1 = sregex::compile("^(\\d| )*"); //查找开头的数字和空格
+sregex reg2 = sregex::compile("!*$");  //查找末尾的标点
+cout<<regex_replace(str, reg1, "")<<endl; //trim_left
+cout<<regex_replace(str, reg2, "")<<endl; //trim_right
+str = regex_replace(str, reg1, "Y2000 "); //replace_all
+cout<<str<<endl;
+
+\\迭代：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ xpressive库提供了迭代器模板类regex_iterator<>，类似string_algo的查找迭代器和tokenizer，提供一个类似迭代器的视图（不是容器！），可以遍历正则表达式的匹配结果，具体应用时应当使用它的typedef，如sregex_iterator和cregex_iterator.
+regex_iterator<>的类摘要：
+template<typename BidiIter>
+struct regex_iterator
+{
+ typedef match_results<BidiIter> value_type;
+ regex_iterator(BidiIter, BidiIter, basic_regex const &);
+ value_type const & operator*() const;
+ value_type const * operator->() const;
+ regex_iterator<BidiIter> & operator++();
+ regex_iterator<BidiIter> operator++(int);
+}
+ regex_iterator<>构造函数完成迭代初始化工作，要求传入进行分析的容器区间和正则表达式对象，之后就可以对它反复调用operator++，使用*或者->获取匹配的结果match_results对象.
+ regex_iterator<>可以替代string_algo库的查找算法和查找迭代器.
+示范:
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/assign.hpp>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		string str("Power-bomb, power-suit, pOWER-beam all items\n");
+		sregex reg = sregex::compile("power-(\\w{4})", icase);
+		sregex_iterator pos(str.begin(), str.end(), reg);
+		sregex_iterator end;
+		while(pos != end)
+		{
+			cout<<"["<<(*pos)[0]<<"]";
+			++pos;
+		}
+		cout<<endl;
+		system("pause");
+		return 0;
+	}
+ 注意：operator*返回一个match_results对象，因为操作符优先级的原因，需要把operator*括起来，然后再使用operator[].
+
+\\分词:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ xpressive库使用模板类regex_token_iterator<>提供了强大的分词迭代器，要比string_algo和tokenizer的分词能力强大，灵活得多。
+template<typename BidiIter>
+struct regex_token_iterator
+{
+ typedef sub_match<BidiIter> value_type;
+ regex_token_iterator(BidiIter, BidiIter, basic_regex const &, match_flag_type args);
+ value_type const & operator*() const;
+ value_type const * operator->() const;
+ regex_token_iterator<BidiIter> & operator++();
+ regex_token_iterator<BidiIter> operator++(int);
+}
+ regex_token_iterator<>同样不能直接使用，需要用它的两个typedef:sregex_token_iterator和cregex_token_iterator.
+ regex_token_iterator<>的用法大致与regex_iterator<>相同，但它的变化在于匹配对象的使用方式。
+ 默认情况下regex_token_iterator<>同regex_iterator<>,返回匹配的字符串，如果构造时传入-1作为最后一个args参数的值，它将把匹配的字符串视为分隔符。如果args是一个正数，则返回匹配结果的第args个字串。还有与regex_iterator<>不同的是它解引用返回的是一个sub_match对象，而不是match_results对象。
+示范：
+	#include <assert.h>
+	#include <iostream>
+	#include <boost/assign.hpp>
+	#include <boost/xpressive/xpressive_dynamic.hpp>
+	using namespace boost;
+	using namespace std;
+	int main()
+	{
+		using namespace boost::xpressive;
+		char *str = "Link*||+Mario+||Zelda!!!||Metroid";
+		//查找所有的单词，无视标点符号
+		cregex reg = cregex::compile("\\w+", icase);
+		cregex_token_iterator pos(str, str + strlen(str), reg);
+		while(pos != cregex_token_iterator())
+		{
+			cout<<"["<<*pos<<"]";
+			++pos;
+		}
+		cout<<endl;
+		//使用分隔符则正表达式分隔符是"||"
+		cregex split_reg = cregex::compile("\\|\\|");
+		pos = cregex_token_iterator(str, str + strlen(str), split_reg, -1);
+		while(pos != cregex_token_iterator())
+		{
+			cout <<"["<<*pos<<"]";
+			++pos;
+		}
+		cout<<endl;
+		system("pause");
+		return 0;
+	}
+ 
+\\与regex的区别：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ boost.regex是Boost库的另一个正则表达式解析库，它们接口几乎完全相同，但设计思想有根本的差异，两者之间存在重要区别：
+ 【1】xpressive的basic_regex<>的模板参数是迭代器类型，而boost.regex是字符类型
+ 【2】xpressive的basic_regex<>必须使用工厂方法compile()创建，而不能从一个字符串创建。
+ 【3】xpressive的basic_regex<>不具有类似std::string的操作接口.
+ 【4】xpressive对basic_regex<>的一些定制功能位于工厂方法compile()中。
+
+\\高级议题：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+\\工厂类：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ 除了可以使用sregex::compile()创建正则表达式对象外，xpressive还提供一个专门的工厂类regex_compiler<>：
+template<typename BidiIter, typename RegexTraits, typename CompilerTraits>
+struct regex_compiler{
+ locale_type imbue(locale_type);
+ locale_type getloc() const;
+ basic_regex<BidiIter> compile(InputIter, InputIter);
+ basic_regex<BidiIter> & operator[](string_type const &);
+};
+ 通常使用预定义的typedef，如:sregex_compiler和cregex_compiler.
+ regex_compiler也可以创建正则表达式对象，但比regex::compile()有更多的功能，可以传入特定的locale支持本地化，并重载operator[]实现了flyweight模式，可以把它作为一个正则表达式对象池。
+示范：
+cregex_compiler rc;  //一个正则表达式工厂
+rc["reg1"] = rc.compile("a|b|c");
+rc["reg2"] = rc.compile("\\d*");
+assert(!regex_match("abc", rc["reg1"]));
+assert(regex_match("123", rc["reg2"]));
+
+\\异常：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ 当xpressive在编译不正确的正则表达式或者执行其他操作出错时会抛出regex_error异常。
+ regex_error是std::runtime_error和boost::exception的子类，因此具有boost::exception的所有能力，可以任意追加错误信息。
+ 建议：在使用xpressive时应当总使用try-catch块，以防止异常；
+
+\\格式化器：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ 在使用regex_replace()进行替换，除了使用简单字符串和格式字符串，还可以使用格式化器，格式化器是一个具有operator()的可调用对象，函数指针，函数对象都可以，它必须能够处理查找到的match_results对象。
+ 下面定义了一个函数对象formater，它将查找到的cmatch对象全部改为大写，使用了string_algo库的to_upper_copy算法:
+struct formater
+{
+ string operator()(cmatch const &m) const
+ { return boost::to_upper_copy(m[0].str());}
+};
+char* str = "*Link*||+Mario+||Zelda!!!||Metroid";
+cregex reg = sregex::compile("\\w+", icase);
+cout<<regex_replace(str, reg, formater())<<endl;
+
+\\让正则表达式执行得更快:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ xpressive的静态方式在程序的编译器同时进行c++和正则表达式的编译处理，而动态方式则在编译期只编译c++，而在运行时编译正则表达式。
+ 与format库类似，编译一个正则表达式需要很多运行时开销，应当少做sregex/cregex对象创建工作，尽量重用。同样，smatch/cmatch也应当尽量重用，它们缓存了动态分配的内存，不至于每次重新分配内存。
+
+\\静态正则表达式：\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+ 下面定义了一个静态正则表达式，它等价于"^\d*\w+";
+char* str = "123asd";
+cregex reg = '^' >> *_d>>+_w;//使用operator>>连接表达式
+cout<<regex_match(str, reg)<<endl;
+
+
+//正则表达式语法:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+   【Perl】    - 【Meaning】
+01  .          - any character (assuming Perl's /s modifier).
+02  ab         - sequencing of?a?and?b?sub-expressions.
+03  a|b        - alternation of?a?and?b?sub-expressions.
+04  (a)        - group and capture a back-reference.
+05  (?:a)      - group and do not capture a back-reference.
+06  \1         - a previously captured back-reference.
+07  a*         - "zero or more times, greedy."
+08  a+         - "one or more times, greedy."
+09  a?         - "zero or one time, greedy."
+10  "a{n,m}"   - "between?n?and?m?times, greedy."
+11  a*?        - "zero or more times, non-greedy."
+12  a+?        - "one or more times, non-greedy."
+13  a??        - "zero or one time, non-greedy."
+14  "a{n,m}?"  - "between?n?and?m?times, non-greedy."
+15  ^          - beginning of sequence assertion.
+16  $          - end of sequence assertion.
+17  \b         - word boundary assertion.
+18  \B         - not word boundary assertion.
+19  \n         - literal newline.
+20  .          - any character except a literal newline (without Perl's /s modifier).
+21  \r?\n|\r   - logical newline.
+22  [^\r\n]    - any single character not a logical newline.
+23  \w         - "a word character, equivalent to set[alnum | '_']."
+24  \W         - "not a word character, equivalent to ~set[alnum | '_']."
+25  \d         - a digit character.
+26  \D         - not a digit character.
+27  \s         - a space character.
+28  \S         - not a space character.
+29  [:alnum:]  - an alpha-numeric character.
+30  [:alpha:]  - an alphabetic character.
+31  [:blank:]  - a horizontal white-space character.
+32  [:cntrl:]  - a control character.
+33  [:digit:]  - a digit character.
+34  [:graph:]  - a graphable character.
+35  [:lower:]  - a lower-case character.
+36  [:print:]  - a printing character.
+37  [:punct:]  - a punctuation character.
+38  [:space:]  - a white-space character.
+39  [:upper:]  - an upper-case character.
+40  [:xdigit:] - a hexadecimal digit character.
+41  [0-9]      - characters in range?'0'?through?'9'.
+42  [abc]      - "characters?'a',?'b', or?'c'."
+43  [0-9abc]   - "characters?'a',?'b',?'c'?or in range?'0'?through?'9'."
+44  [^abc]     - "not characters?'a',?'b', or?'c'."
+45  (?i:stuff) - match?stuff?disregarding case.
+46  (?>stuff)  - "independent sub-expression, match?stuff?and turn off backtracking."
+47  (?=stuff)  - "positive look-ahead assertion, match if before?stuff?but don't include?stuff?in the match."
+48  (?!stuff)  - "negative look-ahead assertion, match if not before?stuff."
+49  (?<=stuff) - "positive look-behind assertion, match if after?stuff?but don't include?stuff?in the match. (stuff?must be constant-width.)"
+50  (?<!stuff) - "negative look-behind assertion, match if not after?stuff. (stuff?must be constant-width.)"
+51  (?P<name>stuff) - Create a named capture.                                        
+52  (?P=name)  - Refer back to a previously created named capture.
+  
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

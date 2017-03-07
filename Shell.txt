@@ -1,0 +1,462 @@
+
+*shell_expression*
+
+Shell 总结
+
+1. for:                      *shell_for*
+    基本语法:
+        for ...              ~
+        do                   ~
+            do something     ~
+        done                 ~
+    1.1 {}数字段形式
+        {}详细: a. {start..end}
+                b. {start..end..step}
+        => for i in {1..10} ~
+    1.2 seq形式             *shell_seq*
+        seq详细: a. seq {start}
+                 b. seq {start end}
+                 c. seq {start step end}
+        => for i in `seq 100` ~
+    1.3详细列表形式
+        => for File in 1 2 3 4 5          ~
+    1.4命令返回形式
+        => for shname in `find . -type f -name "*.sh"`  ~
+        => for shname in `ls *.sh`   ~
+    1.5 (())形式
+        => for((i=1;i<100;i++))  ~
+    example: >
+    for p in $proj_dir; do
+        eval wait \$${p}_job
+        eval ${p}_return=$?
+    done
+
+2. while:                    *shell_while*
+    基本语法:
+        while ...            ~
+        do                   ~
+            do something     ~
+        done                 ~
+    NOTE: ... 为bool表达式，见下面介绍
+
+3. break continue           *shell_break_contunue*
+
+4. if:                      *shell_if*
+    基本语法:
+        if ...                ~
+        then                  ~
+            do something      ~
+        elif ...              ~
+        then                  ~
+            do something      ~
+        else                  ~
+            do something      ~
+        fi                    ~
+    NOTE: ... 为bool表达式，见下面介绍
+    example: >
+    if (($return)); then
+        echo "${p}: Fail!"
+        exit 1
+    fi
+
+5. bool表达式             *shell_bool_expression*
+    5.1 [ exp ] 测试指令
+        eg: while [ $min -eq $max ]  ~
+        NOTE: [、]和exp之间必须有空格
+    5.2 ((exp)) 算数表达式
+        eg: while(($i<100))  ~
+    5.3 执行命令返回
+        5.3.1  *$(exp)*
+            eg: if $(ls /abc)  ~
+        5.3.2  *`exp`*
+            eg: if `find /abc`  ~
+        5.3.3  *only-command*
+            eg: if ping www.baidu.com   ~
+    5.4 同时使用不同形式
+        可以使用 && 和 || 连接：
+        if ((9 % 8 == 0)) || [ '1' == '1' ] ~
+        if ((9 % 8 == 0)) && [ '1' == '1' ] ~
+
+6. [ ... ]测试指令:          *shell_[...]*
+    通常用" [ ] "来表示条件测试。注意这里的两边空格很重要。要确保方括号的空格。
+    -r file　　　　　用户可读为真
+　　-w file　　　　　用户可写为真
+　　-x file　　　　　用户可执行为真
+　　-f file　　　　　文件为正规文件为真
+　　-d file　　　　　文件为目录为真
+　　-c file　　　　　文件为字符特殊文件为真
+　　-b file　　　　　文件为块特殊文件为真
+　　-s file　　　　　文件大小非0时为真
+　　-t file　　　　　当文件描述符(默认为1)指定的设备为终端时为真
+
+    数值比较：
+    -eq              比较两个参数是否相等（例如，if ）
+    -ne              比较两个参数是否不相等
+    -lt              参数1是否小于参数2
+    -le              参数1是否小于等于参数2
+    -gt              参数1是否大于参数2
+    -ge              参数1是否大于等于参数2
+
+    数值和字符串比较：
+    =               相等
+    ==              相等
+
+    字符串比较：
+    =               相等
+    ==              相等
+    !=              不相等
+    >               大于
+    <               小于
+    ......
+
+    否定表示: [ ! ... ]
+
+    NOTE: [、]和'操作符'和'测试值'之间都要有空格， 例如[ "$a" = "$b" ]这里面的4个空格很重要
+
+    eg:
+        [ -f "somefile" ] ：判断是否是一个文件
+        [ -x "/bin/ls" ] ：判断/bin/ls是否存在并有可执行权限
+        [ -n "$var" ] ：判断$var变量是否有值
+        [ "$a" = "$b" ] ：判断$a和$b是否相等
+        [ 2 -eq 5 ]
+
+7. 标准输出, 标准错误输出重定向到垃圾桶
+    &>/dev/null              ~
+
+8. case esac (swich case) >
+    case $num in
+        1)  echo 'You select 1'
+        ;;
+        2)  echo 'You select 2'
+        ;;
+        *)  echo 'You do not select a number between 1 to 2'
+        ;;
+    esac
+
+9. 查看某命令是否存在 >
+    # 检查cecho命令是否存在
+    command -v cecho >/dev/null
+    if [ $? == 0 ]; then
+        cecho "cecho exist"
+    else
+        echo "cecho not exist"
+    fi
+
+10. 系统预定于变量
+    $0      当前脚本的文件名
+    $n      传递给脚本或函数的参数。n 是一个数字，表示第几个参数。例如，第一个参数是$1，第二个参数是$2。
+    $#      传递给脚本或函数的参数个数。
+    $*      传递给脚本或函数的所有参数。
+    $@      传递给脚本或函数的所有参数。被双引号(" ")包含时，与 $* 稍有不同，下面将会讲到。
+    $!      在后台运行的最后的工作的PID(进程ID).
+    $?      上个命令的退出状态，或函数的返回值。
+    $$      当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。
+    $PPID   当前shell进程的父进程ID
+    $PWD    当前工作目录
+    $SECONDS 当前脚本运行秒数
+    $IFS    内部分割符，默认值是space,tab,newline。
+
+    $* 和 $@ 的区别: ~
+    都表示传递给函数或脚本的所有参数，不被双引号(" ")包含时，都以"$1" "$2" … "$n" 的形式输出所有参数。
+    但是当它们被双引号(" ")包含时：
+    - "$*" 会将所有的参数作为一个整体，以"$1$IFS$2$IFS…$IFS$n"的形式输出所有参数； NOTE: 每两个参数之间是$IFS的第1项
+    - "$@" 会将各个参数分开，以"$1" "$2" … "$n" 的形式输出所有参数。
+
+    $IFS 内部分隔符 解析: ~
+    默认值：<space><tab><newline>
+    起作用时机：任何没有被""或''包裹的引用和循环都会使$IFS起作用
+    作用：把引用的对象里包含的所有$IFS中的分割符替换成$IFS里的第一个分隔符，连续的分割符会合并成一个，并且在循环时以该分隔符分割该对象
+    修改：IFS=$'\n'或IFS=:  #将IFS修改为回车或者冒号
+    例1: >
+    $ echo 123 456    789       # 输出 123 456 789 注意456和789之间的多个空白没了
+    $ echo "123 456    789"     # 输出 123 456    789 原样输出
+<    例2: >
+    文件abc.txt里的内容：
+        a bc     d
+        e    f
+        g h
+    执行 $ echo $(cat abc.txt) 后输出：
+        a bc d e f g h
+<    例3: >
+    flist=$(find -type f)       # find的输出是以回车符作为每个文件的分隔符的
+    OLD_IFS=$IFS                # 保存原始值
+    IFS=$'\n'                   # 改变IFS的值为回车符
+    for i in $flist; do         # NOTE: 此处不能加""包裹
+        echo $i                 # 处理每个find到的文件
+    done
+    IFS=$OLD_IFS                # 还原IFS的原始值
+
+
+11. 用户自定义变量 >
+    var=value       设置实际值到var，!!!等号两边不能出现空格!!!
+    var=`command`   命令的标准输出设置到变量var中，!!!等号两边不能出现空格!!!
+    $var            变量引用
+    ${var}          变量引用
+    export var      将var变量输出为全局变量：
+    unset var       清除自定义变量var
+    var+value       如果设置了var值，则重设其值
+    var:?value      如果未设置var值，显示未定义用户错误信息
+    var:value       如果未设置var值，显示系统错误信息
+    var:=value      如果未设置var值，设置其值
+    var:-value      同上，但是其值并不设置到var，可以被替换
+
+12. 定义函数 >
+    # 定义函数
+    function funname ()
+    {
+        echo $1     #处理第一个参数
+        echo $2     #处理第二个参数
+        return 0    #返回值
+    }
+
+    # 调用函数
+    funname "I'm 1st param" "I'm 2nd param"
+
+13. shift
+    在需要遍历所有脚本输入参数时非常有用。 >
+    while (($#!=0))
+    do
+        echo $1
+        shift
+    done
+<   会把脚本的所有参数全部枚举出来
+
+14. She-Bang 释伴
+    用于指定脚本解析器
+    #!/bin/sh          [sh 脚本] ~
+    #!/bin/bash        [bash 脚本] ~
+    #!/usr/bin/perl    [perl 程序] ~
+    #!/bin/awk -f      [awk 脚本] ~
+    必须写在第一行的行首
+
+15. 脚本调试选项：
+    -v （verbose 的简称） - 告诉 Shell 读取脚本时显示所有行，激活详细模式。 ~
+    -n （noexec 或 no ecxecution 简称） - 指示 Shell 读取所有命令然而不执行它们，这个选项激活语法检查模式。 ~
+    -x （xtrace 或 execution trace 简称） - 告诉 Shell 在终端显示所有执行的命令和它们的参数。 这个选项是启用 Shell 跟踪模式。 ~
+    -e  这句语句告诉bash如果任何语句的执行结果不是true则应该退出该脚本 ~
+    使用方法：
+    - 执行命令时输入 ~
+        $ bash -v some.sh
+    - 通过shell内置命令set ~
+        set -选项       启用调试模式
+        set +选项       禁用调试模式
+        set -           禁止所有调试模式
+
+16. 符号
+    ;;  在使用case选项的时候，作为每个选项的终结符。
+    .   相当于bash内建命令source
+    "   部分引用。双引号包围的内容可以允许变量扩展，也允许转义字符的存在。如果字符串内出现双引号本身，需要转义，因此不一定双引号是成对的。
+    '   单引号括住的内容，被视为单一字符串，引号内的禁止变量扩展，所有字符均作为字符本身处理（除单引号本身之外），单引号必须成对出现。
+    \   转义，放在一行指令的最末端表示紧接着的回车无效
+    `   命令替换。这个引号包围的为命令，可以执行包围的命令，并将执行的结果赋值给变量。如：a=`dirname '/tmp/x.log'`
+    ;   命令队列：`CMD1 ; CMD2`，先执行CMD1，再执行CMD2
+    &&  命令队列：`CMD1 && CMD2`，先执行CMD1，如果CMD1返回0时才执行CMD2
+    ||  命令队列：`CMD1 || CMD2`，先执行CMD1，如果CMD1返回非0时才执行CMD2
+    &   后台执行符号
+
+17. 执行一个字符串
+    $ eval something ~
+    example: >
+    a=b
+    eval ${a}b=12
+    echo $bb           #输出:12
+    eval echo \$${a}b  #输出:12
+
+18. jobs 并行执行
+    $ command &   #创建一个job，后台执行，使用$!获取PID ~
+    $ wait [PID]  #等待某个job结束，返回值($?)为该job的exit code ~
+    $ jobs        #查看jobs ~
+    <Ctrl-Z>      #使前台正在执行的进程转到后台，并设置为suspended(暂停)状态 ~
+    $ fg %N       #使标号为N的后台进程进入前台执行 ~
+    $ bg %N       #使标号为N的后台处于suspended(暂停)状态的进程进入running(运行)状态 ~
+    $ kill %N     #使标号为N的进程终止执行 ~
+    example: >
+    proj_dir="asic fpga"
+    for p in $proj_dir; do
+        cd ${p}
+        ./script/release.sh &  #创建多个job
+        eval ${p}_job=$!       #获得这些job的PID
+        cd ..
+    done
+    for p in $proj_dir; do
+        eval wait \$${p}_job   #等待job结束
+        eval ${p}_return=$?    #获取每个job的返回值
+    done
+
+19. ``, $(), ${}, $(())
+    - $(command) ~
+        - bool上下文时：执行命令，并获得返回值，如: if $(command)
+        - 赋值上下文时：执行命令，并获得标准输出，如 out=$(command)
+    - ${var} ~
+        - $var与${var}作用相同。但是用${}会比较精确的界定变量名称的范围，如字符串内引用
+        - ${#var} 如果var是字符串，得到它的长度
+    - %((exp)) ~
+        整数运算，如$((a*b + 7))
+    - `command` ~
+        同$(), 但是尽量使用$(), 因为它太像''了
+
+20. 链表、数组
+    初始： ~
+        a=(a b c)
+    添加： ~
+        a+=(d)
+    修改： ~
+        a[1]=e
+    删除： ~
+        unset a[1]  #只是删除当前位置数据，不删除其位置
+    使用： ~
+        获取全部：  ${a[*]} (或 ${a[@]})
+        获取第N个： ${a[N]}
+        获取数量：  ${#a[*]} (或 ${#a[@]})
+    Example1: >
+        a=()
+        a+=(1)
+        a+=(2)
+        a+=(3)
+        for i in ${a[*]}; do
+            echo $i
+        done
+<    Example2 并行处理: >
+        #filename: parallel_checksums.sh
+        PIDARRAY=()
+        for file in File1.iso File2.iso; do
+            md5sum $file &
+            PIDARRAY+=("$!")
+        done
+        wait ${PIDARRAY[@]}
+
+21. echo -e 颜色样式的输出
+    使用-e可以使echo带颜色输出
+    颜色指示语法：
+    \e[X;Y;Zm ~
+    `- X    标志设置`
+    `- ;Y;Z 可选标志`
+    Example： >
+    echo -e "\e[32;49;1m [DONE] \e[0m"
+<    标志： >
+    0       重新设置属性到缺省设置
+    1       设置粗体
+    2       设置一半亮度（模拟彩色显示器的颜色）
+    4       设置下划线（模拟彩色显示器的颜色）
+    5       设置闪烁
+    7       设置反向图象
+    22      设置一般密度
+    24      关闭下划线
+    25      关闭闪烁
+    27      关闭反向图象
+    30      设置黑色前景
+    31      设置红色前景
+    32      设置绿色前景
+    33      设置棕色前景
+    34      设置蓝色前景
+    35      设置紫色前景
+    36      设置青色前景
+    37      设置白色前景
+    38      在缺省的前景颜色上设置下划线
+    39      在缺省的前景颜色上关闭下划线
+    40      设置黑色背景
+    41      设置红色背景
+    42      设置绿色背景
+    43      设置棕色背景
+    44      设置蓝色背景
+    45      设置紫色背景
+    46      设置青色背景
+    47      设置白色背景
+    49      设置缺省黑色背景
+
+22. 数字字符串互转
+    数字->字符串： ~
+    str=$(printf "0x%08x" $num)
+    字符串->数字： ~
+    num=$(($str * 2))
+
+23. 切割（拆分）文件
+    等大小切割与合并： ~
+    $ split -b 10k file.bin         #拆分的每个大小为10k (bin文件)
+    $ split -C 10m file.txt         #拆分的每个大小为10m，并且一行不会被拆分为多行 (txt文件)
+    $ split -l 1000 file.txt        #拆分的每个行数为1000行 (txt文件)
+    $ cat xaa xab xac >merge.bin    #合并
+
+    不等大小切割 （提取指定位置） ~
+    $ dd if=file.bin of=out.bin skip=0   bs=256       iflag=skip_bytes count=1   #提取offset=0byte   ，length=256bytes
+    $ dd if=file.bin of=out.bin skip=256 bs=100000000 iflag=skip_bytes count=1   #提取offset=256bytes，length=100000000bytes (一直到结尾)
+
+24. 重定向 (Redirection)
+    操作符： ~
+    >       输出重定向，创建方式
+    >>      输出重定向，追加方式
+    <       输入重定向，读取文件
+    |       管道
+
+    预设描述符：~
+    0       stdin
+    1       stdout
+    2       stderr
+    &       描述符的标识符，防止shell会把0/1/2当成文件
+
+    使用：~
+    command >file           command的stdout重定向到file中，等同于 1>file
+    command 2>&1            command的stderr重定向到stdout中
+    command &>file          command的stderr和stdout全部重定向到file中
+    command <file           读取文件内容作为标准输入
+    command1 | command2     command1的输出做为command2的输入
+
+25. 修改系统默认shell
+   1、找到/etc/passwd，若没有，用命令: mkpasswd -l > /etc/passwd 生成。
+   2、修改你所在用户名的shell，如： >
+      user:*:197608:197121:U-LIQIANG-PC\user,S-1-5-21-706321491-2345450229-1231029572-1000:/home/user:/bin/fish
+
+26. 字符串操作
+    取长度:
+        str="abcd"
+        echo ${#str}         # 4
+    查找子串的位置:
+        str="abc"
+        expr index $str "a"  # 1
+        expr index $str "b"  # 2
+        expr index $str "x"  # 0
+        expr index $str ""   # 0
+    选取子串:
+        str="abcdef"
+        echo ${str:2}        # 从第二个位置开始提取字符串， bcdef
+        echo ${str:2:3}      # 从第二个位置开始提取3个字符, bcd
+        echo ${str:(-6):5}   # 从倒数第二个位置向左提取字符串, abcde
+        echo ${str:(-4):3}   # 从倒数第二个位置向左提取6个字符, cde
+    截取子串:
+        str="abbc,def,ghi,abcjkl"
+        echo ${str#a*c}      # 输出,def,ghi,abcjkl  一个井号(#) 表示从左边截取掉最短的匹配 (这里把abbc字串去掉）
+        echo ${str##a*c}     # 输出jkl，             两个井号(##) 表示从左边截取掉最长的匹配 (这里把abbc,def,ghi,abc字串去掉)
+        echo ${str#"a*c"}    # 输出abbc,def,ghi,abcjkl 因为str中没有"a*c"子串
+        echo ${str##"a*c"}   # 输出abbc,def,ghi,abcjkl 同理
+        echo ${str#*a*c*}    # 空
+        echo ${str##*a*c*}   # 空
+        echo ${str#d*f)      # 输出abbc,def,ghi,abcjkl,
+        echo ${str#*d*f}     # 输出,ghi,abcjkl 
+        echo ${str%a*l}      # abbc,def,ghi  一个百分号(%)表示从右边截取最短的匹配
+        echo ${str%%b*l}     # a             两个百分号表示(%%)表示从右边截取最长的匹配
+        echo ${str%a*c}      # abbc,def,ghi,abcjkl
+        可以这样记忆, 井号（#）通常用于表示一个数字，它是放在前面的；百分号（%）卸载数字的后面; 
+        或者这样记忆，在键盘布局中，井号(#)总是位于百分号（%）的左边(即前面)
+    字符串替换:
+        str="apple, tree, apple tree"
+        echo ${str/apple/APPLE}   # 替换第一次出现的apple
+        echo ${str//apple/APPLE}  # 替换所有apple
+        echo ${str/#apple/APPLE}  # 如果字符串str以apple开头，则用APPLE替换它
+        echo ${str/%apple/APPLE}  # 如果字符串str以apple结尾，则用APPLE替换它
+    比较:
+        [[ "a.txt" == a* ]]       # 逻辑真 (pattern matching)
+        [[ "a.txt" =~ .*\.txt ]]  # 逻辑真 (regex matching)
+        [[ "abc" == "abc" ]]      # 逻辑真 (string comparision)
+        [[ "11" < "2" ]]          # 逻辑真 (string comparision), 按ascii值比较
+    连接：
+        s1="hello"
+        s2="world"
+        echo ${s1}${s2}           # 当然这样写 $s1$s2 也行，但最好加上大括号
+
+27. 使用vim自动处理文件:
+    $ vim file <<-EOF
+      :%s/1/a/g     # 调用vim命令
+      :wq           # 调用vim命令
+      EOF           # 结束标志
+
+vim:ft=help

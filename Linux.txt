@@ -1,0 +1,751 @@
+
+*Linux* *Bash* 
+
+1. *iconv* 编码转换: 
+    $ iconv -f UNICODELITTLE -t MS-ANSI -c resource.h > re.h      ~
+    |-f| : 输入编码
+    |-t| : 输出编码
+    |-c| : 忽略不可转换的字符
+
+2. *xargs* 从标准输入中构造可执行的命令行： 
+    build and execute command lines from standard input
+    一般形式:
+    xargs [-I replace-str] [-n max-args] [command] [initial-arguments]   ~
+
+    |-I| |replace-str| 使用 |replace-str| 代替输入的参数
+    |-n| |max-args| 每次提供的最大参数个数
+    
+    xargs会把标准输入的数据的所有回车去掉.
+    当xargs什么参数都不加的时候, 默认把标准输入的参数作为执行命令最尾的参数.
+
+    eg: 
+        $ find -type f | xargs -I{} mv {} ./path/       #查找当前目录及子目录的文件,并把这些文件移动到./path/下   ~
+        $ find -name '*.[ch]' | xargs grep -E 'define'  #在当前目录下查找c和h文件中出现的'define'的位置           ~
+        $ findfile.sh 'uvproj' | xargs -I{} -n1 perl test.pl -f={}  #对findfile输出的结果, 循环调用perl test.pl -f='file' 脚本 ~
+
+3. Bash 常用快捷操作                         *Bash快捷操作*
+    |Ctrl+a|   切换到命令行开始
+    |Ctrl+e|   切换到命令行末尾
+    |Ctrl+l|   清除屏幕内容，效果等同于clear
+    |Ctrl+u|   清除剪切光标之前的内容, 并复制到bash自己的剪切板
+    |Ctrl+k|   剪切清除光标之后的内容, 并复制到bash自己的剪切板
+    |Ctrl+y|   粘贴刚才所删除的字符
+    |Ctrl+r|   在历史命令中查找
+    |Ctrl+c|   终止命令
+    |Ctrl+d|   退出shell，logout
+    |Ctrl+z|   转 入后台运行但是当前用户推出将终止。可以在命令前加 nohup 或者在命令后加&
+    |history|  显示你所有执行过的编号+历史命令。
+    |!125|     执行历史记录中编号为125的命令
+    |!!|       重复执行最后一条命令 执行命令后忘记加速度 弥补方法sudo !!
+    |!$|       使用上一条命令的最后一个参数;
+    鼠标中键 将当前选中的文本复制到命令行;
+    |Shift-insert| 从系统剪切板粘贴
+
+4. 更改linux的命令搜索路径 （设置环境变量）    *linux命令搜索路径*     
+    位置：/etc/profile 文件
+          PATH的内容就是命令的搜索路径。
+    使用Cygwin的时候该命令可能很有用额。。。    
+
+5. 需要执行三个程序，它们是独立的，不需要等待其他命令执行结束。
+    解决方案：
+    在命令后放一个'&',使得该命令在后台运行。这样你可以用如下的方法同时执行这三个程序。
+    $ long &
+    $ vim a.cpp &
+    $ other &
+
+6. 磁盘使用检测             *Bash磁盘检测*  *du*   *df*
+    $ du -a 当前文件夹下所有文件和文件夹使用情况汇总 (disk usage) 
+    $ df 磁盘信息
+    |du| 详解:
+        |--max-depth=N| ：最大目录深度，=1时显示当前目录下所有文件夹大小，=0时显示当前目录大小(等于-s)
+        |-s|            : 统计du的参数中目录或文件的容量大小
+        |-h|            ：以可读性较好的方式显示大小，MB, GB, KB...
+        |-b|, |-k|, |-m|    : 以byte，KB，MB格式显示大小
+        |-a|            ：不仅仅显示文件夹的大小, 同时显示所有文件大小
+
+    例子：
+        统计当前文件夹下一级子目录和一级文件的容量
+        $ du -a --max-depth=1         ~
+
+        遍历目录：
+        $ du -a | awk -v IGNORECASE=1 'sub(/^[.0-9A-Z]+\s+/, ""){}; gsub(/ /, "\\ "){}; /\.(h|c)$/' | xargs perl -i $0  ~
+        $ find -type f -iregex ""          ~
+
+7. *grep* 使用：
+    选项：
+    |-R|     ：遍历目录。 同 --recursive
+    |-i|     ：忽略大小写
+    |-E|     ：使用ERE, 默认使用BRE
+    |-n|     ：打印行
+    |--color|：高亮显示。可以在.bashrc中加入 alias grep='grep --color -n' 
+
+    eg: 
+        $ grep -iR 'find me' *       #在当前目录和子目录下查找find me, 忽略大小写;     ~
+        $ grep -E '^[A-Z]?.*$' *.c   #在当前目录下的C文件中查找正则表达式''       ~
+
+8. 当命令行的文件参数为 '-' 时表示从标准输入获取数据      *Bash标准输入*
+    eg: grep -iR 'the girl' * | gvim -        #使用gvim编辑grep获得的数据         ~
+    Note 注意以下两种用法的区别:
+        a. $ history           | grep 'find_data' -       # 对history输出的内容进行搜索~
+        b. $ findfile.sh 'c|h' | xargs grep 'find_data'   # 对findfile.sh输出的每个文件里的内容进行搜索~
+
+9. *sort* 使用
+    默认:
+    不忽略行头的空白, ASCII码升序, 域分割符空格, 行开始
+    
+    选项:
+    |-n| {--numric-sort} 根据数字的大小排序
+    |-r| {--reverse} 降序排序, 默认是升序
+    |-b| {--ignore-leading-blanks} 忽略行头的空白
+    |-f| {--ignore-case} 忽略大小写
+
+    |-c| {--check} 检查文件是否已经排好序
+    |-M| {--month-sort} 按月份排序 eg: (unknown) < 'JAN' < ... < 'DEC'
+    |-h| {--human-numeric-sort} 用可读的数字比较 eg: 2k, 1G
+    |-u| {--unique} 去掉重复行
+
+    |-k| {--key} 通过key指定的域进行排序
+    |-t| {--field-separator} 指定域分割符; 默认是: 空格
+    
+    关于 |-k| |-t| 选项的说明(精简):
+        1>. syntax : -t |Separator| -k |FieldStart||*.CharStart* Modifier
+            eg     : -t   ';'     -k     1     .    2     fr
+            explain: 使用;作为域分隔符, 从第1个域的第2个字符开始进行忽略大小写的降序排序
+        2>. 关于'域': 
+            a. 默认域分割符是空格;
+            b. 如文件中某行数据为 'abc 123 efg' 则: 'abc'是第1个域; '123'是第2个域 'efg'是第3个域
+
+    eg: 
+        $sort -t ';' -k 1.2fr file.txt   #使用;作为域分隔符, 从第1个域的第2个字符开始进行忽略大小写的降序排序   ~
+        $sort -nb file.txt               #忽略行头的空白, 以行开始的数字大小对文件进行排序      ~
+
+10. 常用文件操作命令
+    a. 创建文件夹 *mkdir*
+        mkdir DIR...
+    b. 创建文件 *touch* 
+        touch FILE...
+        gvim FILE...
+        >FILE...
+    c.删除文件或文件夹 *rm* 
+        rm  FILE...
+        rm -r DIR...
+        |-i| 删除文件前需要用户(y/n)确认
+    d.拷贝文件或文件夹 *cp*
+        cp SOURCE_FILE DEST_FILE
+        cp SOURCE_FILE... DEST_DIR
+        cp -r SOURCE_DIR... DEST_DIR  #如果DEST_DIR不存在则创建
+    e.移动文件或文件夹 *mv*
+        mv SOURCE_FILE DEST_FILE
+        mv SOURCE_FILE... DEST_DIR
+        mv SOURCE_DIR... DEST_DIR 
+    f.查看文件 *cat* *less* *more*
+        cat FILE...
+        less FILE...
+        more FILE...
+
+11. Shell 科学计算器
+    语法: printf "%d" $((...)) 或 echo $((...))
+          其中, $(( )) 是用来作整数运算的, "..."为计算表达式, "%d"为结果展示方式
+
+    算术运算符:
+        - +        单目负号和正号
+        ! ~        逻辑取反，按位取反
+        **         指数
+        * / %      乘，除，求余
+        + -        加，减
+        << >>      按位左移，按位右移
+        <= >= < >  比较
+        == !=      相等，不等
+        &          按位与
+        ^          按位异或
+        |          按位或
+        &&         逻辑与
+        ||         逻辑或
+
+    进制转换: 
+        输入进制: ([base#]n)
+            0xXX : 16进制 同16#XX
+            XX   : 10进制 同10#XX
+            0XX  : 8 进制 同8#XX
+            2#XX : 2 进制
+            24#XX: 24进制
+        输出进制: printf的 %d %x
+
+    中间值记忆:
+        记录: n=$((...))   # "="左右不能有空格
+        使用: $(($n * 10))
+
+12. *xxd* 十六进制dump工具 使用
+
+    |-b|  二进制显示, 默认十六进制
+
+    |-c| {n}  每行显示多少字节, 默认16. 例如: -c32 (每行显示32字节)
+    |-g| {n}  每组包含多少字节, 默认2. 例如: -g4 (每组包含4字节)
+
+    |-s| {[+][-]seek}  dump的开始位置, 默认是开头. +:从开头算 -:从末尾算
+    |-l| {len}         从开始位置dump的长度, 默认是所有.
+
+    |-u|  输出[a-z]大写, 默认小写
+
+    |-ps| 以 "intel hex file format" 显示
+    |-i|  以C语言{include}数组格式显示
+
+    |-r|  还原
+
+    例子:
+        1. 以4个byte为一组, 并且把每组数据的字节序翻转, 12345678 => 78563412
+           $ xxd -g4 "file.bin" | sed 's/ \([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)/ \4\3\2\1/g'   ~
+
+        2. Create a 65537 byte file with all bytes 0x00, except for the last one which is 'A' (hex 0x41).
+           $ echo "010000: 41" | xxd -r > file  ~
+
+        3. Print 3 lines (hex 0x30 bytes) from the end of file.
+           $ xxd -s -0x30 file ~
+
+        4. Hexdump the first 120 bytes, with 12 octets per line, 4 octets per group.
+           $ xxd -l120 -c12 -g4 file.bin  ~
+            >
+             0000000: e8440010 c1000010 cf000010  .D..........
+             000000c: d1000010 d3000010 d5000010  ............
+             0000018: d7000010 00000000 00000000  ............
+             0000024: 00000000 00000000 d9000010  ............
+             0000030: db000010 00000000 dd000010  ............
+             000003c: df000010 11050010 e1000010  ............
+             0000048: e1000010 25040010 e1000010  ....%.......
+             0000054: 45050010 e1000010 e1000010  E...........
+             0000060: e1000010 00000000 55070010  ........U...
+             000006c: f1060010 e1000010 e1000010  ............
+<
+
+13. ln 创建链接
+    ln [option] source_file dist_file 
+    |-f| 建立时，将同档案名删除.
+    |-s| 建立的软连接
+
+    eg:
+        1. ln -s abc cde 建立abc的软连接->cde
+        2. ln abc cde    建立abc的硬连接->cde
+
+    软链接与硬链接的区别:
+    硬链接可认为是一个文件拥有两个文件名, 当前目录为硬链接文件所在的目录
+    而软链接则是系统新建一个链接文件, 此文件指向其所要指的文件, 当前目录为所指文件的目录。
+
+14. 补丁 diff和patch
+    制作补丁文件: >
+    diff -urN dir_a/ dir_b/ >c.patch   # dir_a是原始文件夹，dir_b是修改后的文件夹，C称为dir_a的补丁文件。
+<    打补丁: >
+    patch -p1 dir_a/ <c.patch           # 应用c.patch到dir_a，使dir_a成为dir_b
+
+15. 压缩
+    .tar 
+    解包：tar xvf FileName.tar
+    打包：tar cvf FileName.tar DirName
+    （注：tar是打包，不是压缩！）
+    ———————————————
+    .gz
+    解压1：gunzip FileName.gz
+    解压2：gzip -d FileName.gz
+    压缩：gzip FileName
+
+    .tar.gz 和 .tgz
+    解压：tar zxvf FileName.tar.gz
+    压缩：tar zcvf FileName.tar.gz DirName
+    ———————————————
+    .bz2
+    解压1：bzip2 -d FileName.bz2
+    解压2：bunzip2 FileName.bz2
+    压缩： bzip2 -z FileName
+
+    .tar.bz2
+    解压：tar jxvf FileName.tar.bz2
+    压缩：tar jcvf FileName.tar.bz2 DirName
+    ———————————————
+    .bz
+    解压1：bzip2 -d FileName.bz
+    解压2：bunzip2 FileName.bz
+    压缩：未知
+
+    .tar.bz
+    解压：tar jxvf FileName.tar.bz
+    压缩：未知
+    ———————————————
+    .Z
+    解压：uncompress FileName.Z
+    压缩：compress FileName
+    .tar.Z
+
+    解压：tar Zxvf FileName.tar.Z
+    压缩：tar Zcvf FileName.tar.Z DirName
+    ———————————————
+    .zip
+    解压：unzip FileName.zip
+    压缩：zip FileName.zip DirName
+    ———————————————
+    .rar
+    解压：rar x FileName.rar
+    压缩：rar a FileName.rar DirName
+    ———————————————
+    .lha
+    解压：lha -e FileName.lha
+    压缩：lha -a FileName.lha FileName
+    ———————————————
+    .rpm
+    解包：rpm2cpio FileName.rpm | cpio -div
+    ———————————————
+    .deb
+    解包：ar p FileName.deb data.tar.gz | tar zxf -
+    ———————————————
+    .tar .tgz .tar.gz .tar.Z .tar.bz .tar.bz2 .zip .cpio .rpm .deb .slp .arj .rar .ace .lha .lzh .lzx .lzs .arc .sda .sfx .lnx .zoo .cab .kar .cpt .pit .sit .sea
+    解压：sEx x FileName.*
+    压缩：sEx a FileName.* FileName
+
+16. AWK
+
+    awk处理的单位为行(record), 即对每一行调用处理操作. 
+
+    基本命令格式为：
+        Patterns and Actions
+        AWK是一种基于行的语言。
+        语言格式是：
+            patterns{actions} 即：先patterns后大括号action; ~
+            解释：模式成功则执行{}内的actions;
+        1、有patterns, 无actions，则默认action为 ：{print}
+        2、无patterns, 有actions，则默认patterns一定匹配该行
+        actions 可以包括各种函数和逻辑控制语言。
+        Patterns包括的内容在下面
+
+        Patterns包括：
+            BEGIN                          :所有操作的开始
+            END                            :所有操作的结束
+            BEGINFILE                      :当前文件的开始
+            ENDFILE                        :当前文件的结束
+            /regular expression/           :正在表达式
+            relational expression          :关系运算
+            pattern && pattern || pattern  :逻辑运算符
+            pattern ? pattern : pattern    ：
+            (pattern)                      ：
+            ! pattern                      ：
+            pattern1, pattern2             ：
+
+        逻辑控制：
+            if (condition) statement [ else statement ]
+            while (condition) statement
+            do statement while (condition)
+            for (expr1; expr2; expr3) statement
+            for (var in array) statement
+            break
+            continue
+            delete array[index]
+            delete array
+            exit [ expression ]
+            { statements }
+            switch (expression) {
+            case value|regex : statement
+            ...
+            [ default: statement ]
+            }
+
+    常用内嵌函数：*sub* *gsub*
+        大部分C库函数可以使用
+
+        替换第一个：sub(/regexp/, replacement [, target])
+        全局替换  ：gsub(/regexp/, replacement [, target])
+        长度      ：length([string])
+        变小写    ：tolower(string)
+        变大写    ：toupper(string)
+
+    内建变量
+        $0       当前记录（这个变量中存放着整个行的内容）
+        $1~$n    当前记录的第n个字段，字段间由FS分隔
+
+        FS       输入字段分隔符 默认是空格 field separator
+        RS       输入的记录分隔符， 默认为换行符\n record separator
+
+        OFS      输出字段分隔符， 默认也是空格 
+        ORS      输出的记录分隔符，默认为换行符
+
+        NF       当前记录中的字段个数，就是有多少列。number of fields
+        NR       已经读出的记录数，就是行号，从1开始，如果有多个文件话，这个值也是不断累加中。 number of records
+        FNR      当前记录数，与NR不同的是，这个值会是各个文件自己的行号
+
+        FILENAME 当前输入文件的名字
+
+        IGNORECASE=1 忽略大小写
+
+    常用选项：
+        -v ：-var 设置变量值，就像在BEGIN{}中定义的一样 eg: $ awk -v FS='-' 'print $1' a.txt
+        -f ：使用awk脚本文件。eg: $ awk -f script.awk a.txt
+
+    在shell中单引号和双引号的区别。(都表示字符串)
+        双引号: 内部的 \what、 $x、`what 会被shell解析成为其他的值。
+        单引号: 内部的值不会被shell解析。
+        所以在使用awk时候一定要使用单引号
+
+    使用例子：
+        格式化输出 >
+        $ awk '{print $1, $4}' netstat.txt
+        $ awk '{printf "%-8s %-8s %-8s %-18s %-22s %-15s\n",$1,$2,$3,$4,$5,$6}' netstat.txt
+<
+        使用比较运算符 >
+        $ awk '$6=="LISTEN" || $3>0 || NR==1' netstat.txt
+<
+        使用正则表达式 >
+        $ awk '/LISTEN/' netstat.txt
+        $ awk '!/LISTEN/' netstat.txt
+        $ awk '$6 ~ /TIME/ || NR==1 {print NR}' netstat.txt
+        $ awk '$6 !~ /WAIT/ || NR==1 {print NR}' netstat.txt
+<
+        使用BEGIN 和 END >
+        $ awk 'BEGIN{FS=":"} {print $1, $2}' OFS="-" a.txt
+        $ awk '{sum+=$5} END {print sum}' netstat.txt
+<
+        for的使用 >
+        $ awk '{for(i=1;i<=NF;i++)printf("%dx%d=%d%s", i, NR, i*NR, i==NR?"\n":"\t")}' a.txt
+        $ awk 'NR!=1{a[$6]++;} END {for (i in a) print i ", " a[i];}' netstat.txt
+<
+        替换(sub & gsub)： >
+        $ du -a | awk -v IGNORECASE=1 'sub(/^[.0-9A-Z]+\s+/, ""){}; gsub(/ /, "\\ "){}; /\.((h)|(c))/' | xargs perl -i $0
+<
+        使用脚本文件 >
+        $ awk -f cal.awk score.txt
+        $ cat cal.awk
+            #运行前
+            BEGIN {
+                math = 0
+                english = 0
+                computer = 0
+                printf "NAME    NO.   MATH  ENGLISH  COMPUTER   TOTAL\n"
+                printf "---------------------------------------------\n"
+            }
+            #运行中
+            {
+                math+=$3
+                english+=$4
+                computer+=$5
+                printf "%-6s %-6s %4d %8d %8d %8d\n", $1, $2, $3,$4,$5, $3+$4+$5
+            }
+            #运行后
+            END {
+                printf "---------------------------------------------\n"
+                printf "  TOTAL:%10d %8d %8d \n", math, english, computer
+                printf "AVERAGE:%10.2f %8.2f %8.2f\n", math/NR, english/NR, computer/NR
+            }
+<
+    字符串连接
+        直接写在一起即可: str = "0x"value; #value是一个变量
+
+    进制转换
+        10进制 -> 16进制: nHex = sprintf("0x%X", nDec);
+        16进制 -> 10进制: nDec = strtonum("0x"nHex);
+
+    位操作
+        与      : and(v1,v2)
+        或      : or (v1,v2)
+        异或    : xor(v1,v2)
+        左移    : lshift(val,count)
+        右移    : rshift(val,count)
+        按位取反: compl(val)
+
+17. SED (Stream EDitor)
+    SED是一种基于行的语言。
+
+    基本格式为：
+        语言格式是：
+            patterns{cmd} ~
+            解释：模式成功则执行{}内的cmd;
+            无patterns, 有cmd，则对所有行进行处理
+            默认情况，sed会把操作的结果打印到标准输出
+
+        patterns：
+            /regex/             :正在表达式
+            pattern1, pattern2  :从pattern1到pattern2
+            pattern, +5         :从pattern1到+5行
+            pattern!            :没有匹配到pattern
+            10                  :第10行
+
+        cmd：
+            s/m/a/g             :替换：把m替换成a
+            a                   :append，匹配行后添加行
+            i                   :insert，匹配行前插入行
+            c                   :change，替换掉匹配的行
+            d                   :delete，删除匹配行
+            p                   :print， 匹配行 (该行可能会导致打印两边，因为默认会打印该行的)
+            N                   :next，  把下一行附加到当前行进行处理
+            n                   :next，  处理下一行
+            q                   :quit，  退出
+
+        控制：
+            cmd1; cmd2          :将多条命令串联起来
+            {cmds}              :命令打包
+
+        常用命令行选项：
+            -i                  :直接对文件进行操作，(默认将sed的结果打印到标准输出)
+            -n                  :不自动打印sed的结果，只打印使用p命令的结果
+
+    例子： >
+        $ sed "s/my/your/g" pets.txt                 # s     替换所有的my为your
+        $ sed -i "s/my/Hao/g" pets.txt               # s -i  直接修改文件内容
+        $ sed 's/^/#/g' pets.txt                     # s     在行首加入#
+        $ sed 's/<[^>]*>//g' html.txt                # s     删除html标记
+        $ sed "3s/my/your/g" pets.txt                # s     仅把第3行的my替换成your
+        $ sed "3,6s/my/your/g" pets.txt              # s     把第3行到第6行的my替换成your
+        $ sed 's/s/S/1' my.txt                       # s     仅替换第1个s为S
+        $ sed 's/s/S/3g' my.txt                      # s     替换第3个和之后的s为S
+        $ sed 's/my/your/g; s/This/That/g' my.txt    # s     先替换my为your，再替换所有的This为That
+        $ sed 's/my/[&]/g' my.txt                    # s &   替换所有的my为[my], &表示匹配到的内容
+        $ sed '/dog/,+3s/^/# /g' pets.txt            # s +3  对匹配上dog的行和之后的3行执行替换
+        $ sed 'N;N;s/my/your/' pets.txt              # N     将下一行和下下行纳入当前行执行s/my/your/
+        $ sed '/my/{n;d}' pets.txt                   # n     删除匹配上my的下一行
+        $ sed "1 i This is" my.txt                   # i     在第一行前插入This is
+        $ sed "$ a This is" my.txt                   # a     在最一行后插入This is
+        $ sed "/fish/a This is" my.txt               # a     匹配到fish的行后插入This is
+        $ sed "2 c This is" my.txt                   # c     第二行替换成This is
+        $ sed "/fish/c This is" my.txt               # c     匹配到fish的行替换成This is
+        $ sed '/fish/d' my.txt                       # d     删除匹配带fish的行
+        $ sed '2d' my.txt                            # d     删除第2行
+        $ sed '2,$d' my.txt                          # d     删除第2行到最后一行
+        $ sed '/fish/p' my.txt                       # p     重复打印匹配到fish的行
+        $ sed -n '/fish/p' my.txt                    # p -n  仅打印match的行
+        $ sed -n 's/fish/dog/p' my.txt               # p -n  仅打印match的行
+        $ sed -n '/dog/,/fish/p' my.txt              # p -n  仅打印匹配上dog的行一直到匹配上fish行
+        $ sed -n '1,/fish/p' my.txt                  # p -n  仅打印第一行到匹配上fish的上
+        $ sed '3,6 {/This/d}' pets.txt               # {}    对第3行到第6行执行：删除匹配到This的行
+        $ sed '3,6 {/This/{/fish/d}}' pets.txt       # {}    对第3行到第6行且对匹配上This的行执行：删除匹配到fish的行
+        $ sed '1,${/This/d;s/That/This/g}' pets.txt  # {}    对第1行到最后一行执行：删除所有匹配到This的行，然后替换所有That为This
+
+18. 几种POSIX流派的regex说明 >
+    +---------------------------------------------------------------------------+
+    | 流派      说明                                        工具                |
+    | BRE       (、)、{、}必须转义，不支持+、?、|           grep、sed、vi、more | #vi有些不一样
+    | GNU BRE   (、)、{、}、+、?、|必须转义                 GNU grep、GNU sed   |
+    | ERE       (、)、{、}、+、?、|直接使用, \1、\2不确定   egrep、awk          |
+    | GNU ERE   (、)、{、}、+、?、|直接使用, 支持\1、\2     grep –E、GNU awk    |
+    +---------------------------------------------------------------------------+
+    | BRE ERE 共同支持的元字符有: \.*^$[]                                       |
+    +---------------------------------------------------------------------------+
+<
+    常用Linux/Unix工具中regex的表示法 >
+    +---------------------------------------------------------------+
+    | Perl        awk       grep -E   grep       sed        vi/vim  |
+    | \.*^$[]     ...       ...       ...        ...        ...     |
+    | +           +         +         \+         \+         \+      |
+    | ?           ?         ?         \?         \?         \=      |
+    | {m,n}       {m,n}     {m,n}     \{m,n\}    \{m,n\}    \{m,n}  |
+    | \b          \< \>     \< \>     \< \>      \< \>      \< \>   |
+    | |           |         |         \|         \|         \|      |
+    | (…)         (…)       (…)       \(…\)      \(…)       \(…\)   |
+    | \1 \2       不支持    \1 \2     \1 \2      \1 \2      \1 \2   |
+    | (?=atom)                                              atom\@= |
+    | (?!atom)                                              atom\@! |
+    +---------------------------------------------------------------+
+
+19. linux用户、组、权限
+
+    用户组： ~
+    u (user)：   拥有者
+    g (group)：  拥有者所在的组
+    o (others)： 其他组
+    a (all)：    所有用户
+
+    一般权限： ~
+    r (Read)：    文件：具有读取文件内容的权限
+                  目录：具有浏览目录的权
+    w (Write)：   文件：具有新增、修改文件内容的权限
+                  目录：具有删除、移动目录内文件的权限
+    x (eXecute)： 文件：具有执行文件的权限
+                  目录：该用户具有进入目录的权限
+
+    特殊权限：(出现在相应域的可执行位上) ~
+    s (SUID,Set UID)：   仅作用于"拥有者域"
+                         文件：常作用于可执行文件。任意执行该文件的"使用者"都将获得"拥有者"的特权，如"/bin/passwd"命令就是如此
+                         目录：
+    s (SGIO,Set GID)：   仅作用于"拥有者所在组域"
+                         文件：常作用于可执行文件。任意执行该文件的"使用者"都将获得"拥有者所在的组"的特权
+                         目录："使用者"在该目录创建的所有文件都获得"拥有者所在组"的特权
+    t (SBIT,Sticky Bit)：仅作用于"其他组域"
+                         文件：不可以作用于文件
+                         目录："使用者"在该目录创建的文件只有该用户自己和ROOT可以修改，其他用户无权修改，如"/tmp"目录
+
+    用户和组的文件路径： ~
+    用户：      $UID, /etc/passwd
+    组：        $GID, /etc/group
+    用户口令：  /etc/shadow
+    组口令：    /etc/gshadow
+
+    用户管理命令: ~
+    useradd:    添加用户
+    userdel:    删除用户
+    usermod:    修改用户帐号属性
+    id:         查看用户的帐号属性信息
+    finger:     查看用户帐号信息
+    chsh:       修改用户的默认shell
+    chfn:       修改注释信息
+    passwd:     密码管理
+    pwck:       检查用户帐号完整性
+
+    组管理命令: ~
+    groupadd:   创建组
+    groupdel:   删除组
+    groupmod:   修改组属性
+    gpasswd：   为组设定密码
+    newgrp：
+    chage：     更改密码使用时间
+
+    权限管理: ~
+    chown:      改变文件的拥有者(只有管理员可以使用此命令)
+    chgrp:      改变文件的拥有者的组
+    chmod:      修改文件的权限
+    umask:      设置默认权限的掩码。
+
+    chmod命令: ~
+        chmod [OPTION]... MODE[,MODE]... FILE...
+        chmod [OPTION]... OCTAL-MODE FILE...
+        MODE:
+            可读式表示:
+                格式为: who opcode permission
+                who:
+                    u 用户
+                    g 组
+                    o 其它
+                    a 所有用户(默认)
+                opcode:
+                    + 增加权限
+                    - 删除权限
+                    = 重新分配权限 
+                permission:
+                    r 读
+                    w 写
+                    x 执行
+                    s SUID SGID
+                    t SBIT
+            八进制表示:
+                三个数字： User Group Other
+                四个数字： Spacial User Group Other >
+                ------------------------------
+                Spacial - User - Group - Other
+                SBIT:1    x:1    x:1     x:1
+                SGID:2    w:2    w:2     w:2
+                SUID:4    r:4    r:4     r:4
+<        例子: >
+        $ chmod u+x file             # 给file的属主增加执行权限
+        $ chmod 751 file             # 给file的属主分配读、写、执行(7)的权限，给file的所在组分配读、执行(5)的权限，给其他用户分配执行(1)的权限
+        $ chmod u=rwx,g=rx,o=x file  # 上例的另一种形式
+        $ chmod =r file              # 为所有用户分配读权限
+        $ chmod 444 file             # 同上例
+        $ chmod a-wx,a+r   file   　 # 同上例
+        $ chmod -R u+r directory     # 递归地给directory目录下所有文件和子目录的属主分配读的权限
+        $ chmod 4755                 # 设置GUID，给属主分配读、写和执行权限，给组和其他用户分配读、执行的权限。
+<
+    umask命令： ~
+        umask设置了用户创建文件的默认权限，它与chmod的效果刚好相反，umask设置的是权限“补码”，而chmod设置的是文件权限码。
+        一般在/etc/profile、$ [HOME]/.bash_profile或$[HOME]/.profile中设置umask值。
+        默认情况下的umask值是022(可以用umask命令查看）， 此时你建立的文件默认权限是644(666-022)，建立的目录的默认权限是755(777-022)
+        例子： >
+        $ umask         # 读取当前文件夹的umask值
+        $ umask 077     # 默认当前文件夹创建文件的权限是600，创建目录的权限是700
+<
+    ls -l 解析： ~
+    内容如下： >
+    -rwxrw-r‐-1 root root 1213 Feb 2 09:39 abc
+<    - 第一个字符代表文件(-)、目录(d)，链接(l)
+    - 其余字符每三个一组(rwx)，读(r)、写(w)、执行(x)、特殊(s,s,t)
+        第一组rwx：文件所有者的权限是读、写和执行
+        第二组rw-：与文件所有者同一组的用户的权限是读、写但不能执行
+        第三组r--：不与文件所有者同组的其他用户的权限是读不能写和执行
+    - 1 表示连接的文件数
+    - root 表示用户
+    - root 表示用户所在的组
+    - 1213 表示文件大小
+    - Feb 2 09:39 表示最后修改日期
+    - abc 表示文件名
+
+20. 远程登录与拷贝
+    远程登录：
+    - telnet
+    - ssh
+    远程拷贝：
+    - scp: 使用ssh协议进行远程拷贝
+    - rsync: 既可以使用rsync协议也可以使用ssh协议
+             使用ssh协议指定端口：rsync -rvz --progress -e 'ssh -p 22'
+
+21. 使用cygwin的ssh服务器
+    1. 配置cygwin
+        需要的软件包：cygrunsrv、openssh ~
+        管理员身份运行cygwin
+        $ ssh-host-config               #引导ssh服务配置 ~
+>
+        *** Query: Should StrictModes be used? (yes/no)                         #输入yes
+        *** Query: Should privilege separation be used? (yes/no)                #输入yes
+        *** Query: Do you want to install sshd as a service?
+        *** Query: (Say "no" if it is already installed as a service) (yes/no)  #输入yes
+        *** Query: Enter the value of CYGWIN for the daemon: []                 #输入ntsec
+        *** Info: This script plans to use 'cyg_server'.
+        *** Info: 'cyg_server' will only be used by registered services.
+        *** Query: Do you want to use a different name? (yes/no)                #输入no
+        *** Query: Please enter the password for user 'cyg_server':             #输入密码
+        *** Query: Create new privileged user account 'PC\cyg_server'
+                   (Cygwin name: 'cyg_server')? (yes/no)                        #输入yes
+        *** Query: Reenter:                                                     #输入密码
+        *** Info: The sshd service has been installed under the 'cyg_server'
+        *** Info: account.  To start the service now, call `net start sshd' or
+        *** Info: `cygrunsrv -S sshd'.  Otherwise, it will start automatically
+        *** Info: after the next reboot.
+        *** Info: Host configuration finished. Have fun!
+<
+        $ net start sshd                #启动SSH服务~
+        $ mkpasswd -l > /etc/passwd     #使用windows用户的密码 ~
+        $ mkgroup -l > /etc/group       #使用windows用户组 ~
+        NOTE: 可以在windows服务里找到"CYGWIN sshd"的服务
+        NOTE: /etc/sshd_config 内包含sshd的详细配置，修改后重启ssh服务
+        NOTE: ~/.ssh/config 内包含客户端的配置
+        NOTE: 别的有用的命令：
+              `$ net stop sshd  #关闭服务，用于重启`
+              `$ sc delete sshd #删除服务，用于重装`
+    2. 开放windows的22端口 (SSH使用端口)
+       防火墙中设置允许22端口入栈, window防火墙为例： >
+       入栈规则->新建规则->规则类型(选择"端口")->TCP,22->允许连接
+<    3. 客户端远程操作： >
+       $ ssh server@192.168.1.123  #使用服务器端的用户名密码
+<    4. 客户端不用每次都再输入密码： >
+       $ ssh-keygen                         #创建密码，一路回车
+       $ ssh-copy-id server@192.168.1.123  #拷贝密码到服务器
+       NOTE: 确保服务器的 ~/.ssh的权限是700，~/.ssh/authorized_keys的权限是600
+
+22. 使用ssh正向连接、反向连接、做socks代理的方法
+
+    用ssh做正向连接 ~
+    说明： client连上server，然后把server能访问的机器地址和端口（当然也包括server自己）镜像到client的端口上。
+    命令： `$ ssh -L [客户端IP或省略:][客户端端口]:[服务器侧能访问的IP:][服务器侧能访问的IP的端口] 登陆服务器的用户名@服务器IP -p [服务器ssh服务端口(默认22)]`
+           其中，客户端IP可以省略，省略的话就是127.0.0.1了，也就是说只能在客户端本地访问。服务器IP都可以用域名来代替。
+    举例： >
+           你的IP是192.168.1.2，你可以ssh到某台服务器8.8.8.8，8.8.8.8可以访问8.8.4.4，你内网里还有一台机器可以访问你。
+           如果你想让内网里的另外一台电脑访问8.8.4.4的80端口的http服务，那么可以执行：
+           ssh -L 192.168.1.2:8080:8.8.4.4:80 test@8.8.8.8
+           也就是说，ssh到8.8.8.8上，然后让8.8.8.8把8.8.4.4的80端口映射到本地的8080端口上，而且和本地192.168.1.2这个IP绑定。
+           内网里的另外一台机器可以通过IE浏览器中输入http://192.168.1.2:8080查看8.8.4.4的网页。
+           当然，如果是其他服务，比如ftp、ssh、远程桌面也是可以的。不过，VPN貌似是不行的，可能是因为GRE协议无法通过。
+<
+    用ssh做反向连接 ~
+    说明： client连上server，然后把client能访问的机器地址和端口（也包括client自己）镜像到server的端口上。
+           反向连接用得可能更多一些。比如你的客户端在内网，在外网是无法直接访问到的，这时用反向连接打通一条隧道，就可以从外网通过这条隧道进来了。
+    命令： `$ ssh -R [服务器IP或省略:][服务器端口]:[客户端侧能访问的IP:][客户端侧能访问的IP的端口] 登陆服务器的用户名@服务器IP -p [服务器ssh服务端口(默认22)]`
+           其中，服务器IP如果省略，则默认为127.0.0.1，只有服务器自身可以访问。指定服务器外网IP的话，任何人都可以通过[服务器IP:端口]来访问服务。
+           当然，这个时候服务器本机也要输入外网IP:端口来访问。
+    举例： >
+           你的IP是192.168.1.2，你可以ssh到外网某台服务器8.8.8.8，你内网里有一台机器192.168.1.3。
+           如果你想让外网所有的能访问8.8.8.8的IP都能访问192.168.1.3的http服务，那么可以执行：
+           ssh -R 8.8.8.8:8080:192.168.1.3:80 test@8.8.8.8
+           也就是说，ssh到8.8.8.8上，然后把本地局域网内192.168.1.3的80端口映射到8.8.8.8的8080端口上，
+           这样外网任何一台可以访问8.8.8.8的机器都可以通过8080端口访问到内网192.168.1.3机器的80端口了。
+           反向连接同样支持各种服务。
+<
+    用ssh做socks代理 ~
+    说明： 假设你内网里某台机器可以上网，但是你不能上网，如果你有ssh到那台机器的权限，那么就可以利用ssh方式建立一个代理socks5，通过代理来上网。
+    命令： `$ ssh -D [本地IP或省略:][本地端口] 登陆服务器的用户名@服务器IP -p [服务器ssh服务端口(默认22)]`
+           道理和上面是一样的，执行这个命令之后，本地会监听指定的端口等待连接。
+           在配置代理的时候直接选择Sock5就可以了，不需要用户名和密码验证。
+           windows系统代理配置方法：Internet选项->连接->局域网设置：勾选为LAN使用代理服务器，然后任何字段都不要填，点“高级”按钮，在套接字里面填好相应的配置，其他都留空。
+           一个叫做Sockscap的软件，把应用扔进去就能以代理的方式上网了。
+           如果你想把socks代理转换成http代理，可以用privoxy这个东东。
+
+vim:ft=help

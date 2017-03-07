@@ -1,0 +1,35 @@
+C++ 类模板
+
+模板编译模型:
+    分别编译模型:
+        用 export 关键字导出.
+        声明和实现放在不同的文件内, 即*.h里仅声明, *.cpp里仅实现.
+        很多编译器不支持此种写法, 不建议使用.
+        大多数C++编译器不能支持对模板的分离式编译的原因: http://blog.csdn.net/pongba/article/details/19130
+
+    包含编译模型:
+        声明和实现放大一个文件内, *.hpp (boost)
+
+好的模板例子(包含编译模型):
+
+    头文件: template.hpp(声明文件+包含实现) (|hpp|: 表示声明和实现在一起, like boost)
+        ///{
+            template <typename T>                             ~
+            class CMyTemplate
+            {
+                T a;
+                void Do(T *op);
+            };
+            #include "template.cpp" //这句话重要                        ~
+        ///}
+
+    实现文件: template.cpp
+        ///{
+            template <typename T>                     ~
+            void CMyTemplate<T>::Do(T *op)             ~
+            {
+                DoSomething(op);
+            }
+        ///}
+
+vim:tw=78:ts=8:ft=help:norl:

@@ -1,0 +1,50 @@
+VC 动态改变控件的背景颜色和文字颜色
+
+
+动态改变控件ID为IDC_STATIC_1文字的颜色和它的背景颜色:
+重载OnCtlColor函数，在要更改颜色的时候向该控件的父窗口发送WM_CTLCOLOR就行了。
+发送WM_CTLCOLOR方法之一：m_pStatic1->RedrawWindow();//重新绘制
+
+
+步骤：
+1.在对话框的类中加入成员，并在构造函数内初始化值:
+COLORREF m_bk_color; 
+COLORREF m_txt_color;
+
+2.响应WM_ONCTLCOLOR消息:
+
+该消息响应时机为：
+a、子窗口控件在需要重绘时会向父窗口发送该消息；
+b、Dialog窗口在需要重绘时会向其本身发送该消息；
+
+使窗口重绘的方法：
+a、该窗口(CWnd)被调用RedrawWindow()，Invalidate()等； 
+b、窗口被遮挡等
+
+添加子窗口(控件)的父窗口的WM_ONCTLCOLOR消息响应函数：
+HBRUSH m_hSaveBrush = NULL;
+HBRUSH CTestDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	if(pWnd->GetDlgCtrlID() == IDC_STATIC_1)              //ID匹配时
+	{
+        if(m_hSaveBrush)
+            DeleteObject(m_hSaveBrush); //删除上次的画刷
+
+		pDC->SetBkMode(TRANSPARENT);                  //文字背景模式：透明
+		pDC->SetTextColor(RGB(255, 255, 0));          //改变字体颜色
+
+		/* 以下有两种方式改变背景颜色：1、指定背景颜色 2、背景透明 */
+		m_hSaveBrush = ::CreateSolidBrush(RGB(255, 0, 0));        //1、改变背景颜色，通过返回该颜色的画刷实现，注意：使用pDC->SetBkColor()无法实现
+		//m_hSaveBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);//2、改变背景颜色透明，背景颜色和其父窗口的颜色相同。（控件内有icon图片时会有问题）
+        return m_hSaveBrush;
+	}
+
+    return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);//否则返回默认画刷
+}
+
+
+3.需要改变颜色时添加:
+m_bk_color = RGB(128,0,255);//改变背景颜色
+m_txt_color = RGB(0,0,0);   //改变字体颜色
+CWnd* m_pStatic1=GetDlgItem(IDC_STATIC_1);
+m_pStatic1->RedrawWindow();//发送重绘消息，同时重绘时会向父窗口发送WM_ONCTLCOLOR消息。

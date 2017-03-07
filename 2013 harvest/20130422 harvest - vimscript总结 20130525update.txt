@@ -1,0 +1,375 @@
+
+*vimscript*           *vim-:help_script*
+
+1. 映射 :      *vim-map*
+    |noremap|  => Normal, Visual and Operator-pending
+    |vnoremap| => Visual
+    |nnoremap| => Normal
+    |onoremap| => Operator-pending
+    |noremap!| => Insert and Command-line
+    |inoremap| => Insert
+    |cnoremap| => Command-line
+
+2. 功能键写法    *vim-keyboard*   *vim-:help_keycodes*
+    <Esc>    Esc 键。
+    <Tab>    Tab 键。
+    <Home>   Home 键。
+    <Del>    Del 键。
+    <CR>     Enter 键。
+    <Enter>  Enter 键，和上面的相同。
+    <BS>     Backspace 倒退键。
+    <Up>     PageUp 向上翻页键。
+    <F5>     F5 功能键。
+    <C-G>    Ctrl+G 键。
+
+3. 命令                           *vim-:help_command*
+    3.1 用户自定义命令                *vim-user_command*
+        |syntax|:                       *vim-user_command-syntax*
+            command! -nargs=* Command call CommandFunction(<q-args>)
+
+        使用 :Command -a -b<CR> 来调用函数 CommandFunction  ~
+
+        |-nargs| 参数个数:              *vim-user_command-<-nargs>*
+            |-nargs=0|  ==0个参数, 默认.
+            |-nargs=1|  ==1个参数.
+            -nargs=*  >=0个参数.
+            |-nargs=?|  ==0|1个参数.
+            |-nargs=+|  >=1个参数.
+
+        |<q-args>| 参数列表:            *vim-user_command-<args>*
+            <args>   一般使用，但參數內無法使用雙引號。
+            <q-args> 和 <args> 同，但可以使用雙引號。
+            <f-args> 用於函數內所要用到的參數。
+    3.2 自动命令                           *vim-:help_autocommand*
+        事件列表:             *vim-:help_autocmd-events*
+
+        eg: (每次进入buff时候按文件类型更改tags)
+        autocmd BufEnter *
+                \ if &filetype == 'cpp' || &filetype == 'c' |
+                \   set tags=./tags,tags,$VIMRUNTIME/source/cpp_tags |
+                \ else |
+                \   set tags=./tags,tags |
+                \ endif
+
+
+4. 变量       *vim-variable*   *vim-let*   *vim-:help_internal-variables*
+
+    a. vim的预定义变量:  *vim-:help_vim-variable*
+
+    b. 用户变量, 必须使用 let g:variable = 1 来初始化和修改
+        |nothing|                    In a function: local to a function; otherwise: global
+        |buffer-variable|    b:      Local to the current buffer.
+        |window-variable|    w:      Local to the current window.
+        |tabpage-variable|   t:      Local to the current tab page.
+        |global-variable|    g:      Global.
+        |local-variable|     l:      Local to a function.
+        |script-variable|    s:      Local to a |:source|'ed Vim script.
+        |function-argument|  a:      Function argument (only inside a function).
+        |vim-variable|       v:      Global, predefined by Vim.
+
+    c. 变量种类   *vim-:help_41.8*
+        i.   字符串与数值 略
+        ii.  列表  *vim-list*
+             >初始化: let alist = ['aap', 'mies', 'noot']
+             >清空  : let alist = []
+             >使用  : let adata = alist[1]
+             >串联  : let alist = alist + ['123']   "or +=
+             >长度  : len(alist)
+             >最值  : max(alist) min(alist)
+             >删除项: remove({list}, {idx} [, {end}])
+             >反转  : reverse({list})
+        iii. 词典  *vim-dictionary*
+             >初始化: let amap = {'one': '111', 'two': '222', 'three': '333'}
+                      格式: {<key> : <value>, ...}
+             >清空  : let amap = {}
+             >使用  : let adata = amap.one   or amap['one']
+             >添加  : let amap.four = '444'  or amap['four']
+             >长度  : len(amap)
+             >删除项: remove({dict}, {key})
+
+    d. 其他变量:
+        |$NAME|        environment variable
+        |&name|        option
+        |@r|           register
+
+5. 正则表达式      *vim-regex*  *vim-regex-compare-with-perl*  *vim-:help_regex*
+    +------------------------------------------------------------------------+
+    | |Capability| (magic = \m)               |Vimspeak|       |Perlspeak|         |
+    +------------------------------------------------------------------------+
+    | 忽略大小写:                                                            |~
+    | force case insensitivity              \c             (?i)  or m/.../i  |
+    | force case sensitivity                \C             (?-i) or m/.../i  |
+    |                                                                        |
+    | 组:                                                                    |~
+    | 非捕获组                              \%(atom\)      (?:atom)          |
+    | 捕获组                                \(\)           ()                |
+    |                                                                        |
+    | 环视:                                                                  |~
+    | 0-width match                         atom\@=        (?=atom)          |
+    | 0-width non-match                     atom\@!        (?!atom)          |
+    | 0-width preceding match               atom\@<=       (?<=atom)         |
+    | 0-width preceding non-match           atom\@<!       (?<!atom)         |
+    |                                                                        |
+    | 量词:                                                                  |~
+    | 匹配0-任意个                          *              *                 |
+    | * 的惰性模式                          \{-}           *?                |
+    | 匹配1至任意个                         \+             +                 |
+    | \+ 的惰性模式                         \{-1,}         +?                |
+    | 匹配0-1个                             \?             ?                 |
+    | 匹配n-m个                             \{n,m}         {n,m}             |
+    | \{n,m\} 的惰性模式                    \{-n,m}        {n,m}?            |
+    | 匹配n个                               \{n}           {n}               |
+    | \{n\} 的惰性模式                      \{-n}          {n}?              |
+    | 匹配n 至任意个                        \{n,}          {n,}              |
+    | \{n,\} 的惰性模式                     \{-n,}         {n,}?             |
+    | 匹配0-m 个                            \{,m}          {0,m}             |
+    |                                                                        |
+    | s///执行代码                          s/x/\=code/    s/x/code/e        |~
+    |                                                                        |
+    | 或                                    \|             |                 | ~
+    |                                                                        |
+    | 范围                                  [] [^]         [] [^]            |~
+    |                                                                        |
+    | 子匹配: only on substitute() or s///                                   |~
+    | 捕获组的内容                          submatch(n)    $n   n=1,2,3...   |
+    | 匹配到的内容                          submatch(0)    $&                |
+    |                                                                        |
+    | 元字符only (\来匹配其自身)            * .  / \ [ ^ $                   |~
+    |                                                                        |
+    | 预定义字符:                                                            |~
+    | 任意一个字符                          .                                |
+    | 单词字母，[0-9A-Za-z_]                \w                               |
+    | 单词字母之外的任意字符,[^0-9A-Za-z_]  \W                               |
+    | 所有的字母字符. 等同于[a-zA-Z]        \a                               |
+    | <Esc>                                 \e                               |
+    | <Tab>                                 \t                               |
+    | <CR>                                  \r                               |
+    | <BS>                                  \b                               |
+    | end-of-line                           \n                               |
+    | 数字 [0-9]                            \d                               |
+    | 非数字 [^0-9]                         \D                               |
+    | 十六进制数 [0-9a-fA-F]                \x                               |
+    | 非十六进制数 [^0-9a-fA-F]             \X                               |
+    | 空白字符 [ ] ( 和)，等同于[ /t]       \s                               |
+    | 非空白字符 [^ /t]                     \S                               |
+    | 小写字母 [a-z]                        \l                               |
+    | 非小写字母 [^a-z]                     \L                               |
+    | 大写字母 [A-Z]                        \u                               |
+    | 非大写字母 [^A-Z]                     \U                               |
+    | 标识符字符 'isident'                  \i                               |
+    | 同于\i,但排除了数字                   \I                               |
+    | 关键字字符                            \k                               |
+    | 同\k,但排除数字                       \K                               |
+    | 可打印字符                            \p                               |
+    | 同\p,但排除数字                       \P                               |
+    | 文件名字符                            \f                               |
+    | 同\f,但排除数字                       \F                               |
+    | 表示段行，和以上字符组合，如 \_s,\_a  \_                               |
+    | 单词分割                              \< \>                            |
+    +------------------------------------------------------------------------+
+
+    *help_pattern-overview* :
+
+Overview of multi items.
+
+      magic   nomagic matches ~
+|/star| *       \*      0 or more       as many as possible
+|/\+|   \+      \+      1 or more       as many as possible (*)
+|/\=|   \=      \=      0 or 1          as many as possible (*)
+|/\?|   \?      \?      0 or 1          as many as possible (*)
+
+|/\{|   \{n,m}  \{n,m}  n to m          as many as possible (*)
+      \{n}    \{n}    n               exactly (*)
+      \{n,}   \{n,}   at least n      as many as possible (*)
+      \{,m}   \{,m}   0 to m          as many as possible (*)
+      \{}     \{}     0 or more       as many as possible (same as *) (*)
+
+|/\{-|  \{-n,m} \{-n,m} n to m          as few as possible (*)
+      \{-n}   \{-n}   n               exactly (*)
+      \{-n,}  \{-n,}  at least n      as few as possible (*)
+      \{-,m}  \{-,m}  0 to m          as few as possible (*)
+      \{-}    \{-}    0 or more       as few as possible (*)
+
+                                                        *E59*
+|/\@>|  \@>     \@>     1, like matching a whole pattern (*)
+|/\@=|  \@=     \@=     nothing, requires a match |/zero-width| (*)
+|/\@!|  \@!     \@!     nothing, requires NO match |/zero-width| (*)
+|/\@<=| \@<=    \@<=    nothing, requires a match behind |/zero-width| (*)
+|/\@<!| \@<!    \@<!    nothing, requires NO match behind |/zero-width| (*)
+
+
+Overview of ordinary atoms.
+
+      magic   nomagic matches ~
+|/^|    ^       ^       start-of-line (at start of pattern) |/zero-width|
+|/\^|   \^      \^      literal '^'
+|/\_^|  \_^     \_^     start-of-line (used anywhere) |/zero-width|
+|/$|    $       $       end-of-line (at end of pattern) |/zero-width|
+|/\$|   \$      \$      literal '$'
+|/\_$|  \_$     \_$     end-of-line (used anywhere) |/zero-width|
+|/.|    .       \.      any single character (not an end-of-line)
+|/\_.|  \_.     \_.     any single character or end-of-line
+|/\<|   \<      \<      beginning of a word |/zero-width|
+|/\>|   \>      \>      end of a word |/zero-width|
+|/\zs|  \zs     \zs     anything, sets start of match
+|/\ze|  \ze     \ze     anything, sets end of match
+|/\%^|  \%^     \%^     beginning of file |/zero-width|
+|/\%$|  \%$     \%$     end of file |/zero-width|
+|/\%V|  \%V     \%V     inside Visual area |/zero-width|
+|/\%#|  \%#     \%#     cursor position |/zero-width|
+|/\%'m| \%'m    \%'m    mark m position |/zero-width|
+|/\%l|  \%23l   \%23l   in line 23 |/zero-width|
+|/\%c|  \%23c   \%23c   in column 23 |/zero-width|
+|/\%v|  \%23v   \%23v   in virtual column 23 |/zero-width|
+
+Character classes {not in Vi}:
+|/\i|   \i      \i      identifier character (see 'isident' option)
+|/\I|   \I      \I      like "\i", but excluding digits
+|/\k|   \k      \k      keyword character (see 'iskeyword' option)
+|/\K|   \K      \K      like "\k", but excluding digits
+|/\f|   \f      \f      file name character (see 'isfname' option)
+|/\F|   \F      \F      like "\f", but excluding digits
+|/\p|   \p      \p      printable character (see 'isprint' option)
+|/\P|   \P      \P      like "\p", but excluding digits
+|/\s|   \s      \s      whitespace character: <Space> and <Tab>
+|/\S|   \S      \S      non-whitespace character; opposite of \s
+|/\d|   \d      \d      digit:                          [0-9]
+|/\D|   \D      \D      non-digit:                      [^0-9]
+|/\x|   \x      \x      hex digit:                      [0-9A-Fa-f]
+|/\X|   \X      \X      non-hex digit:                  [^0-9A-Fa-f]
+|/\o|   \o      \o      octal digit:                    [0-7]
+|/\O|   \O      \O      non-octal digit:                [^0-7]
+|/\w|   \w      \w      word character:                 [0-9A-Za-z_]
+|/\W|   \W      \W      non-word character:             [^0-9A-Za-z_]
+|/\h|   \h      \h      head of word character:         [A-Za-z_]
+|/\H|   \H      \H      non-head of word character:     [^A-Za-z_]
+|/\a|   \a      \a      alphabetic character:           [A-Za-z]
+|/\A|   \A      \A      non-alphabetic character:       [^A-Za-z]
+|/\l|   \l      \l      lowercase character:            [a-z]
+|/\L|   \L      \L      non-lowercase character:        [^a-z]
+|/\u|   \u      \u      uppercase character:            [A-Z]
+|/\U|   \U      \U      non-uppercase character         [^A-Z]
+|/\_|   \_x     \_x     where x is any of the characters above: character
+                        class with end-of-line included
+(end of character classes)
+
+|/\e|   \e      \e      <Esc>
+|/\t|   \t      \t      <Tab>
+|/\r|   \r      \r      <CR>
+|/\b|   \b      \b      <BS>
+|/\n|   \n      \n      end-of-line
+|/~|    ~       \~      last given substitute string
+|/\1|   \1      \1      same string as matched by first \(\) {not in Vi}
+|/\2|   \2      \2      Like "\1", but uses second \(\)
+           ...
+|/\9|   \9      \9      Like "\1", but uses ninth \(\)
+
+|/\z1|  \z1     \z1     only for syntax highlighting, see |:syn-ext-match|
+           ...
+|/\z1|  \z9     \z9     only for syntax highlighting, see |:syn-ext-match|
+
+        x       x       a character with no special meaning matches itself
+
+|/[]|   []      \[]     any character specified inside the []
+|/\%[]| \%[]    \%[]    a sequence of optionally matched atoms
+
+|/\c|   \c      \c      ignore case, do not use the 'ignorecase' option
+|/\C|   \C      \C      match case, do not use the 'ignorecase' option
+|/\m|   \m      \m      'magic' on for the following chars in the pattern
+|/\M|   \M      \M      'magic' off for the following chars in the pattern
+|/\v|   \v      \v      the following chars in the pattern are "very magic"
+|/\V|   \V      \V      the following chars in the pattern are "very nomagic"
+|/\Z|   \Z      \Z      ignore differences in Unicode "combining characters".
+                        Useful when searching voweled Hebrew or Arabic text.
+
+|/\%d|  \%d     \%d     match specified decimal character (eg \%d123)
+|/\%x|  \%x     \%x     match specified hex character (eg \%x2a)
+|/\%o|  \%o     \%o     match specified octal character (eg \%o040)
+|/\%u|  \%u     \%u     match specified multibyte character (eg \%u20ac)
+|/\%U|  \%U     \%U     match specified large multibyte character (eg
+                        \%U12345678)
+
+Example                 matches ~
+\<\I\i*         or
+\<\h\w*
+\<[a-zA-Z_][a-zA-Z0-9_]*
+                        An identifier (e.g., in a C program).
+
+\(\.$\|\. \)            A period followed by <EOL> or a space.
+
+[.!?][])"']*\($\|[ ]\)  A search pattern that finds the end of a sentence,
+                        with almost the same definition as the ")" command.
+
+cat\Z                   Both "cat" and "ca虁t" ("a" followed by 0x0300)
+                        Does not match "c脿t" (character 0x00e0), even
+                        though it may look the same.
+
+
+6. 执行字符串命令        *vim-execute*  *vim-normal*
+    execute l:line . 's/' . l:regex . '/haha/g' . '\<CR>'   ~
+    可以使用 \<...> 来引用 keycode
+
+7. 常用函数              *vim-function*  *vim-:help_functions*
+    函数定义方法:
+        function! MyFunction(args1, args2)    "或 (...)作为参数,表示可变形参
+        endfunction
+
+    a. range() 得到一定序列的列表  *vim-range()*
+       range(4)          => [0, 1, 2, 3]
+       range(2, 4)       => [2, 3, 4]
+       range(2, 9, 3)    => [2, 5, 8]
+       range(2, -2, -1)  => [2, 1, 0, -1, -2]
+
+
+8. 常用命令   *vim-commands*  *vim-:help_expression-commands*
+    a. normal gg=G  在normal模式下执行指令                      ~
+       其中 |normal!| 表示后面执行的命令使用没有remap的方式 类似于: noremap
+
+
+9. 控制结构        *vim-for* *vim-while* *vim-if*
+    a. for i in range(1, 100)
+       endfor
+       for i in g:list
+       endfor
+
+    b. while i != 0
+          break
+          continue
+       endwhile
+
+    c. if a == 1
+       elseif a == 2
+       else  a == 3
+       endif
+
+    d. 比较操作符:
+       description            use 'ignorecase'    match case   ignore case ~
+       equal                  ==                  ==#          ==?
+       not equal              !=                  !=#          !=?
+       greater than           >                   >#           >?
+       greater than or equal  >=                  >=#          >=?
+       smaller than           <                   <#           <?
+       smaller than or equal  <=                  <=#          <=?
+       regexp matches         =~                  =~#          =~?
+       regexp doesn't match   !~                  !~#          !~?
+
+10. ! 叹号的使用                                *vim_!*
+    => 叹号一般表示: 强制执行, 忽略修改, 忽略错误 等意思  ~
+
+    10.1 :silent[!] {command}                    *silent!*
+          无! : 忽略所有Normal message
+          有! : 忽略所有Normal message 和 Error message
+    
+    10.2 command[!]                              *command!*
+         function[!]                             *function!*
+         无! : 
+         有! : 强行覆盖相同的命令 或 函数
+    
+    10.3 normal[!] {command}                     *normal!*
+         无! : 在normal模式下执行命令
+         有! : mappings will not be used
+    
+    10.4 :e!  打开当前文件
+
+
+vim:tw=78:ts=8:ft=help:norl:

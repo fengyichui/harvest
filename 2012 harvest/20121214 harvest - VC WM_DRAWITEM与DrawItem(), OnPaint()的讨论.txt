@@ -1,0 +1,43 @@
+WM_DRAWITEM与DrawItem()的讨论
+
+
+     我在学习中经常遇到要重写DrawItem（）的情况，但又有一个WM_DRAWITEM消息，它们是什么样的关系呢。
+如果我们要重写一个CButton取名为CMyButton，我们可以重写CMyButton的DrawItem（）函数来实现我们的
+需求，但CMyButton：：DrawItem（）是在什么时候调用呢？它是在它的宿主类的OnDrawItem（）中被调用，
+OnDrawItem（int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct ）正是对WM_DRAWiTEM的相应函数。
+宿主类可以根据nIDCtl来判定是哪个子控件。其实我们可以在OnDrawItem函数里对子控件进行绘制，但是有很多
+的子控件看起来不好，所以我们应该在子类的DrawItem对子类绘制，例如CMyButton：：DrawItem。所以可以
+这样理解，OnDrawItem是画窗口中的子控件的，因为它的入口参数LPDRAWITEMSTRUCT带入不同子控件的相
+关参数，而且，你得把字控件设置成“自画”类型，才会调用到OnDrawItem。
+
+    当自绘按钮(owner-draw button)，下拉列表框(combo box)，列表框(list box)视觉属性，或者菜单发生变化时，
+框架为他们的owner调用OnDrawItem(发送WM_DRAWITEM)，在宿主类调用子类的DrawItem(发送WM_DRAWITEM消息)。
+我们可以重载子类的DrawItem可以绘制自己需要的控件，不是所有设置成自画类型的控件都会调用父窗口的OnDrawItem，
+例如ListBox的自画，你就必须重载CListBox的DrawItem方法和MeasureItem方法才可以，但象菜单，按钮等的自画则会调用
+OnDrawItem。在SDK中，子类是不可能受到WM_DRAWITEM，在MFC中可以，这是类的设计者设计的(反射)，这的确不错。
+    在学习中还有一个消息也是由宿主类被调用的，它就是WM_CTRCOLOR。这个消息是在子控件将要绘画时，向宿主
+类发送，宿主类利用发射机制让子类自己又一个处理的机会。OnCtlColor (CDC* pDC, CWnd* pWnd,  UINT  nCtlColor)
+pDC,pWnd都是于子类相关的，在这里可以设置，前景颜色，背景颜色，画刷类型，字体等等，但不能改变元素的界面框架，
+这是DrawItem 所能干的。
+
+   如果同时有DrawItem（子类），OnDrawItem（宿主类），OnCtlColor（宿主类），它们的调用顺序是：
+OnCtlColor，OnDrawItem，DrawItem。
+
+    如果我们同时又相应的子类的WM_PAINT消息，这也许OnPaint在内部进行了一些处理，判断是否自绘来决定是否向宿主类
+发送WM_DRAWITEM，所以如果响应了WM_PAINT子类就不会向宿主类发送WM_DRAWITEM消息，你要完成子类的全部绘
+制工作，如果子类是一个列表框，就很麻烦。这时调用顺序是OnCtlColor,OnPaint。
+  在发送一个WM_PAINT消息前，总会先发送一个WM_ERASEBACK消息，我们在这里在一个背景图片。
+
+ 
+
+   对于我们平时对控件的绘制，上面介绍的差不多了，还有一个CView的问题，也就是OnPaint和Ondraw的关系，
+其实这个很简单，CView：：OnPaint（）的源码如下：
+
+void CView::OnPaint()  
+{  
+     CPaintDC dc(this);        
+     OnPrepareDC(&dc);        
+     OnDraw(&dc)  
+}
+
+从代码中可以清楚的看出他们的关系。

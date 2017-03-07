@@ -1,0 +1,23 @@
+
+1、stl::map 使用自定义的数据结构作为键值：
+	数据结构或类中必须包含 < 操作符：bool operator<(const struct ms_pin_t &p) const {}
+	例如：
+	struct ms_pin_t
+	{
+		int main_pin; 
+		int sub_pin;
+		bool operator<(const struct ms_pin_t &p) const //必须这么定义，最后的const也不能少
+		{
+			if(p.main_pin == main_pin)
+				return (p.sub_pin < sub_pin);
+			else
+				return (p.main_pin < main_pin);
+		}
+	};
+	
+	std::map<struct ms_pin_t, int> pin2gpio_table;
+
+
+
+2、在包含有类的数据结构中，当使用new新分配一个目标时，请严谨使用memset清除内存！！！！！！！！！
+	因为类的大小取决于内部的"数据成员"和"虚构函数"等， 类中的数据成员已经被其构造函数指定了值，memset会使初始化了的值强制清成0。

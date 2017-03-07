@@ -1,0 +1,280 @@
+
+1. Function Requirement
+    1.1 Slave: Advertising
+        step1:
+            command: LE Set Advertising Parameters Command
+                     01 06 20 0F 00 08 00 08 00 00 00 00 00 00 00 00 00 07 00  ~
+                     -- ----- -- ----- ----- -- -- -- ----------------- -- --
+                     |    |   |    |     |   |  |  |          |         |  +--> Advertising_Filter_Policy
+                     |    |   |    |     |   |  |  |          |         +-----> *Advertising_Channel_Map* (0x01:37 0x02:38 0x04:39 0x07:All)
+                     |    |   |    |     |   |  |  |          +---------------> Direct_Address
+                     |    |   |    |     |   |  |  +--------------------------> Direct_Address_Type
+                     |    |   |    |     |   |  +-----------------------------> Own_Address_Type
+                     |    |   |    |     |   +--------------------------------> Advertising_Type
+                     |    |   |    |     +------------------------------------> *Advertising_Interval_Max* (Time = N * 0.625 msec)
+                     |    |   |    +------------------------------------------> *Advertising_Interval_Min* (Time = N * 0.625 msec)
+                     |    |   +-----------------------------------------------> Parameter Total length
+                     |    +---------------------------------------------------> OpCode
+                     +--------------------------------------------------------> HCI Command Packet
+
+            receive: Command Complete Event
+                     04 0E 04 0B 06 20 00  ~
+                     -- -- -- -- ----- --
+                     |  |  |  |    |   +--> Return_Parameters (0:success; other:fail)
+                     |  |  |  |    +------> Command_Opcode
+                     |  |  |  +-----------> Num_HCI_Command_Packets
+                     |  |  +--------------> Parameter Total length
+                     |  +-----------------> Event Code
+                     +--------------------> HCI Event Packet
+
+                     note: make sure "Return_Parameters" is 0, otherwise it is fail. Same follow.
+
+        step2: 
+            command: LE Set Advertising Data Command
+                     01 08 20 20 11 02 01 06 0d 08 51 75 69 6e 74 69 63 20 54 45 53 54 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ~
+                     -- ----- -- -- -------- ----------------------------------------- -----------------------------------------
+
+            receive: Command Complete Event (same as above)
+                     04 0E 04 0B 08 20 00  ~
+                     -- -- -- -- ----- --
+
+        step3: 
+            command: LE Set Advertise Enable Command
+                     01 0A 20 01 01  ~
+                     -- ----- -- --
+                     |    |   |  +---> *Advertising_Enable* (1:enable 0:disable)
+                     |    |   +------> Parameter Total length
+                     |    +----------> OpCode
+                     +---------------> HCI Command Packet
+
+            receive: Command Complete Event (same as above)
+                     04 0E 04 0B 0A 20 00  ~
+                     -- -- -- -- ----- --
+
+    1.2 Master: scan
+        step1:
+            command: LE Set Scan Parameters Command
+                     01 0B 20 07 00 10 00 10 00 00 00  ~
+                     -- ----- -- -- ----- ----- -- --
+                     |    |   |  |    |     |   |  +--> Scanning_Filter_Policy
+                     |    |   |  |    |     |   +-----> Own_Address_Type
+                     |    |   |  |    |     +---------> *LE_Scan_Window* (Time = N * 0.625 msec)
+                     |    |   |  |    +---------------> *LE_Scan_Interval* (Time = N * 0.625 msec)
+                     |    |   |  +--------------------> LE_Scan_Type
+                     |    |   +-----------------------> Parameter Total lengt
+                     |    +---------------------------> OpCode
+                     +--------------------------------> HCI Command Packet
+
+            receive: Command Complete Event (same as above)
+                     04 0E 04 0B 0B 20 00  ~
+                     -- -- -- -- ----- --
+
+        step2:
+            command: LE Set Scan Enable Command
+                     01 0C 20 02 01 01  ~
+                     -- ----- -- -- --
+                     |    |   |  |  +--> Filter_Duplicates
+                     |    |   |  +-----> *LE_Scan_Enable* (1:enable 0:disable)
+                     |    |   +--------> Parameter Total lengt
+                     |    +------------> OpCode
+                     +-----------------> HCI Command Packet
+
+            receive1:Command Complete Event (same as above)
+                     04 0E 04 0B 0C 20 00  ~
+                     -- -- -- -- ----- --
+
+            receive2:LE Meta Event (LE Advertising Report Event)
+                     04 3E 1D 02 01 00 00 11 55 55 BE 7C 08 11 02 01 06 0D 08 51 75 69 6E 74 69 63 20 48 54 50 54 C6  ~
+                     -- -- -- -- -- -- -- ----------------- -- -------------------------------------------------- --
+                     |  |  |  |  |  |  |         |          |                          |                          +--> RSSI[i]
+                     |  |  |  |  |  |  |         |          |                          +-----------------------------> Data[i]
+                     |  |  |  |  |  |  |         |          +--------------------------------------------------------> Length[i]
+                     |  |  |  |  |  |  |         +-------------------------------------------------------------------> Address[i]
+                     |  |  |  |  |  |  +-----------------------------------------------------------------------------> Address_Type[i]
+                     |  |  |  |  |  +--------------------------------------------------------------------------------> Event_Type[i]
+                     |  |  |  |  +-----------------------------------------------------------------------------------> Num_Reports
+                     |  |  |  +--------------------------------------------------------------------------------------> Subevent_Code
+                     |  |  +-----------------------------------------------------------------------------------------> Parameter Total lengt
+                     |  +--------------------------------------------------------------------------------------------> Event Code
+                     +-----------------------------------------------------------------------------------------------> HCI Event Packet
+
+    1.3 Master: connect
+            command: LE Create Connection Command
+                     01 0D 20 19 10 00 10 00 00 00 11 55 55 BE 7C 08 00 18 00 28 00 00 00 2C 01 00 00 00 00  ~
+                     -- ----- -- ----- ----- -- -- ----------------- -- ----- ----- ----- ----- ----- -----
+                     |    |   |    |     |   |  |          |         |    |     |     |     |     |     +---> Maximum_CE_Length
+                     |    |   |    |     |   |  |          |         |    |     |     |     |     +---------> Minimum_CE_Length
+                     |    |   |    |     |   |  |          |         |    |     |     |     +---------------> Supervision_Timeout
+                     |    |   |    |     |   |  |          |         |    |     |     +---------------------> Conn_Latency
+                     |    |   |    |     |   |  |          |         |    |     +---------------------------> Conn_Interval_Max
+                     |    |   |    |     |   |  |          |         |    +---------------------------------> Conn_Interval_Min
+                     |    |   |    |     |   |  |          |         +--------------------------------------> Own_Address_Type
+                     |    |   |    |     |   |  |          +------------------------------------------------> *Peer_Address* (Important)
+                     |    |   |    |     |   |  +-----------------------------------------------------------> Peer_Address_Type
+                     |    |   |    |     |   +--------------------------------------------------------------> Initiator_Filter_Policy
+                     |    |   |    |     +------------------------------------------------------------------> LE_Scan_Window
+                     |    |   |    +------------------------------------------------------------------------> LE_Scan_Interval
+                     |    |   +-----------------------------------------------------------------------------> Parameter Total length
+                     |    +---------------------------------------------------------------------------------> OpCode
+                     +--------------------------------------------------------------------------------------> HCI Command Packet
+
+                    note: please make sure the "Peer_Address" parametter is the advertising device.
+
+            receive1:Command Status Event
+                     04 0F 04 00 0B 0D 20  ~
+                     -- -- -- -- -- -----
+                     |  |  |  |  |    +---> Command_Opcode
+                     |  |  |  |  +--------> Num_HCI_Command_Packets
+                     |  |  |  +-----------> Status
+                     |  |  +--------------> Parameter Total lengt
+                     |  +-----------------> Event Code
+                     +--------------------> HCI Event Packet
+
+                     note: make sure "Status" is 0, otherwise it is fail. Same follow.
+
+            receive2:LE Meta Event (LE Connection Complete Event)
+                     04 3E 13 01 00 00 00 00 00 11 55 55 BE 7C 08 28 00 00 00 2C 01 00  ~
+                     -- -- -- -- -- ----- -- -- ----------------- ----- ----- ----- --
+                     |  |  |  |  |    |   |  |          |           |     |     |   +---> Master_Clock_Accuracy
+                     |  |  |  |  |    |   |  |          |           |     |     +-------> Supervision_Timeout
+                     |  |  |  |  |    |   |  |          |           |     +-------------> Conn_Latency
+                     |  |  |  |  |    |   |  |          |           +-------------------> Conn_Interval
+                     |  |  |  |  |    |   |  |          +-------------------------------> Peer_Address
+                     |  |  |  |  |    |   |  +------------------------------------------> Peer_Address_Type
+                     |  |  |  |  |    |   +---------------------------------------------> Role
+                     |  |  |  |  |    +-------------------------------------------------> *Connection_Handle* (Important)
+                     |  |  |  |  +------------------------------------------------------> Status
+                     |  |  |  +---------------------------------------------------------> Subevent_Code
+                     |  |  +------------------------------------------------------------> Parameter Total lengt
+                     |  +---------------------------------------------------------------> Event Code
+                     +------------------------------------------------------------------> HCI Event Packet
+
+                     note: the "Connection_Handle" value is useful in disconnection.
+
+2. BLE parameter config:
+    2.1 Adv channel
+        Modify the parametter:
+        "Slave: Advertising" => "step1" => "LE Set Advertising Parameters Command" -> "Advertising_Channel_Map"
+
+    2.2 Advertising interval
+        Modify the two parameters:
+        "Slave: Advertising" => "step1" => "LE Set Advertising Parameters Command" |-> "Advertising_Interval_Max"
+                                                                                   |-> "Advertising_Interval_Min"
+
+    2.3 Scan window, scan interval
+        Modify the two parameters:
+        "Master: scan" => "step1" => "LE Set Scan Parameters Command" |-> "LE_Scan_Window"
+                                                                      |-> "LE_Scan_Interval"
+
+    2.4 RX frequency
+        command: LE Receiver Test Command
+                 01 1D 20 01 00  ~
+                 -- ----- -- --
+                 |    |   |  +--> *RX_Frequency* (N) (Important)
+                 |    |   +-----> Parameter Total lengt
+                 |    +---------> OpCode
+                 +--------------> HCI Command Packet
+
+                 note: Modify the |RX_Frequency| parametter to change Rx frequency
+                       Frequency = N * 2 + 2402
+                       N range: 0x00 –0x27
+                       Frequency range: 2402MHz - 2480MHz
+
+        receive: Command Complete Event (same as above)
+                 04 0E 04 0B 1D 20 00  ~
+                 -- -- -- -- ----- --
+
+        note: use "LE Test End Command" (01 1F 20 00) to terminate the test command
+
+    2.5 Tx frequency and pattern
+        command: LE Transmitter Test Command
+                 01 1E 20 03 00 10 00  ~
+                 -- ----- -- -- -- --
+                 |    |   |  |  |  +--> *Packet_Payload* (Important)
+                 |    |   |  |  +-----> Length_Of_Test_Data
+                 |    |   |  +--------> *TX_Frequency* (N) (Important)
+                 |    |   +-----------> Parameter Total lengt
+                 |    +---------------> OpCode
+                 +--------------------> HCI Command Packet
+
+                 note 1: Modify the |TX_Frequency| parametter to change Tx frequency.
+                         Frequency = N * 2 + 2402
+                         N range: 0x00 –0x27
+                         Frequency range: 2402MHz - 2480MHz
+
+                 note 2: Modify the |Packet_Payload| parametter to change Tx pattern.
+                         0x00: Pseudo-Random bit sequence 9
+                         0x01: Pattern of alternating bits "11110000"
+                         0x02: Pattern of alternating bits "10101010"
+                         0x03: Pseudo-Random bit sequence 15
+                         0x04: Pattern of All "1" bits
+                         0x05: Pattern of All "0" bits
+                         0x06: Pattern of alternating bits "00001111"
+                         0x07: Pattern of alternating bits "0101"
+
+        receive: Command Complete Event (same as above)
+                 04 0E 04 0B 1E 20 00  ~
+                 -- -- -- -- ----- --
+
+        note: use "LE Test End Command" (01 1F 20 00) to terminate the test command
+
+
+3. Note
+    3.1 More detailed information, please see 
+        "Host Controller Interface Functional Specification" in Volume 2, Part E. and 
+        "UART TRANSPORT LAYER" in Volume 4, Part A.
+
+    3.2 All values are little endian.
+
+    3.3 Before advertising, scan and connection, please make sure the device is in idle status 
+        which mean that the divice is not in advertising, scan and connection status.
+
+        3.3.1 The way of stoping advertising:
+              command: LE Set Advertise Enable Command
+                       01 0A 20 01 00  ~
+                       -- ----- -- --
+
+              receive: Command Complete Event (same as above)
+                       04 0E 04 0B 0A 20 00  ~
+                       -- -- -- -- ----- --
+
+        3.3.2 The way of stoping scan:
+              command: LE Set Scan Enable Command
+                       01 0C 20 02 00 01  ~
+                       -- ----- -- -- --
+
+              receive: Command Complete Event (same as above)
+                       04 0E 04 0B 0C 20 00  ~
+                       -- -- -- -- ----- --
+
+        3.3.3 The way of disconnection:
+              command: Disconnect Command
+                       01 06 04 03 00 00 13  ~
+                       -- ----- -- ----- --
+                       |    |   |    |   +--> Reason
+                       |    |   |    +------> Connection_Handle
+                       |    |   +-----------> Parameter Total lengt
+                       |    +---------------> OpCode
+                       +--------------------> HCI Command Packet
+
+                       note: the "Connection_Handle" must be a valid connected handle,
+                             and equal to "Connection_Handle" in "LE Connection Complete Event"
+
+              receive1:Command Status Event (same as above)
+                       04 0F 04 00 0B 06 04  ~
+                       -- -- -- -- -- -----
+
+              receive2:Disconnection Complete Event
+                       04 05 04 00 00 00 16  ~
+                       -- -- -- -- ----- --
+                       |  |  |  |    |   +--> Reason
+                       |  |  |  |    +------> Connection_Handle
+                       |  |  |  +-----------> *Status* (Important 0:success other:fail)
+                       |  |  +--------------> Parameter Total lengt
+                       |  +-----------------> Event Code
+                       +--------------------> HCI Event Packet
+
+                       note: the "Status" parametter must be 0, otherwise it is fail.
+
+
+vim:tw=78:ts=8:ft=help:norl:

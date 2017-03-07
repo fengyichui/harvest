@@ -1,0 +1,97 @@
+给任意继承CWnd的窗口加入滚动条：
+
+
+步骤1：
+打开该窗口的 "Horizontal Scroll" and "Verticla Scroll" 类型属性；
+
+步骤2：
+添加变量：CRect m_rect; 表示该窗口的实际大小
+在OnInitDialog()或其他初始化函数中加入：GetClientRect(m_rect); 或其他获取窗口大小的操作
+
+步骤3:
+响应WM_SIZE消息：
+void xxx::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+
+    SCROLLINFO si;
+
+	GetScrollInfo(SB_VERT, &si);//获取上次的信息
+    si.fMask = SIF_ALL; 
+    si.nMin = 0;
+    si.nMax = cy + si.nPos < m_rect.Height() ? m_rect.Height()
+	                                         : si.nPos ? cy + si.nPos 
+											           : 0;//到此处取消显示滚动条
+    si.nPage = cy;
+    SetScrollInfo(SB_VERT, &si);//设置垂直滚动条信息
+
+	GetScrollInfo(SB_HORZ, &si);//获取上次的信息
+    si.fMask = SIF_ALL; 
+    si.nMin = 0;
+    si.nMax = cx + si.nPos < m_rect.Width() ? m_rect.Width()
+	                                        : si.nPos ? cx + si.nPos 
+											          : 0;//到此处取消显示滚动条
+    si.nPage = cx;
+    SetScrollInfo(SB_HORZ, &si);//设置水平滚动条信息
+}
+
+步骤4:
+处理WM_VSCROLL和WM_HSCROLL消息：
+void xxx::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	Scroll(nSBCode, nPos, 1);
+	CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
+}
+
+void xxx::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	Scroll(nSBCode, nPos, 0);
+	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+void xxx::Scroll(UINT nSBCode, UINT nPos, int h0_v1)
+{
+	SCROLLINFO si;
+	GetScrollInfo(h0_v1 == 0 ? SB_HORZ : SB_VERT, &si);
+    int nDelta;
+    int nMaxPos = si.nMax;
+	int nScrollPos = si.nPos;
+    switch (nSBCode)
+    {
+        case SB_LINEDOWN: //case SB_LINERIGHT:
+			nDelta = min(10, nMaxPos - nScrollPos);
+            break;
+
+        case SB_LINEUP: //case SB_LINELEFT:
+            nDelta = -min(10, nScrollPos);
+            break;
+
+        case SB_PAGEDOWN: //case SB_PAGERIGHT:
+            nDelta = min((int)si.nPage, nMaxPos - nScrollPos);
+            break;
+
+        case SB_PAGEUP: //case SB_PAGELEFT:
+            nDelta = -min((int)si.nPage, nScrollPos);
+            break;
+
+        case SB_THUMBPOSITION:
+        case SB_THUMBTRACK:
+		    nDelta = (int)nPos - nScrollPos;
+            break;
+
+        default:
+            return;
+    }
+
+    nScrollPos += nDelta;
+    SetScrollPos(h0_v1 == 0 ? SB_HORZ : SB_VERT, nScrollPos,TRUE);
+
+    if(h0_v1 == SB_VERT)
+		ScrollWindow(0, -nDelta);
+	else
+		ScrollWindow(-nDelta, 0);
+}
+
+
+
+

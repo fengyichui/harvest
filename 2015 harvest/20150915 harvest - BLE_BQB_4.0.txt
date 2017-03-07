@@ -1,0 +1,182 @@
+技巧：
+1. 更小的inteval (PIXIT)
+2. 更小的timeout (PIXIT)
+
+Layer : Link Layer
+> TP/DDI/ADV/BV-01-C :
+> TP/DDI/ADV/BV-02-C :
+> TP/DDI/ADV/BV-03-C :
+> TP/DDI/ADV/BV-04-C :
+> TP/DDI/ADV/BV-05-C :
+> TP/DDI/ADV/BV-06-C : xxx
+> TP/DDI/ADV/BV-07-C :
+> TP/DDI/ADV/BV-08-C :
+> TP/DDI/ADV/BV-09-C : Filter Policy
+> TP/DDI/ADV/BV-11-C :
+> TP/DDI/ADV/BV-15-C :
+> TP/DDI/ADV/BV-16-C :
+> TP/DDI/ADV/BV-17-C :
+> TP/DDI/ADV/BV-18-C :
+> TP/DDI/ADV/BI-01-C :
+> TP/DDI/ADV/BI-02-C :
+> TP/DDI/SCN/BV-01-C :
+> TP/DDI/SCN/BV-02-C :
+> TP/DDI/SCN/BV-03-C :
+> TP/DDI/SCN/BV-04-C :
+> TP/DDI/SCN/BV-05-C : Filter Policy
+> TP/DDI/SCN/BV-10-C :
+> TP/DDI/SCN/BV-11-C :
+> TP/DDI/SCN/BV-12-C :
+> TP/DDI/SCN/BI-01-C :
+> TP/DDI/SCN/BI-02-C :
+> TP/CON/ADV/BV-01-C :
+> TP/CON/ADV/BV-02-C :
+> TP/CON/ADV/BV-03-C :
+> TP/CON/ADV/BV-04-C : ADV_DIRECT_IND with 37 38 39
+> TP/CON/ADV/BI-01-C : 一直接收到CRC Error的包，断开连接时，应该报告0x08而不是0x3E
+> TP/CON/INI/BV-01-C : link quality, RF problems with specific Advertising Frequencies, Drift/Jitter issues,  Violation of the 2us tolerance in the TIFs window
+> TP/CON/INI/BV-02-C : Filter Policy
+> TP/CON/INI/BV-03-C :
+> TP/CON/INI/BV-04-C :
+> TP/CON/INI/BV-06-C :
+> TP/CON/INI/BV-07-C : Filter Policy
+> TP/CON/INI/BI-01-C :
+> TP/CON/INI/BI-02-C :
+> TP/CON/SLA/BV-02-C :
+> TP/CON/SLA/BV-04-C :
+> TP/CON/SLA/BV-05-C :
+> TP/CON/SLA/BV-06-C :
+> TP/CON/SLA/BV-11-C :
+> TP/CON/SLA/BV-12-C :
+> TP/CON/SLA/BV-13-C : BITE-v1.0.18 have a bug: the timeout should be more larger, the old BITE version have no this bug
+> TP/CON/SLA/BV-15-C :
+> TP/CON/SLA/BV-16-C :
+> TP/CON/SLA/BV-17-C :
+> TP/CON/SLA/BV-18-C :
+> TP/CON/SLA/BV-19-C :
+> TP/CON/SLA/BV-20-C :
+> TP/CON/SLA/BV-21-C :
+> TP/CON/SLA/BI-01-C :
+> TP/CON/SLA/BI-02-C :
+> TP/CON/SLA/BI-05-C :
+> TP/CON/MAS/BV-02-C : 非常依赖于连接质量, 测试机会统计丢包率 (latency, 大数据量发送, 一个连接事件内会出现多个包)
+> TP/CON/MAS/BV-03-C :
+> TP/CON/MAS/BV-04-C :
+> TP/CON/MAS/BV-05-C :
+> TP/CON/MAS/BV-08-C : LL_TERMINATE 后不能再有任何数据包
+> TP/CON/MAS/BV-09-C :
+> TP/CON/MAS/BV-10-C :
+> TP/CON/MAS/BV-13-C :
+> TP/CON/MAS/BV-14-C :
+> TP/CON/MAS/BV-15-C :
+> TP/CON/MAS/BV-16-C :
+> TP/CON/MAS/BV-17-C :
+> TP/CON/MAS/BV-18-C : interval应该尽可能小
+> TP/CON/MAS/BV-19-C :
+> TP/CON/MAS/BV-20-C :
+> TP/CON/MAS/BV-21-C :
+> TP/CON/MAS/BV-22-C :
+> TP/CON/MAS/BI-02-C :
+> TP/CON/MAS/BI-04-C :
+> TP/TIM/ADV/BV-01-C :
+> TP/TIM/ADV/BV-02-C :
+> TP/TIM/SLA/BV-02-C :
+> TP/TIM/SLA/BV-03-C :
+> TP/TIM/SLA/BV-04-C :
+> TP/TIM/SLA/BV-05-C :
+> TP/TIM/SLA/BV-06-C : Tester晚发送2us BITE testor does not set MD bit, but it continue to send packet in current event. (BITE-v1.0.15 have this bug, but BITE-v1.0.16 have fixed it)
+> TP/TIM/SLA/BV-07-C : Tester早发送2us BITE testor does not set MD bit, but it continue to send packet in current event. (BITE-v1.0.15 have this bug, but BITE-v1.0.16 have fixed it)
+> TP/TIM/MAS/BV-01-C :
+> TP/TIM/MAS/BV-02-C :
+> TP/ENC/ADV/BI-01-C :
+> TP/ENC/ADV/BI-02-C :
+> TP/ENC/SCN/BI-01-C :
+> TP/ENC/SCN/BI-02-C : ADV_CHANNEL AA错误1bit (0x9DCCBD42, 0xDDCCBD42)
+> TP/ENC/INI/BI-01-C : DATA_CHANNEL AA错误1bit，断开连接应该是0x3E
+> TP/ENC/SLA/BI-01-C : 连接上之后的DATA_CHANNEL AA正确，过一段时间之后变成错误，应该断开连接0x08
+> TP/ENC/MAS/BI-01-C : 连接上之后的DATA_CHANNEL AA正确，过一段时间之后变成错误，应该断开连接0x08
+> TP/FRH/ADV/BV-01-C :
+> TP/FRH/SLA/BV-01-C : CHANNEL_MAP:0x1555555555, 统计未到instant前的丢包率
+> TP/FRH/MAS/BV-01-C :
+> TP/PAC/SLA/BV-01-C :
+> TP/PAC/MAS/BV-01-C :
+> TP/SEC/ADV/BV-01-C :
+> TP/SEC/SCN/BV-01-C :
+> TP/SEC/SLA/BV-01-C :
+> TP/SEC/SLA/BV-02-C :
+> TP/SEC/SLA/BV-03-C : When pause encrypt, host send one byte data, the one byte data should save and send it after re-encrypt finish
+> TP/SEC/SLA/BV-04-C :
+> TP/SEC/SLA/BV-05-C :
+> TP/SEC/SLA/BI-01-C :
+> TP/SEC/SLA/BI-03-C :
+> TP/SEC/SLA/BI-04-C :
+> TP/SEC/MAS/BV-01-C :
+> TP/SEC/MAS/BV-02-C :
+> TP/SEC/MAS/BV-03-C :
+> TP/SEC/MAS/BV-04-C : IUT发送LL_ENC_REQ后,TESTER马上发送data_packet,IUT应该报告未加密的数据包给HOST
+> TP/SEC/MAS/BV-05-C :
+> TP/SEC/MAS/BI-01-C : lmp_responst_error => HCI_ENCRYPT_CHANGE_EVT and HCI_DISCONNECT with 0x22
+> TP/SEC/MAS/BI-03-C :
+> TP/SEC/MAS/BI-04-C :
+> TP/SEC/MAS/BI-05-C :
+> TP/SEC/MAS/BI-06-C :
+> TP/SEC/MAS/BI-07-C : 配对完成之后，tester发送mic_error的数据
+> TP/SEC/MAS/BI-08-C :
+> TP/SEC/MAS/BI-09-C :
+> TP/CON/MAS/BV-07-C :
+
+Layer : Host Controller Interface
+> TP/DSU/BV-02-C :
+> TP/DSU/BV-03-C :
+> TP/DSU/BV-04-C :
+> TP/DSU/BV-05-C :
+> TP/DSU/BV-06-C :
+> TP/CFC/BV-02-C :
+> TP/CIN/BV-05-C :
+> TP/CIN/BV-06-C :
+> TP/CIN/BV-07-C :
+> TP/DDI/BV-03-C :
+> TP/DDI/BV-04-C :
+> TP/HFC/BV-04-C :
+
+
+PIXIT:
+TECHNOLOGY      Bluetooth LE
+VERSION 1.0.16.0
+SOURCE  PIXITS
+KEY     REF             NAME                                    TYPE                    VALUE   VALUE EX
+1       LL_HCI.10       TSPX_public_dev_addr_iut                ADDRESS                 ADDRESS{'AE2D22'O,'CE7A0F'O}
+2       LL_HCI.11       TSPX_public_dev_addr_tester             ADDRESS                 ADDRESS{'0A0B0C'O,'0D0E0F'O}
+3       LL_HCI.1        TSPX_adv_interval                       ADV_INTERVAL            '00A0'O
+4       LL.2            TSPX_adv_interval_max                   ADV_INTERVAL            '00A0'O
+5       LL_HCI.2        TSPX_adv_interval_min                   ADV_INTERVAL            '00A0'O
+6       LL.1            TSPX_adv_event_type                     EVENT_TYPE              '01'O
+7       LL_HCI.14       TSPX_supported_advertising_channels     ADVERTISING_CHANNEL_MAP '07'O
+8       LL_HCI.12       TSPX_scan_interval                      SCAN_INTERVAL           '01A0'O
+9       LL_HCI.13       TSPX_scan_window                        SCAN_WINDOW             '01A0'O
+10      LL_HCI.3        TSPX_conn_interval                      CONN_INTERVAL           '000A'O
+11      LL_HCI.4        TSPX_conn_interval_max                  CONN_INTERVAL           '000A'O
+12      LL_HCI.5        TSPX_conn_interval_min                  CONN_INTERVAL           '0007'O
+13      LL_HCI.7        TSPX_conn_timeout                       CONN_TIMEOUT            '00C8'O
+14      LL.5            TSPX_conn_timeout_max                   CONN_TIMEOUT            '00C8'O
+15      LL.6            TSPX_conn_timeout_min                   CONN_TIMEOUT            '0064'O
+16      LL_HCI.6        TSPX_conn_latency                       CONN_LATENCY            '0000'O
+17      LL_HCI.9        TSPX_connection_event_minimum_length    MINIMUM_LENGTH          '000C'O
+18      LL_HCI.8        TSPX_connection_event_maximum_length    MAXIMUM_LENGTH          '000C'O
+19      LL_HCI.16       TSPX_transmit_window_size               TX_SIZE                 '04'O
+20      LL_HCI.15       TSPX_transmit_window_offset             TX_OFFSET               '0017'O
+21      LL.10           TSPX_scan_req_channel                   CHANNEL                 '25'O
+22      LL.7            TSPX_connect_req_channel                CHANNEL                 '25'O
+24      LL.11           TSPX_selected_adv_channel               ADVERTISING_CHANNEL_MAP '07'O
+26      LL.3            TSPX_compid_iut                         COMPID                  '01BF'O
+27      LL.4            TSPX_compid_tester                      COMPID                  '000A'O
+28      HCI.1           TSPX_hci_revision                       HCI_REVISION            '1410'O
+29      HCI.2           TSPX_hci_version                        HCI_VERSION             '06'O
+30      LL.8            TSPX_ll_versnr_iut                      VERSNR                  '06'O
+31      LL.9            TSPX_ll_versnr_tester                   VERSNR                  '06'O
+33      HCI.4           TSPX_manufacturer_name_le               MANUFACTURER_NAME_LE    '01BF'O
+34      LL.12           TSPX_subversnr_iut                      SUBVERSNR               '1410'O
+35      LL.13           TSPX_subversnr_tester                   SUBVERSNR               '0000'O
+36      LL_HCI.17       TSPX_filter_duplicates                  FILTER_DUPLICATES       '01'O
+37      LL.10           TSPX_hci_data_fragmentation_length      INTEGER 27
+

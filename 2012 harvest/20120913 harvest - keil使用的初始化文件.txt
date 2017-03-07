@@ -1,0 +1,34 @@
+1、 初始化文件的使用方法(.ini)
+	options for target -> debug -> Initialization File
+	Initialization File: 
+	Specifies a file that can contain Debug Commands, Debug Functions, debugger configuration settings, and device initialization commands. For example, Toolbox buttons can be defined. Click Edit to open the file. 
+	例子：my.ini
+		  
+		  PC = 0x100000D4                                                                    //改变PC指针值
+		  E INT 0x40000080 = 0xC0000000                                                      //向内存中写值
+		  KILL BUTTON *                                                                      //删除曾经所有的按钮
+		  DEFINE BUTTON "RESET", "RESET; PC = 0x100000D4; E INT 0x40000080 = 0xC0000000;"    //加入按钮 名字："RESET" 指令："后面的"
+		  DEFINE BUTTON "Go", "g"                                                            //运行
+		  DEFINE BUTTON "Go main", "g,main"                                                  //运行到main()停止
+		  DEFINE BUTTON "Stop", "_break_=1"                                                  //Halts program execution when set to a non-zero value.
+
+2、 keil μVision 初始化配置及过程
+	This dialog page contains two almost identical configuration sections, one for the Simulator and another for the target debugging driver:
+		1、Load Application at Startup 
+		Loads the object file specified in the field Name of Executable of the dialog Options for Target - Output into the μVision Debugger for debugging the application. 
+		2、Run to main() 
+		Executes the instructions until main() is reached and stops execution. When disabled, the application stops at the first instruction. However, the commands defined in the Initialization File are executed regardless of this option. 
+		3、Initialization File 
+		Specifies a file that can contain Debug Commands, Debug Functions, debugger configuration settings, and device initialization commands. For example, Toolbox buttons can be defined. Click Edit to open the file. 
+		4、Restore Debug Session Settings 
+		Restores the settings defined in the previous debugging session. Restores Breakpoints, Watchpoints, Performance Analyzer settings, Memory Window definitions, and the Toolbox. 
+		5、CPU/Driver DLL - Parameter 
+		Review Simulator or target driver DLL settings (taken from the Device Database). Please do not modify the DLL file or parameters. 
+		6、Dialog DLL - Parameter 
+		Review dialog DLL settings (taken from the Device Database). Please do not modify the DLL file or parameters. 
+	
+	μVision executes the commands in the following order:
+		1、When Load Application at Startup is enabled, the debugger loads the file set in the field Project - Options Target - Output — Name of Executable. 
+		2、When enabled, restores the settings of the previous debugging session. 
+		3、Executes the commands in the Initialization File. 
+		4、When Run to main() is enabled, or the command g, main is entered into the initialization file, the instructions are executed until main() is reached. 

@@ -1,0 +1,6 @@
+1¡¢
+	The key that the RegCreateKeyEx function creates has no values. An application can use the RegSetValue or RegSetValueEx function to set key values. 
+	The key identified by the hKey parameter must have been opened with KEY_CREATE_SUB_KEY access. To open the key, use the RegCreateKeyEx or RegOpenKeyEx function. 
+	An application cannot create a key under HKEY_USERS or HKEY_LOCAL_MACHINE. 
+	An application can use RegCreateKeyEx to temporarily lock a portion of the registry. When the locking process creates a new key, it receives the disposition value REG_CREATED_NEW_KEY, indicating that it "owns" the lock. Another process attempting to create the same key receives the disposition value REG_OPENED_EXISTING_KEY, indicating that another process already owns the lock. 
+

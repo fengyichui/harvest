@@ -1,0 +1,51 @@
+
+Debugging multiple targets with Segger JLink
+
+Rating:
+ 
+Vote for this:
+Good  -  Bad
+Answer
+
+Multiprocessor debugging is possible using two SEGGER J-Links at the same time connected to two different microcontrollers, these probes are both connected to one PC on different USB-ports. For clarity let us say that the developer have two different microcontrollers: HW_A and HW_B.
+
+In TrueSTUDIO this will typically require only running one instance of TrueSTUDIO containing one project for each microcontroller.
+
+The default port to be used for SEGGER J-Link is 2331. This is presented in the Debugger tab in the Debug Configurations  dialog. The developer needs to change the port for one of the projects to use another port, e.g. port 2341.
+
+ 
+
+First alternative (local GDB-server using GUI options)
+
+The debug configuration for the project can use GDB connection selection "Autostart local GDBServer". 
+However, please note that as two J-Links are connected to the PC the SEGGER J-Link software will display a GUI where it must be selected which J-Link that is to be associated with which hardware board.
+The developer needs to be quite fast to make the selection here and start the GDB server. When the selection is made the GDBServer will start and connect to the board using the selected probe and GDB will connect to the GDB server. 
+If this selection is not made fast enough the debug session in TrueSTUDIO will timeout because there was no server to connect to.
+
+When the DebugConfiguration has been configured for both projects so that each board is associated to a specific probe, the user may try to debug each board individually first. 
+
+When it is confirmed that this is working it is time to debug both targets at the same time. Proceed as follow:
+1. First start to debug HW_A. 
+2. The developer will automatically be switched to the Debug Perspective in TrueSTUDIO when a debug session is started. Switch to C/C++ Perspective.
+3. Select the project for HW_B and start debugging this. The Debug perspective will now open again. 
+4. There will be two application stacks/nodes in the debug view: One for each project (hardware). When changing selected node in the Debug view the depending editor, variable view etc. will be updated to present information valid to the selected project/board. 
+
+
+Second alternative (remote GDB-server using command-line options)
+
+It may be easier to start the GDBserver manually and change the Debug Configurations to "Connect to remote GDB server". This setting is made in the Debugger tab in the Debug Configurations dialog.
+
+If "Connect to remote GDB server" is selected the developer must start the GDB server manually before starting the debug session.
+
+To start SEGGER J-Link GDB server manually please follow this procedure:
+1. Open a Windows Console (Command Prompt)
+2. Change directory to the location where the GDB server is located, normally to: 
+C:\Program Files (x86)\Atollic\TrueSTUDIO for ARM Pro 4.1.0\Servers\J-Link_gdbserver
+3. Start the GDB server: E.g start using port 2341 with SWD interface mode:
+JLinkGDBServerCL.exe -port 2341 -if SWD -select usb=123456789 (The 123456789 is serial number of dongle.)
+
+Start another GDB server in a second command prompt, using another port number in a similar way and let this connect to the second J-Link. 
+
+Now when both SEGGER J-Link GDB servers are running the developer can debug the two projects individually or multi-target. Please note that the Debug Configurations needs to use the same port as the GDB server is listening on and "Connect to remote GDB server" shall be used.
+
+vim:tw=78:ts=8:ft=help:norl:

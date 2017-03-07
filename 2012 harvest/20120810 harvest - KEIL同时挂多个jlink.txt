@@ -1,0 +1,2 @@
+KEIL同时挂多个jlink:
+	在option->debug->settings->jlink cmd 输入命令行：USBADDR = <address>

@@ -1,0 +1,96 @@
+
+VC
+
+UI线程中等待子线程结束
+
+这个问题搞了一天终于搞通了！！！ 纪念一下
+
+1、UI线程中调用WaitForSingleObject()等类似函数的局限:
+    因为很多控件的操作都是通过消息实现的,而这些消息是在UI线程中流动的.
+    如果UI线程的某个地方调用了WaitForSingleObject()可能会导致窗口的消息阻塞,
+    从而导致程序死掉.
+
+2、如果UI线程中等待的是子线程的结束则必须通过以下两种方式创建
+        a、 通过_beginthreadex
+            hThreadDealWith = (HANDLE)_beginthreadex(NULL, 0, ThreadRcvFunc, this, 0, 0);
+        b、 通过AfxBeginThread
+            pThreadDealWith = AfxBeginThread(ThreadDealWithFunc, (void *)this);
+		    //关键点，线程结束后不自动删除目标，否则在等待时候会认为该句柄是无效句柄，记得手动删除该目标
+            pThreadDealWith->m_bAutoDelete = FALSE; 
+
+3、UI中等待函数的实现：
+
+//以下两个函数 等待过程中忽略所有的用户输入(鼠标键盘) 
+//如果是等待线程则 创建线程时使用
+//   1、hThreadDealWith = (HANDLE)_beginthreadex(NULL, 0, ThreadRcvFunc, this, 0, 0);
+//   2、pThreadDealWith = AfxBeginThread(ThreadDealWithFunc, (void *)this);
+//		pThreadDealWith->m_bAutoDelete = FALSE; //关键点，线程结束后不自动删除目标，否则在等待时候会提示无效句柄，记得手动delete该目标
+//在“UI的线程”中等待许多事件变成有信号状态 参数handle_array：HANDLE handle_array[2] = {hThreadDealWith, hThreadRcv};
+static inline BOOL UI_WaitForMultipleObjects(HANDLE *handle_array, int n)                                               
+{
+	DWORD result;   																
+	MSG msg;   																		
+	int index;	
+	while(TRUE)                                                                         
+	{ 
+		result = MsgWaitForMultipleObjects(n, handle_array, FALSE, INFINITE, QS_ALLINPUT);
+		if(result == WAIT_FAILED)
+		{            
+			ASSERT(0);//可能是无效句柄
+			return FALSE;
+		}  
+		index = result - WAIT_OBJECT_0;
+		if(index < n && index >= 0)//handle_array中的有效
+		{ 			
+			TRACE("[%p/%d] get signal\n", handle_array[index], n);
+			if(--n == 0)
+				return TRUE;  //结束
+
+			if(n != index)
+				handle_array[index] = handle_array[n];//删除该句柄
+		}																	
+		else if(index == n)//QS_ALLINPUT中的有效
+		{   																			
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message==WM_QUIT||msg.message==WM_CLOSE)  
+					return FALSE;
+
+				//不响应所有的用户输入(鼠标键盘)
+				if(!(msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST ||
+					msg.message >= WM_KEYFIRST   && msg.message <= WM_KEYLAST))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);   										
+				}
+			}
+		}   	
+		else//其他的有效
+		{
+			TRACE("WAIT_ABANDONED get signal\n");
+		}																		
+	}
+
+	return TRUE;
+} 
+
+//在“UI的线程”中等待某个事件变成有信号状态
+static inline BOOL UI_WaitForSingleObject(HANDLE hHandle)
+{
+	return UI_WaitForMultipleObjects(&hHandle, 1);
+}   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
