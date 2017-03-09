@@ -82,6 +82,7 @@ Shell 总结
     -r file　　　　　用户可读为真
 　　-w file　　　　　用户可写为真
 　　-x file　　　　　用户可执行为真
+    -e file          是否存在
 　　-f file　　　　　文件为正规文件为真
 　　-d file　　　　　文件为目录为真
 　　-c file　　　　　文件为字符特殊文件为真
@@ -190,15 +191,15 @@ Shell 总结
 11. 用户自定义变量 >
     var=value       设置实际值到var，!!!等号两边不能出现空格!!!
     var=`command`   命令的标准输出设置到变量var中，!!!等号两边不能出现空格!!!
+    var=$(comman)   同上
     $var            变量引用
     ${var}          变量引用
-    export var      将var变量输出为全局变量：
+    export var      将var变量输出为全局变量
     unset var       清除自定义变量var
-    var+value       如果设置了var值，则重设其值
-    var:?value      如果未设置var值，显示未定义用户错误信息
-    var:value       如果未设置var值，显示系统错误信息
-    var:=value      如果未设置var值，设置其值
-    var:-value      同上，但是其值并不设置到var，可以被替换
+    ${var:-value}   如果var为空或未定义，则返回value；否则，返回var值
+    ${var:=value}   同上，只是当var为空或未定义时，会把value赋值给var
+    ${var:+value}   如果var为空或未定义，则返回空；否则，返回value值
+    ${var:value}    如果var为空或未定义，则将value写入标准错误输出，本句失败。否则返回var值
 
 12. 定义函数 >
     # 定义函数
