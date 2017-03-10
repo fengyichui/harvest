@@ -482,4 +482,22 @@ Shell 总结
       :wq           # 调用vim命令
       EOF           # 结束标志
 
+28. trap 处理信号
+    当脚本在执行时，如果按下Ctrl-C，默认情况下会终止脚本执行。trap是用来改变这种默认行为的
+    语法：
+        trap 'cmd' signal-list  当脚本收到signal-list清单内列出的信号时,trap命令执行引号中的命令.
+        trap signal-list        trap不指定任何命令,接受信号的默认操作.默认操作是结束进程的运行.
+        trap '' signal-list     trap命令指定一个空命令串,允许忽略信号.
+    signal-list：
+        HUP(1)      挂起，通常因终端掉线或用户退出而引发
+        INT(2)      中断，通常因按下Ctrl+C组合键而引发
+        QUIT(3)     退出，通常因按下Ctrl+\组合键而引发
+        ABRT(6)     中止，通常因某些严重的执行错误而引发
+        ALRM(14)    报警，通常用来处理超时
+        TERM(15)    终止，通常在系统关机时发送
+    例如： >
+        trap 'echo "interrupt"' INT
+        sleep 100       # 在此处按下<CTRL-C>会终止sleep执行，但是不会退出脚本，会继续执行，并打印"interrupt"
+        ech "resume"
+
 vim:ft=help
