@@ -39,13 +39,28 @@ GDB
 
     初始化: ~
          gdb初始化时候会主动读取 ~/.gdbinit 文件，并把它作为初始化文件
-        set logging on gdb_debug_msg.log  #设置log文件位置
-        set pagination off                #取消滚屏时候的提示(取消类似more命令的提示)
-        set print pretty on               #漂亮的打印
+         常用选项：
+             set confirm off                         # 取消confirm
+             set verbose off                         # 详细输出禁止
+             set history filename ~/.gdb_history     # 历史记录
+             set history remove-duplicates unlimited # 去除重复的历史记录
+             set history save on                     # 存储历史记录
+             set pagination off                      # 取消滚屏时候的提示(取消类似more命令的提示)
+             set print pretty                        # 漂亮的打印
+             set output-radix 0x0A                   # 10进制输出
+             set input-radix 0x0A                    # 10进制输入
+             set arm force-mode thumb                # 强制使用thumb模式
 
     编译要求: ~
          使用编译器(cc/gcc/g++)编译的时候加上 -g 选项，它可以把调试信息加入到可执行文件中去。如：> cc -g hello.c -o hello
-         -ggdb3 可以让gcc专门为GDB优化
+         -g与-ggdb区别：
+            -g         利用操作系统的nativa format生成调试信息
+            -ggdb      专门为GDB生成更为丰富的调试信息，但不能使用其他调试器调试了
+         级别(同样适用于-ggdb)：
+            -g2        默认级别，此时产生的调试信息包括扩展的符号表，行号，变量表
+            -g3        包含g2的所有信息，以及源代码中定义的宏
+            -g1        不包含行号和局部变量的调试信息
+         所以常用-ggdb3作为编译选项
 
     调试命令: ~
          一般:
