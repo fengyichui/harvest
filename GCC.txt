@@ -340,4 +340,121 @@ GDB
     rm -rf $romvectorfile
     rm -rf $romtextfile
 
+syscalls.c >
+
+    #include <sys/stat.h>
+    #include <errno.h>
+    #include <stdio.h>
+    #include "hs66xx.h"
+
+    //调用printf时候的打印输出
+    static int dbg_send_bytes(const unsigned char *pdata, int len)
+    {
+    }
+
+    static void dbg_flush(void)
+    {
+    }
+
+    int _open (const char *name, int flags, int mode)
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
+    int _close (int file)
+    {
+        if (file == 1 || file == 2)
+        {
+            dbg_flush();
+            return 0;
+        }
+        errno = EBADF;
+        return -1;
+    }
+
+    int _isatty (int file)
+    {
+        if (file >= 0 && file <= 2) return 1;
+        return 0;
+    }
+
+    int _read (int file, char *ptr, int len)
+    {
+        return 0;
+    }
+
+    int _write (int file, const char *ptr, int len)
+    {
+        int sent = -1;
+        if (file == 1 || file == 2)
+            sent = dbg_send_bytes ((const unsigned char*)ptr, len);
+        return sent;
+    }
+
+    int _lseek (int file, int ptr, int dir)
+    {
+        return 0;
+    }
+
+    int _fstat (int file, struct stat *st)
+    {
+        if (file >= 0 && file <= 2)
+        {
+            st->st_mode = S_IFCHR;
+            return 0;
+        }
+        errno = EBADF;
+        return -1;
+    }
+
+    int _stat (char *file, struct stat *st)
+    {
+        errno = ENOENT;
+        return -1;
+    }
+
+    //内部内存分配时候使用
+    caddr_t _sbrk (int incr)
+    {
+        extern char _end; /* Defined by the linker */
+        static char *end = &_end;
+        char *prev_end = end;
+        end += incr;
+        return (caddr_t) prev_end;
+    }
+
+    int _fsync (int fd)
+    {
+        if (fd == 1 || fd == 2)
+        {
+            dbg_flush();
+            return 0;
+        }
+        if (fd == 0) return 0;
+        errno = EBADF;
+        return -1;
+    }
+
+    void _exit (int status)
+    {
+        while (1);
+    }
+
+    void _abort()
+    {
+        while (1);
+    }
+
+    void _kill()
+    {
+        while (1);
+    }
+
+    pid_t _getpid (void)
+    {
+        return 1;
+    }
+
+
 vim: ft=help
