@@ -5,7 +5,15 @@
     REM 后面都被注释了
     :: 后面的都被注释了
 
-3. |IF|
+2. 修改windows控制台语言
+    a. 临时脚本里修改
+       $ chcp 437     # 修改系统语言为英语
+       $ chcp 936     # 修改系统语言为中文
+    b. 永久修改
+       再控制台"默认值"设置属性页里的"默认代码页"中选择"437 (OEM - 美国)"
+       如果是win10的话，勾选"使用旧版控制台"
+
+3. IF
     - IF [NOT] ERRORLEVEL number command ~
         ERRORLEVEL 是命令执行完成后返回的退出值, number 退出值的数字取值范围0~255。
         判断时值的排列顺序应该由大到小。返回的值大于或等于指定的值时条件成立。
@@ -30,7 +38,7 @@
         IF %1==2 echo 相等
         IF not EXIST autoexec.bat echo 文件不存在
 
-4. |FOR|
+4. FOR
     FOR [%%c] IN (set) DO [command] [arguments] 脚本中~
     FOR [%c]  IN (set) DO [command] [arguments] 命令行中~
     NOTE: 循环变量名"%c"中的"c"必须是单字符
@@ -284,14 +292,6 @@
 
 <    例3： >
     for /l %%a in (0,1,255) do for /l %%b in (0,1,255) do for /l %%c in (1,1,254) do for /f "tokens=1,2*" %%e in (userpass.txt) do net use \\%1.%%a.%%b.%%c\ipc$ %%e /u:%%f
-
-10. 修改windows控制台语言
-    a. 临时脚本里修改
-       $ chcp 437     # 修改系统语言为英语
-       $ chcp 936     # 修改系统语言为中文
-    b. 永久修改
-       再控制台"默认值"设置属性页里的"默认代码页"中选择"437 (OEM - 美国)"
-       如果是win10的话，勾选"使用旧版控制台"
 
 
 vim: ft=help

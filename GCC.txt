@@ -2,12 +2,12 @@
 === GCC and it's toolbox ===
 
 
-最小化Code size (去除无用的数据和函数)： >
+1. 最小化Code size (去除无用的数据和函数)： >
     CC_OPT = -Os -fdata-sections -ffunction-sections
     LD_OPT = -Wl,--gc-sections
     gcc $(CC_OPT) test.cpp -o test $(LD_OPT)
 
-objcopy
+2. objcopy
     bin -> ihex >
     $ objcopy --change-addresses 0x08000000 -I binary -O ihex a.bin a.hex
 <    ihex -> bin >
@@ -17,20 +17,20 @@ objcopy
 <    elf -> bin >
     $ objcopy -O binary a.elf a.bin
 
-objdump
+3. objdump
     elf -> disassemble >
     objdump -d a.elf > a.dis
 
-readelf
+4. readelf
     读取elf文件头信息, 包括ENTRY等 >
     readelf -h a.elf
 <    NOTE: GDB会自动在load程序之后把ENTRY值赋给$PC指针
 
-arm-none-eabi-gcc, printf, malloc
+5. arm-none-eabi-gcc, printf, malloc
     arm gcc 的newlib库在调用malloc、printf等函数时，需要 *_sbrk()* 系统调用，
     默认的weak声明的_sbrk()直接使用linker脚本里的 *end* 符号(但是这样不安全)。
 
-GDB
+6. GDB
     gdb [options] --args executable-file [inferior-arguments ...] ~
     options: ~
          --symbols=SYMFILE  从指定文件中读取符号表。
@@ -233,7 +233,7 @@ GDB
             end
             run
 
-使用GDB调试KEIL产生的AXF文件:
+7. 使用GDB调试KEIL产生的AXF文件:
     使用GDB调试原始的keil的AXF文件有功能性问题
     This happens because of the differences between
     the GNU and the Keil linker. The GNU linker computes 2
@@ -340,7 +340,7 @@ GDB
     rm -rf $romvectorfile
     rm -rf $romtextfile
 
-syscalls.c >
+8. syscalls.c >
 
     #include <sys/stat.h>
     #include <errno.h>
@@ -456,5 +456,21 @@ syscalls.c >
         return 1;
     }
 
+9. Section: .bss VS COMMON
+    在GCC里.bss和COMMON段很类似，默认情况：
+    int a = 0; // place to .bss section ~
+    int a;     // place to COMMON section ~
+
+    让编译器把所有未初始化的变量放到.bss段的方式是：gcc -fno-common
+
+    NOTE: 使用工具size时请注意：必须加入--common选项来让.bss段里包含未初始化的段，如： >
+          find -name "*.o" | xargs arm-none-eabi-size --common
+<    NOTE: 连接脚本里的.bss段需加入COMMON段，如： >
+        .bss : {
+            *(.bss*)
+            *(COMMON)
+            . = ALIGN(4);
+            _ebss = .;
+        } >ram
 
 vim: ft=help

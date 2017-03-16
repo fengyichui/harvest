@@ -456,15 +456,15 @@
     //#define GAP_CONNECTION_COMPLETE_EVENT                      0x81
 
 14. BLE 初始化流程 (ref: core_4.1.pdf, Vol2-PartE)
-    1. 7.3.2 => Reset (Must)
-    2. 7.4.1 => Read Local Version Infomation (option) 
-    3. 7.4.2 => Read Local Supported Commands (option)
-    4. 7.4.6 => Read BD_ADDR Command
-    5. 7.3.1 => Set Event Mask Command (option) (0x3FFFFFFFFFFFFFFF)
-    6. 7.8.1 => LE Set Event Mask (option) (0x000000000000001F, config)
-    7. 7.4.5 => Read Buffer Size Command
-    8. 7.8.2 => LE Read Buffer Size (Must) 
-    9. 7.8.3 => LE Read Local Support Features (option)
+    1 7.3.2 => Reset (Must)
+    2 7.4.1 => Read Local Version Infomation (option) 
+    3 7.4.2 => Read Local Supported Commands (option)
+    4 7.4.6 => Read BD_ADDR Command
+    5 7.3.1 => Set Event Mask Command (option) (0x3FFFFFFFFFFFFFFF)
+    6 7.8.1 => LE Set Event Mask (option) (0x000000000000001F, config)
+    7 7.4.5 => Read Buffer Size Command
+    8 7.8.2 => LE Read Buffer Size (Must) 
+    9 7.8.3 => LE Read Local Support Features (option)
 
 15. Filter Policy (White List)
     a. Advertiser: (Config: LE_SET_ADVERTISING_PARAMETERS_COMMAND) ~

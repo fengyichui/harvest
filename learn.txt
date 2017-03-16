@@ -10,7 +10,7 @@
 |include| *Perl.txt*
 |include| *Keil.txt*
 
-HS6620
+1. HS6620
     - ROM:256KB
     - RAM:128KB, 16*8KB, 默认只有第一块有电, 默认只有第一块和最后一块时钟
         所以唤醒后，记得把reset_handler和开电的程序放到第一块
@@ -40,7 +40,7 @@ HS6620
       +----------------+---------+---------+---------+
 
 
-TI-CC2540USBdongle固件更新方法
+2. TI-CC2540USBdongle固件更新方法
     a.正版 >
         软件：Setup_SmartRFProgr_1.12.7.exe （BTool：BLE-CC254x-1.4.2.2.exe，Sniffer:Setup_SmartRF_Packet_Sniffer_2.18.1.exe）
         硬件：CC Debugger
@@ -55,7 +55,7 @@ TI-CC2540USBdongle固件更新方法
           - CC Debugger接口定义：1.GND 2.VCC 3.P2_2 4.P2_1 5.X 6.X 7.RESET_N 8.X 9.X 10.X
         对应连接
 
-Vivado:
+3. Vivado:
     XILINX platform cable USB 无法识别解决方法： ~
     管理员身份顺序执行下列命令： >
     $ cd D:\Xilinx\Vivado\2014.3\data\xicom\cable_drivers\nt64\
@@ -114,7 +114,7 @@ Vivado:
       Ref： http://forums.xilinx.com/t5/Design-Tools-Others/Is-it-possible-to-export-waveform-data-from-Vivado-Logic/td-p/341563
 
 
-SPI Flash 汇总
+4. SPI Flash 汇总
               MID/DID  page_size  sector_size  capacity  OTP(LB)  SecuirtyRegister 
     ------------------------------------------------------------------------------- ~
     GigaDevice: >
@@ -169,12 +169,12 @@ SPI Flash 汇总
     1.8V:
     W25Q16DW:  EF6015                          16M-bit   S13/12/11/10 4*256B
 
-关联没有扩展名的文件(Windows)
+5. 关联没有扩展名的文件(Windows)
     管理员身份运行cmd: >
     $ assoc .="No Extension"
     $ ftype "No Extension"="C:\Program Files\Vim\vim80\gvim.exe" "%1"
 
-Cygwin下编译universal-ctags
+6. Cygwin下编译universal-ctags
     github:
         git clone https://github.com/universal-ctags/ctags.git
     安装：
@@ -185,18 +185,18 @@ Cygwin下编译universal-ctags
     命令：
         make -f mk_mingw.mak  CC=i686-w64-mingw32-gcc
 
-创建常用右键菜单：
+7. 创建常用右键菜单：
     使用winmaster.exe创建有用的右键菜单：
-    1. cygwin >
+    1、cygwin >
     $ C:\cygwin64\home\user\.bin\hstart.exe /NOCONSOLE "cmd /c set HOME=&set CHERE_INVOKING=1&C:\cygwin64\bin\mintty.exe -"
-<    2. cmd(adm) >
+<    2、cmd(adm) >
     $ C:\cygwin64\home\user\.bin\cmd_adm.bat
-<    3. MeinPlatz (文件统计) >
+<    3、MeinPlatz (文件统计) >
     $ C:\cygwin64\home\user\.bin\hstart.exe /NOCONSOLE "cmd /C E:\4-other\OneDrive\Skill\Tool\MeinPlatz\MeinPlatz.exe %%CD%%"
 
-编辑器或者shell出现乱码
-    1. 尝试更改字体
-    2. 尝试更改编码方式：utf8
+8. 编辑器或者shell出现乱码
+    1、尝试更改字体
+    2、尝试更改编码方式：utf8
 
 
 vim: ft=help
