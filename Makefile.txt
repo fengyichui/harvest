@@ -222,12 +222,21 @@ Makefile
     LDFLAGS     链接器参数。（如：“ld”）
 
 11. 条件表达式
-    ifeq (<arg1>, <arg2>)  ==> if(arg1==arg2){}
-    ifneq (<arg1>, <arg2>) ==> if(arg1!=arg2){}
-    ifdef <variable-name>  ==> 如果variable-name不为空则为真
-    ifndef <variable-name> ==> 如果variable-name为空则为真
-    else
-    endif
+    ifeq (<arg1>, <arg2>)       # 如果arg1==arg2
+    ifneq (<arg1>, <arg2>)      # 如果arg1!=arg2
+    ifdef <variable-name>       # 如果variable-name不为空则为真
+    ifndef <variable-name>      # 如果variable-name为空则为真
+    else                        # 否则
+    else ifeq (<arg1>, <arg2>)  # 否则如果arg1==arg2, gnu make 3.81版支持，老的不支持
+    endif                       #
+    例如： >
+        ifeq ($(VAR), something1)
+        # do something
+        else ifeq($(VAR), something2)
+        # do something
+        else
+        # do something
+        endif
 
 12. 为源文件定义宏
     gcc -DMACRO=VALUE ~
