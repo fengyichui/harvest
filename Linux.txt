@@ -12,9 +12,10 @@
     一般形式:
     xargs [-I replace-str] [-n max-args] [command] [initial-arguments]   ~
 
-    |-I| |replace-str| 使用 |replace-str| 代替输入的参数
-    |-n| |max-args| 每次提供的最大参数个数
-    
+    |-I| |replace-str|  使用 replace-str 代替输入的参数
+    |-n| |max-args|     每次提供的最大参数个数
+    |-d| |sep-char|     每个参数的分隔符，当文件内包含空格的时候非常有用，如：`find -name "*.txt" | xargs -d '\n' chmod -x`
+
     xargs会把标准输入的数据的所有回车去掉.
     当xargs什么参数都不加的时候, 默认把标准输入的参数作为执行命令最尾的参数.
 
@@ -193,16 +194,16 @@
     |-r|  还原
 
     例子:
-        1. 以4个byte为一组, 并且把每组数据的字节序翻转, 12345678 => 78563412
+        1 以4个byte为一组, 并且把每组数据的字节序翻转, 12345678 => 78563412
            $ xxd -g4 "file.bin" | sed 's/ \([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)\([0-9a-f]\{2\}\)/ \4\3\2\1/g'   ~
 
-        2. Create a 65537 byte file with all bytes 0x00, except for the last one which is 'A' (hex 0x41).
+        2 Create a 65537 byte file with all bytes 0x00, except for the last one which is 'A' (hex 0x41).
            $ echo "010000: 41" | xxd -r > file  ~
 
-        3. Print 3 lines (hex 0x30 bytes) from the end of file.
+        3 Print 3 lines (hex 0x30 bytes) from the end of file.
            $ xxd -s -0x30 file ~
 
-        4. Hexdump the first 120 bytes, with 12 octets per line, 4 octets per group.
+        4 Hexdump the first 120 bytes, with 12 octets per line, 4 octets per group.
            $ xxd -l120 -c12 -g4 file.bin  ~
             >
              0000000: e8440010 c1000010 cf000010  .D..........
@@ -223,8 +224,8 @@
     |-s| 建立的软连接
 
     eg:
-        1. ln -s abc cde 建立abc的软连接->cde
-        2. ln abc cde    建立abc的硬连接->cde
+        1、ln -s abc cde 建立abc的软连接->cde
+        2、ln abc cde    建立abc的硬连接->cde
 
     软链接与硬链接的区别:
     硬链接可认为是一个文件拥有两个文件名, 当前目录为硬链接文件所在的目录
@@ -669,7 +670,7 @@
              使用ssh协议指定端口：rsync -rvz --progress -e 'ssh -p 22'
 
 21. 使用cygwin的ssh服务器
-    1. 配置cygwin
+    1、配置cygwin
         需要的软件包：cygrunsrv、openssh ~
         管理员身份运行cygwin
         $ ssh-host-config               #引导ssh服务配置 ~
@@ -701,12 +702,12 @@
         NOTE: 别的有用的命令：
               `$ net stop sshd  #关闭服务，用于重启`
               `$ sc delete sshd #删除服务，用于重装`
-    2. 开放windows的22端口 (SSH使用端口)
+    2、开放windows的22端口 (SSH使用端口)
        防火墙中设置允许22端口入栈, window防火墙为例： >
        入栈规则->新建规则->规则类型(选择"端口")->TCP,22->允许连接
-<    3. 客户端远程操作： >
+<    3、客户端远程操作： >
        $ ssh server@192.168.1.123  #使用服务器端的用户名密码
-<    4. 客户端不用每次都再输入密码： >
+<    4、客户端不用每次都再输入密码： >
        $ ssh-keygen                         #创建密码，一路回车
        $ ssh-copy-id server@192.168.1.123  #拷贝密码到服务器
        NOTE: 确保服务器的 ~/.ssh的权限是700，~/.ssh/authorized_keys的权限是600
