@@ -10,36 +10,6 @@
 |include| *Perl.txt*
 |include| *Keil.txt*
 
-1. HS6620
-    - ROM:256KB
-    - RAM:128KB, 16*8KB, 默认只有第一块有电, 默认只有第一块和最后一块时钟
-        所以唤醒后，记得把reset_handler和开电的程序放到第一块
-    - PHY RX 算法延时大概有40us
-    - HS6620 数字信号引出：
-        o_tab_rdi_ctrl[11:0]:   bit0: TX_EN
-                                bit1: RX_EN
-        bb/cor_sync_det:        CEVA的sync检测
-        phy/sync_det:           PHY的sync检测
-        bb/r_le_cnt_ifs[7:0]:   tifs值
-        bb/r_bit_cnt[10:0]:     1us bit counter
-        bb/r_lif_win:           CEVA的接收sync窗口
-    - CEVA T_IFS_DELAY加入1bit:
-        原始的T_IFS_DELAY[5:0]变为T_IFS_DELAY[6:1],
-        T_IFS_DELAY[0]为LE Registers的offset0的bit1(原为保留bit)
-    - CEVA tifs RX: 
-        win_stant: (150 - 4) - win_ext + le_delay_search_win
-        win_width: 2*win_ext + 8
-    - 外设稳定时间：
-      +----------------+---------+---------+---------+
-      |                |   Max   |   Min   | General |
-      +----------------+---------+---------+---------+
-      | 24M xtal       |   8ms   |         |   2ms   | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
-      | 32768K xtal    |   2s    |         |   0.5s  | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
-      | RAM power on   |  650us  |         |  250us  | (clamp_dealy+4))*30.5
-      | Flash power on |  12.2ms |   2ms   |         | GigaDevice
-      +----------------+---------+---------+---------+
-
-
 2. TI-CC2540USBdongle固件更新方法
     a.正版 >
         软件：Setup_SmartRFProgr_1.12.7.exe （BTool：BLE-CC254x-1.4.2.2.exe，Sniffer:Setup_SmartRF_Packet_Sniffer_2.18.1.exe）
@@ -157,6 +127,7 @@
     ------------------------------------------------------------------------------- ~
     Boya: >
     BY25Q40A:  E04013  256B       4KB           4M-bit   SR2.5/4/3 3*256B
+    BY25D40A   684013                           4M-bit
     1.8V:
     BG25Q128AL:E06018  256B       4KB         128M-bit   SR2.5/4/3/2 4*256B
 <

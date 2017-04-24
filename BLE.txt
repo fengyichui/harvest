@@ -602,23 +602,112 @@
     a. BIT zero not found >
        我们发送的数据包的preamble的前面被截断了。检查radio控制的TX-setup时间是否过短
 
-20. HS6620 CEVA RX窗口 (RX_MODE == Normal):
-    数字窗口：
-        经典时序：
-            窗口开始：tim_bit_cnt = 647 + RX_DELAY - WIN_EXT
-                      /* `c_rx_pos2(625) - `c_half_win(11) + `c_crl_delay_le(40) - `c_hab_fixed_delay(5) - `c_jal_fixed_delay(2)  + s_rx_delay - rgf_win_ext; */
-            窗口大小：WIN_EXT*2 + 23
-                      /* {rgf_win_ext[9:0],1'b0} + `c_win_size(23)) */
-        LE时序：
-            窗口开始：le_cnt_ifs = 186 + SEARCH_WIN_DELAY - WIN_EXT
-                      /* ((`c_ifs_val(150) - 8'd4 + 8'd40) - rgf_win_ext + r_le_delay_srch_win) */
-            窗口大小：WIN_EXT*2 + 8
-                      /* {rgf_win_ext[9:0],1'b0} + `c_win_size_tifs(8)) */
-    射频RX_EN：
-        拉高软件控制，拉低数字控制。
-        窗口开始：HIGH_REG - WIN_EXT (EARLY和LATE被置1时)
-        窗口大小：WIN_EXT*2 (EARLY和LATE被置1时)
+20. HS6620
+    - HS6620 CEVA RX窗口 (RX_MODE == Normal):
+        数字窗口：
+            经典时序：
+                窗口开始：tim_bit_cnt = 647 + RX_DELAY - WIN_EXT
+                          /* `c_rx_pos2(625) - `c_half_win(11) + `c_crl_delay_le(40) - `c_hab_fixed_delay(5) - `c_jal_fixed_delay(2)  + s_rx_delay - rgf_win_ext; */
+                窗口大小：WIN_EXT*2 + 23
+                          /* {rgf_win_ext[9:0],1'b0} + `c_win_size(23)) */
+            LE时序：
+                窗口开始：le_cnt_ifs = 186 + SEARCH_WIN_DELAY - WIN_EXT
+                          /* ((`c_ifs_val(150) - 8'd4 + 8'd40) - rgf_win_ext + r_le_delay_srch_win) */
+                窗口大小：WIN_EXT*2 + 8
+                          /* {rgf_win_ext[9:0],1'b0} + `c_win_size_tifs(8)) */
+        射频RX_EN：
+            拉高软件控制，拉低数字控制。
+            窗口开始：HIGH_REG - WIN_EXT (EARLY和LATE被置1时)
+            窗口大小：WIN_EXT*2 (EARLY和LATE被置1时)
 
+    - ROM:256KB
+    - RAM:128KB, 16*8KB, 默认只有第一块有电, 默认只有第一块和最后一块有时钟
+        所以唤醒后，记得把reset_handler和开电的程序放到第一块
+    - PHY RX 算法延时大概有40us
+    - HS6620 数字信号引出：
+        o_tab_rdi_ctrl[11:0]:   bit0: TX_EN
+                                bit1: RX_EN
+        bb/cor_sync_det:        CEVA的sync检测
+        phy/sync_det:           PHY的sync检测
+        bb/r_le_cnt_ifs[7:0]:   tifs值
+        bb/r_bit_cnt[10:0]:     1us bit counter
+        bb/r_lif_win:           CEVA的接收sync窗口
+    - CEVA T_IFS_DELAY加入1bit:
+        原始的T_IFS_DELAY[5:0]变为T_IFS_DELAY[6:1],
+        T_IFS_DELAY[0]为LE Registers的offset0的bit1(原为保留bit)
+    - CEVA tifs RX: 
+        win_stant: (150 - 4) - win_ext + le_delay_search_win
+        win_width: 2*win_ext + 8
+    - 外设稳定时间：
+      +----------------+---------+---------+---------+
+      |                |   Max   |   Min   | General |
+      +----------------+---------+---------+---------+
+      | 24M xtal       |   8ms   |         |   2ms   | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
+      | 32768K xtal    |   2s    |         |   0.5s  | 最大稳定时间要看用的晶体如何不好确定，这里留的裕量比较大
+      | RAM power on   |  650us  |         |  250us  | (clamp_dealy+4))*30.5
+      | Flash power on |  12.2ms |   2ms   |         | GigaDevice
+      +----------------+---------+---------+---------+
 
+    注意的问题：
+        1、使用python脚本测试时，串口优先级高于蓝牙优先级，波特率使用115200(不要使用更高波特率，因为可能会长时间打断蓝牙执行，导致加密时出现mic error)
+        2、尽量避免有其他中断优先级高于蓝牙优先级，如果必须高于蓝牙优先级的话，则该高优先级中断里避免长时间占用CPU，否则会导致蓝牙收发出问题，会导致加密时出现mic error
+
+    HS6620-A0-TEST
+        - TX: 12mA(4dB)
+        - RX: 7-8mA(和AGC有关系)
+        - CPU: 108uA/MHz (gate:2.6mA 24MHz:4.3mA 48MHz:6.9mA)
+        - 32kHz Xtal: 5-6uA
+        - Default GPIO debug mode current:
+            GPIO16 1.2mA  24M clkout
+            GPIO17 0.9mA 24M clkout
+            GPIO18 2.5mA 48M clkout
+            GPIO19 1mA 24M clkout
+            GPIO20 0.86mA 24M clkout
+        - SRAM每块(8K): 0.86uA (工艺越好静态功耗越高，动态功耗越低) (QN9020 .11工艺 0.3-0.4uA)
+
+    HS6620-A0-BUG
+        软件相关：
+            1、calib_rf_afc()中的AFC校准，不能做第二次。影响客户调试
+               [解决] 影响客户调试
+            2、APP大小过小时(几百个字节)，导致boot出问题
+               [解决]
+            3、CPU没有被gate掉(wfe)
+            4、cfg_init/load_patch时，如果内部flash没有patch数据时，会查找外部flash，这样会不期望的改变pinmux
+            5、patch时钟没开
+               [解决]
+            6、sflash：BY25D40A   684013
+            7、ISP工具：
+                a、erase flash之后，烧写flash，会导致程序死掉
+                b、当别的设备占用串口时，点击connect无提示
+
+        其他：
+            1、sflash的pad有问题 ~
+               [解决] ECO
+            2、PSO_ON_EN打开，睡眠后，jlink会断掉 ~
+            3、睡眠唤醒： ~
+               a、[XXX] 只有PSO_ON_EN打开时，可以睡眠唤醒，且几次唤醒后，会死在广播状态（应该是某个BLE中断没有按预期产生，没有睡眠的程序不会出现这个问题）。 当PSO_ON_EN关闭后，睡眠后唤醒会导致CPU从ROM里执行（测试时发现flash里的代码被加载到RAM里了，猜测REMAP没有起作用）
+                  [进展] 当不调用pmu_gpio_wakeup_set(PMU的GPIO_MASK)时，可以正常睡眠唤醒
+                  [进展] 数字接口供电问题，使用外部电源可以正常睡眠唤醒工作
+                  [解决] Flash Pad问题
+            4、PSO_ON_EN打开时，睡眠唤醒后，会等死在“AFG校准恢复”里 ~
+               [解决] ana的时钟没有打开
+            5、和标准的BLE芯片连接，CRC_ERROR的包特别多。 ~
+               使用CBT测试时，发现超大概率第一个包收错，且错误原因是CRC_ERROR。
+               [初步分析] 发现数据包头(len)固定错了一个bit，抓ADC信号仿真，发现ADC信号有些问题
+               [进展] AGC的ADC有问题，关掉该ADC时，会出现小于1us的抖动，导致1个bit出错。
+               [解决] 不关该ADC
+            6、当使用Boya的sflash(BY25D40A)时，重启成功的条件是：掉电的时间长一些 ~
+               [进展] 掉电是，sflash的LDO从3.3v降到0v时间比较长，导致boya的flash出问题
+            7、GPIO6(UART-IN)会影响芯片工作：如果把GPIO6的跳线帽跳上，芯片可以正常跑起来。否则，大概率芯片跑步起来，jlink也连不上。 ~
+               把所有GPIO配置成上拉可以解决这个问题
+               [进展] 把只有会进入睡眠的程序会出现这个问题，不进入睡眠的程序工作正常
+               [进展] 数字接口供电问题，使用外部电源可以正常工作
+               [解决] 软件问题，UART输入悬浮时，会导致串口收到乱七八糟的数据。GPIO6加上拉
+            8、3.3v sflash 不能单独关电，所以sflash不能断电，GD的flash的lowpower电流是最大5uA。准备使用Boya的flash是3.3v的 ~
+               1.8v sflash 可以单独关电
+               [解决] 模拟会做ECO，把flash的供电分离出来
+            9、睡眠后醒来，射频工作异常 ~
+               [解决] 1.唤醒后校准数据恢复出问题；2.数字CPM时钟打开后需要3个APB时钟，导致有些DAIF寄存器写入出错
+            10、PSO_ON_EN，校准恢复会挂死 ~
 
 vim: ft=help

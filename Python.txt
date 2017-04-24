@@ -287,6 +287,8 @@
             match_object.group(num=0) #num=0表示全部匹配的，num>0表示匹配到的第几组  ~
         替换：
             result = re.sub(pattern, repl, string, count=0, flags=0):  ~
+        搜索：
+            match_object = re.search(pattern, string, flags=0)  ~
         原始字符串：
             r'string' 不做任何转译 即使是\ ~
 
