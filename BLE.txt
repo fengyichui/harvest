@@ -664,6 +664,7 @@
             GPIO19 1mA 24M clkout
             GPIO20 0.86mA 24M clkout
         - SRAM每块(8K): 0.86uA (工艺越好静态功耗越高，动态功耗越低) (QN9020 .11工艺 0.3-0.4uA)
+        - Boya SF BY25D40A, deep sleep: 1.8uA, CS low: 12uA
 
     HS6620-A0-BUG
         软件相关：
@@ -677,8 +678,15 @@
                [解决]
             6、sflash：BY25D40A   684013
             7、ISP工具：
-                a、erase flash之后，烧写flash，会导致程序死掉
-                b、当别的设备占用串口时，点击connect无提示
+               a、erase flash之后，烧写flash，会导致程序死掉
+               b、当别的设备占用串口时，点击connect无提示
+            8、作为slave时，做批量测试后，会导致小概率出现再也无法收到数据的问题
+               [解决] 原因是射频结束后HWle_clear_tifs_default()应该晚于HWle_clear_tx_enable()，
+                      HWle_clear_tifs_default是ceva收发时使用bit_counter或者tifs_counter的选择位，
+                      所以调用HWle_clear_tx_enable要优先于HWle_clear_tifs_default，防止刚选择完，该counter就到了，tx就启动了。
+            9、广播收到连接请求后，如果延时60us左右再bba_end(), 会导致之后无法收到数据
+               [解决] 数字状态机会在这60us内启动发送，而后软件无法强制结束掉它。解决方法：收到连接请求后，立即终止CEVA内各种状态
+            10、patch，客户调试时，如果重新执行，会导致patch不会被重新加载，已经加载co_malloc会被重新初始化
 
         其他：
             1、sflash的pad有问题 ~
@@ -698,6 +706,7 @@
                [解决] 不关该ADC
             6、当使用Boya的sflash(BY25D40A)时，重启成功的条件是：掉电的时间长一些 ~
                [进展] 掉电是，sflash的LDO从3.3v降到0v时间比较长，导致boya的flash出问题
+               [解决] 把sflash的hold和wp挑掉就好了
             7、GPIO6(UART-IN)会影响芯片工作：如果把GPIO6的跳线帽跳上，芯片可以正常跑起来。否则，大概率芯片跑步起来，jlink也连不上。 ~
                把所有GPIO配置成上拉可以解决这个问题
                [进展] 把只有会进入睡眠的程序会出现这个问题，不进入睡眠的程序工作正常
@@ -709,5 +718,9 @@
             9、睡眠后醒来，射频工作异常 ~
                [解决] 1.唤醒后校准数据恢复出问题；2.数字CPM时钟打开后需要3个APB时钟，导致有些DAIF寄存器写入出错
             10、PSO_ON_EN，校准恢复会挂死 ~
+            11、MASTER事件结束后，无法避免会出现一个TXEN的毛刺(TXEN控制时间太紧张)，会导致接下来的就收无法收到数据 ~
+               [解决] 数字的数模接口状态机有问题，这个毛刺会导致状态机停在等vtrack的状态而无法出来。解决方法是：开关vtrack来复位状态机
+            12、shutdown中断开机就pending上的
+            13、rc24M校准在睡醒后无法重新进行校准
 
 vim: ft=help
