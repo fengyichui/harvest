@@ -110,7 +110,7 @@ Makefile
         $(strip <string>)                               # 去首尾空白
         $(findstring <find>,<text>)                     # 查找字符串：找到返回该字符串，否则返回空
         $(filter <pattern...>,<text>)                   # 过滤：$(filter %.c %.s,foo.c bar.c baz.s ugh.h)，返回：“foo.c bar.c baz.s”
-        $(filter-out <pattern...>,<text>)               # 反过滤：$(filter %.c %.s,foo.c bar.c baz.s ugh.h)，返回：“ugh.h”
+        $(filter-out <pattern...>,<text>)               # 反过滤：$(filter-out %.c %.s,foo.c bar.c baz.s ugh.h)，返回：“ugh.h”
         $(sort <list>)                                  # 排序且去掉相同的项
         $(word <n>,<text>)                              # 取第n个单词：$(word 2, foo bar baz)返回：“bar”
         $(wordlist <s>,<e>,<text>)                      # 取单词串：$(wordlist 2, 3, foo bar baz)返回：“bar baz”
