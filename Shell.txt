@@ -518,4 +518,15 @@ Shell 总结
         sleep 100       # 在此处按下<CTRL-C>会终止sleep执行，但是不会退出脚本，会继续执行，并打印"interrupt"
         ech "resume"
 
+29. 脚本中读标准输入
+    使用read命令： read <var> >
+    -d The first character of delim is used to terminate the input line, rather than newline.
+    -r Backslash does not act as an escape character.  The backslash is considered to be part of the line. In particular, a backslash-newline pair can not be used as a line continuation.
+<    例子： >
+    $ echo "123" | pbcopy.sh
+    pbcopy.sh:
+        #!/bin/bash
+        IFS='' read -d '' -r input #read all thing
+        echo -n "$input" >/dev/clipboard
+
 vim:ft=help
