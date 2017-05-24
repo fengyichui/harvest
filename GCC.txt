@@ -192,8 +192,20 @@
                 加载并覆盖文件内的符号，并把该文件作为执行文件。没有参数的含义：删除已有的符号和执行文件
             symbol-file <file>:
                 仅加载并覆盖文件内的符号，不加载该文件作为执行文件
+            exec-file <file>:
+                仅把该文件作为可执行文件，不加载符号
             add-symbol-file <file> <address>:
                 仅加载并附加文件内的符号，不加载该文件作为执行文件
+
+         重定位源文件：
+            directory <dir>
+                添加新的源文件搜索目录，ELF内的文件位置为相对文件位置时使用
+            set substitute-path <old-dir> <new-dir>
+                修改旧的绝对目录为新的目录
+            info source
+                查看当前文件位置
+            info sources
+                查看所有文件位置
 
     ~/.gdbinit 语法： ~
          默认情况gdb会在初始化的时候加载该文件。
