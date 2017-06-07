@@ -295,5 +295,10 @@ Makefile
     clean:
     	find -type f -regex ".*\.\(exe\|o\|d\)$$" | xargs rm -f
 
+15. 强制每次编译都重新编译某个文件 >
+    rebuild_file.o : FORCE
+    .PHONY: FORCE
+    FORCE:
+
 
 vim:ft=help
