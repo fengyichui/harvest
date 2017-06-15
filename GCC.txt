@@ -233,6 +233,14 @@
 
         变量
             set $var = 100
+            set $var += 10
+            set $var++
+
+        打印：
+            echo text                       # 仅打印出text的字面内容
+            output expression               # 输出expression的友好结果，类似p打印，只不过不会输出"$n = xxx"
+            output /fmt expression          # 输出expression的格式化结果，类似p打印，只不过不会输出"$n = xxx"
+            printf string, expressions...   # 格式化输出，用法同c语言的printf，但是当输出%s，可能会有问题
 
         example: >
         (gdb) source test.gdb
@@ -242,14 +250,14 @@
             set $var = 0
             break function
             command
-            p $pc
-            frame
-            info register
-            while($var < 100)
-            set $var++
-            printf "%08X\n", $var
-            end
-            c
+                p $pc
+                frame
+                info register
+                while($var < 100)
+                    set $var++
+                    printf "%08X\n", $var
+                end
+                c
             end
             run
 
