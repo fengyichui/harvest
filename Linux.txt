@@ -750,6 +750,30 @@
            如果你想把socks代理转换成http代理，可以用privoxy这个东东。
 
 23. tmux
+    架构:
+        ┌Server
+        │   ┌Session1
+        │   │   ┌Window1
+        │   │   │   ┌Pane1
+        │   │   │   ├Pane2
+        │   │   │   ├Pane3
+        │   │   │   └···
+        │   │   ├Window2
+        │   │   ├Window3
+        │   │   └···
+        │   ├Session2
+        │   ├Session3
+        └   └···
+
+        启动一个tmux之后就会自动启动一个Server (当Server下没有任何Session后，该Server就会退出，也可以通过：`tmux kill-server`退出)，
+        这个Server下可以有很多个Session(会话/工作台，通过：`tmux new`创建， `tmux ls`列出，`tmux atach -t xxx`进入，`tmux detach`挂起，`tmux kill-session -t xxx`退出)，
+        每个Session下又可以有很多个window(窗口)，
+        每个window下又可以有很多pane(子窗口/小窗口)
+
+    注意：
+        1. 启动tmux server是很慢的，所以别总是直接退出session(退出shell(Ctrl-D)也会直接退出session的)，常用`tmux detach`和`tmux atach`
+        2. 使用tmuxinator时，最好tmux server已经启动了，否则启动tmuxinator非常慢
+
     快捷键: >
                     Ctrl+b      激活控制台；此时以下按键生效
         系统操作    ?           列出所有快捷键；按q返回
@@ -785,8 +809,6 @@
                     }           向后置换当前面板
                     Alt+o       逆时针旋转当前窗口的面板
                     Ctrl+o      顺时针旋转当前窗口的面板
-
-
 
 
 
