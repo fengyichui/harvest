@@ -809,7 +809,18 @@
                     }           向后置换当前面板
                     Alt+o       逆时针旋转当前窗口的面板
                     Ctrl+o      顺时针旋转当前窗口的面板
-
+<
+    我的TMUX快捷键： >
+                    ctrl-d      Detach session
+                    | -         Split window
+                    ctrl-b      Split window
+                    > <         Window movement
+                    h l j k     Pan movement
+                    tab         Pan movement
+                    R           Reload ~/.tmux.conf
+                    ctrl-v      Capture pane and open with vim
+                    m           Toggle mouse mode
+                    + -         Zoom pane to full screen, Restore
 
 
 vim:ft=help
