@@ -822,5 +822,29 @@
                     m           Toggle mouse mode
                     + -         Zoom pane to full screen, Restore
 
+24. 常用小工具
+    软件开发:
+        ldd             Print shared library dependencies (可执行文件，库)
+        nm              List symbols in files (库)
+        size            Displays the sizes of sections inside binary files
+        objdump         Display information from object files
+        addr2line       Convert addresses into line number/file name pairs
+        strings         Display printable strings in files
+        gprof           display call graph profile data
+    其他：
+        ps              Report process status
+        date            Display the current time in the given FORMAT, or set the system date.
+        cal             Display a calendar
+        hexdump         Display file contents in hexadecimal, decimal, octal, or ascii
+        ascii           Prints all aliases of an ASCII character
+        md5sum          Print or check MD5 (128-bit) checksums.
+        sha1sum         Print or check SHA1 (106-bit) checksums.
+        sha256sum       Print or check SHA256 (256-bit) checksums.
+        sha512sum       Print or check SHA512 (512-bit) checksums.
+        tree            List contents of directories in a tree-like format.
+        tty             Print the file name of the terminal connected to standard input.
+        type            Indicate how each name would be interpreted if used as a command name.
+        whereis         locate the binary, source, and manual page files for a command
+        wc              Print newline, word, and byte counts for each FILE
 
 vim:ft=help
