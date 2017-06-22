@@ -771,8 +771,9 @@
         每个window下又可以有很多pane(子窗口/小窗口)
 
     注意：
-        1. 启动tmux server是很慢的，所以别总是直接退出session(退出shell(Ctrl-D)也会直接退出session的)，常用`tmux detach`和`tmux atach`
-        2. 使用tmuxinator时，最好tmux server已经启动了，否则启动tmuxinator非常慢
+        1、启动tmux server是很慢的，所以别总是直接退出session(退出shell(Ctrl-D)也会直接退出session的)，常用`tmux detach`和`tmux atach`
+        2、使用tmuxinator时，最好tmux server已经启动了，否则启动tmuxinator非常慢
+        3、tmuxinator的自定义layout可以在已经手动layout之后使用 `tmux list-windows` 显示
 
     快捷键: >
                     Ctrl+b      激活控制台；此时以下按键生效
