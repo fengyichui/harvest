@@ -560,7 +560,7 @@
     s (SUID,Set UID)：   仅作用于"拥有者域"
                          文件：常作用于可执行文件。任意执行该文件的"使用者"都将获得"拥有者"的特权，如"/bin/passwd"命令就是如此
                          目录：
-    s (SGIO,Set GID)：   仅作用于"拥有者所在组域"
+    s (SGID,Set GID)：   仅作用于"拥有者所在组域"
                          文件：常作用于可执行文件。任意执行该文件的"使用者"都将获得"拥有者所在的组"的特权
                          目录："使用者"在该目录创建的所有文件都获得"拥有者所在组"的特权
     t (SBIT,Sticky Bit)：仅作用于"其他组域"
@@ -773,7 +773,7 @@
     注意：
         1、启动tmux server是很慢的，所以别总是直接退出session(退出shell(Ctrl-D)也会直接退出session的)，常用`tmux detach`和`tmux atach`
         2、使用tmuxinator时，最好tmux server已经启动了，否则启动tmuxinator非常慢
-        3、tmuxinator的自定义layout可以在已经手动layout之后使用 `tmux list-windows` 显示
+        3、tmuxinator的自定义layout可以在已经手动layout之后使用 `tmux list-windows` 显示，pane编号使用 `Ctrl-b q` 显示
 
     快捷键: >
                     Ctrl+b      激活控制台；此时以下按键生效
@@ -803,7 +803,7 @@
                     Ctrl+方向键 以1个单元格为单位移动边缘以调整当前面板大小
                     Alt+方向键  以5个单元格为单位移动边缘以调整当前面板大小
                     Space       在预置的面板布局中循环切换；依次包括even-horizontal、even-vertical、main-horizontal、main-vertical、tiled
-                    q           显示面板编号
+                    q           显示面板pane编号
                     o           在当前窗口中选择下一面板
                     方向键      移动光标以选择面板
                     {           向前置换当前面板
@@ -847,5 +847,6 @@
         type            Indicate how each name would be interpreted if used as a command name.
         whereis         locate the binary, source, and manual page files for a command
         wc              Print newline, word, and byte counts for each FILE
+        time            检查命令执行时间
 
 vim:ft=help

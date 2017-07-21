@@ -218,4 +218,17 @@
         $ git config branch.master.remote origin
         $ git config branch.master.merge refs/heads/master
 
+10. Doxygen
+    a. 按原始注释输出(保留空格和换行)
+        <pre> ... </pre>
+    b. 去掉不需要的行
+        @cond ... @endcond
+    c. 创建Document.html指向index.html
+        Document.html内容如下:
+        <meta http-equiv="REFRESH" content="0;URL=html/index.html">
+    d. 添加代码块
+        @code {.c} ... @endcode
+    e. 添加图片
+        @image html a.jpg
+
 vim: ft=help
