@@ -411,7 +411,7 @@ Shell 总结
     字符串->数字： ~
     num=$(($str * 2))
 
-23. 切割（拆分）文件
+23. 切割（拆分）文件，产生固定大小文件
     等大小切割与合并： ~
     $ split -b 10k file.bin         #拆分的每个大小为10k (bin文件)
     $ split -C 10m file.txt         #拆分的每个大小为10m，并且一行不会被拆分为多行 (txt文件)
@@ -421,6 +421,9 @@ Shell 总结
     不等大小切割 （提取指定位置） ~
     $ dd if=file.bin of=out.bin skip=0   bs=256       iflag=skip_bytes count=1   #提取offset=0byte   ，length=256bytes
     $ dd if=file.bin of=out.bin skip=256 bs=100000000 iflag=skip_bytes count=1   #提取offset=256bytes，length=100000000bytes (一直到结尾)
+
+    产生固定大小的文件 ~
+    $ dd if=/dev/zero of=out.bin bs=1M count=1  #产生一个1M的文件，里面全是0
 
 24. 重定向 (Redirection)
     操作符： ~
