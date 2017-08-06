@@ -823,7 +823,37 @@
                     m           Toggle mouse mode
                     + -         Zoom pane to full screen, Restore
 
-24. 常用小工具
+24. aria2c 下载工具
+    下载:
+        aria2c url
+        aria2c 'xxx.torrnet'
+        aria2c '磁力链接'
+
+    恢复下载：
+        aria2c -c url
+
+    列出种子内容:
+        aria2c -S target.torrent
+
+    下载种子内编号为 1、4、5、6、7 的文件:
+        aria2c –select-file=1,4-7 a.torrent
+
+    下载磁力链接的种子文件:
+        aria2c --bt-metadata-only=true --bt-save-metadata=true 'magnet:?xtxxxx'
+
+    需要cookies验证(Chrome插件: 'cookie.txt export'):
+        aria2c –load-cookies=cookie_file url
+
+    限速下载:
+        单个文件最大下载速度： aria2c –max-download-limit=300K
+        整体下载最大速度： aria2c –max-overall-download-limit=300k
+
+    其他常用选项:
+        -x 最大的链接线程数
+        -j 最大下载的文件个数
+        -o 重命名下载的文件
+
+25. 常用小工具
     软件开发:
         ldd             Print shared library dependencies (可执行文件，库)
         nm              List symbols in files (库)
