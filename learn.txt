@@ -191,7 +191,7 @@
         To git@192.168.45.42:teamwork.git
          ! [remote rejected] master -> master (branch is currently checked out)
         error: failed to push some refs to 'git@192.168.45.42:teamwork.git'
-<        执行命令解决问题： >
+<        Server端执行命令解决问题： >
         $ git config receive.denyCurrentBranch ignore
 
 <    git pull出现如下错误： >
