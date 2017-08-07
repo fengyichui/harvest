@@ -697,7 +697,7 @@
         $ mkpasswd -l > /etc/passwd     #使用windows用户的密码 ~
         $ mkgroup -l > /etc/group       #使用windows用户组 ~
         NOTE: 可以在windows服务里找到"CYGWIN sshd"的服务
-        NOTE: /etc/sshd_config 内包含sshd的详细配置，修改后重启ssh服务
+        NOTE: /etc/sshd_config 内包含sshd的详细配置（可修改默认端口号等），修改后重启ssh服务
         NOTE: ~/.ssh/config 内包含客户端的配置
         NOTE: 别的有用的命令：
               `$ net stop sshd  #关闭服务，用于重启`
@@ -708,9 +708,12 @@
 <    3、客户端远程操作： >
        $ ssh server@192.168.1.123  #使用服务器端的用户名密码
 <    4、客户端不用每次都再输入密码： >
-       $ ssh-keygen                         #创建密码，一路回车
+       $ ssh-keygen                        #创建密码，一路回车
        $ ssh-copy-id server@192.168.1.123  #拷贝密码到服务器
        NOTE: 确保服务器的 ~/.ssh的权限是700，~/.ssh/authorized_keys的权限是600
+<    5、查看或踢出已经登录的用户： >
+       $ sudo w -f            #查看登录用户
+       $ pkill -kill -t pts1  #踢出登录用户，或者 $ pkill -9 -t pts1 强制踢出
 
 22. 使用ssh正向连接、反向连接、做socks代理的方法
 

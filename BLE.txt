@@ -647,6 +647,10 @@
       | RAM power on   |  650us  |         |  250us  | (clamp_dealy+4))*30.5
       | Flash power on |  12.2ms |   2ms   |         | GigaDevice
       +----------------+---------+---------+---------+
+    - RC32K
+        随温度变化：304ppm/°C
+        可以校准到：253ppm
+        但是射频工作时，可能影响RC32K的精度
 
     注意的问题：
         1、使用python脚本测试时，串口优先级高于蓝牙优先级，波特率使用115200(不要使用更高波特率，因为可能会长时间打断蓝牙执行，导致加密时出现mic error)
@@ -654,12 +658,15 @@
         3、芯片等死在CEVA上电，可能原因是32k出现问题.
         4、上电芯片就死在AFC校准处，可能芯片内部的打线出问题了
         5、ADC校准之后的LUT校准值都是0，或者ADC采集出来的数据全是0，可能原因：1. pinmux出错了; 2. pin的mode出错了，应该是悬浮输入才行。
+        6、默认部分pin是上拉的，这个可能导致睡眠电流变大
 
-    HS6620-A0-TEST
+    HS6620-A1-TEST
         - TX: 12mA(4dB)
         - RX: 7-8mA(和AGC有关系)
         - CPU: 108uA/MHz (gate:2.6mA 24MHz:4.3mA 48MHz:6.9mA)
-        - 32kHz Xtal: 5-6uA
+        - CEVA1: 1.3uA CEVA2:0.4uA CEVA3:3.2uA
+        - 32kHz Xtal: 0.7uA
+        - 32kHz RC: 20uA (A2可以达到2uA)
         - Default GPIO debug mode current:
             GPIO16 1.2mA  24M clkout
             GPIO17 0.9mA 24M clkout
@@ -668,6 +675,7 @@
             GPIO20 0.86mA 24M clkout
         - SRAM每块(8K): 0.86uA (工艺越好静态功耗越高，动态功耗越低) (QN9020 .11工艺 0.3-0.4uA)
         - Boya SF BY25D40A, deep sleep: 1.8uA, CS low: 12uA
+        - 3.3v lp 打开的话，sflash的电就会被打开。这个问题A2会解决
 
         ---------------------------------------------------------------------------------------------------------------------
         Jlink-SWD: 0.18mA
