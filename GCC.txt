@@ -202,6 +202,7 @@
                 添加新的源文件搜索目录，ELF内的文件位置为相对文件位置时使用
             set substitute-path <old-dir> <new-dir>
                 修改旧的绝对目录为新的目录
+                $ set substitute-path E:/2-svn/ble_asic/rom/ /home/lenovo/tags/hs6620_rom_a0_release/rom
             info source
                 查看当前文件位置
             info sources
