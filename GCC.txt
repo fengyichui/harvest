@@ -97,6 +97,7 @@
              clear 清除所有断点
              clear <function>      (eg: clear main) 清除函数上的断点
              delete <breakpoints>  (eg: delete 2)   清除断点号为2的断点
+             disable <breakpoints> (eg: disable 2)  暂时disable断点号为2的断点
 
          观察点(WatchPoint)
              watch <expr>     (eg: watch var)  为表达式（变量）expr设置一个观察点。一量表达式值有变化时，马上停住程序。
