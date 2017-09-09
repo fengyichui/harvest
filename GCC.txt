@@ -64,6 +64,7 @@
 
     调试命令: ~
          一般:
+             load <elf-file>  加载elf文件和符号
              l  [list]        列出当前程序执行点前后的程序源码
              bt [backtrace]   查看调用栈
              up               向上移动栈
@@ -75,6 +76,12 @@
              q  [quit]        退出
              set args (eg: set args 10 20 30 40 50) 指定运行时main()的参数
              macro expand I_AM_A_MACRO 显示宏的值
+
+        Restore和Dump数据
+             restore <hex-file>                     加载hex文件
+             restore <bin-file> binary <address>    加载bin文件到指定地址
+             dump memory <file> <begin> <end>       dump bin文件
+             dump ihex memory <file> <begin> <end>  dump hex文件
 
          运行与调试:
              r  [run]      (重新)运行程序

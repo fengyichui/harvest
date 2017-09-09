@@ -661,6 +661,12 @@
         6、默认部分pin是上拉的，这个可能导致睡眠电流变大
         7、开DCDC就复位，原因是可能芯片外部的DCDC电感没有焊接
         8、睡眠就复位，可能原因是：模拟的retention ldo设置的电压太低，可以设置到1v试试
+        9、不需要pin参加唤醒时，也需要调用pmu_wakeup_pin_set(0)
+
+    HS6620-A1 UNFIX BUGS:
+        1. 创建连接时，我们做slave，channel map如果不是默认值，会连接不上。
+        2. controler 的 number_of_acl packet 维护出错
+        3. force chip into OTA mode. remap 和 reset 必须在ROM里。
 
     HS6620-A1-TEST
         - TX: 12mA(4dB)
@@ -782,8 +788,23 @@
                 [解决] 软件把filter_gain_index读出来，再加回到RSSI中去
             24、PHY的软判决会提高3个db灵敏度
 
-    HS6620 中兴微 （音频）
-        1. 平遥曲线不好，200-400Hz没有响应
-        2. GAIN太小，差了22个dB
+    HS6620-A2-TEST
+        - 32k RC: 2.5uA
+        - deep sleep: 6.2uA(ret ldo 0.9v)  7uA(ret ldo 0.95uA)  7.5uA(ret ldo 1v) (1SRAM)
+        - Per SRAM:   0.85uA(ret ldo 0.9v) 1.1uA(ret ld0 0.95v) 1.3uA(ret ldo 1v)
+
+        问题：
+            1. retention ldo 必须设置成0.95v，否则可能导致醒不来
+            2. 当PMU_ANA_TEST_EN_DISABLE_MASK=0时，reset管脚连续8个脉冲会使芯片进入数字的test mode
+
+        需要进行的测试：
+            2. 环境嘈杂时，
+
+    雷柏MT750鼠标BLE测评：
+        1. 没有32768k xtal
+        2. 2.4G上报率125，ble上报率114
+        3. ble用一段时间就不动了。原因是笔记本不在发送数据包，因为“假latency”
+        4. RPA地址不会变
+        5. 连接3个设备，使用3个广播地址
 
 vim: ft=help

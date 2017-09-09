@@ -882,5 +882,7 @@
         whereis         locate the binary, source, and manual page files for a command
         wc              Print newline, word, and byte counts for each FILE
         time            检查命令执行时间
+        column          输出个数成列表格：cat /etc/passwd | column -t -s:
+        fzf             a command line fuzzy finder
 
 vim:ft=help
