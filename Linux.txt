@@ -857,7 +857,11 @@
         -j 最大下载的文件个数
         -o 重命名下载的文件
 
-25. 常用小工具
+25. 批量重命名文件
+    perl版本的rename： >
+    rename 's/\.txt$/.a/' *  #把当前文件夹下所有后缀是txt的文件替换成后缀是a
+
+26. 常用小工具
     软件开发:
         ldd             Print shared library dependencies (可执行文件，库)
         nm              List symbols in files (库)
@@ -884,5 +888,11 @@
         time            检查命令执行时间
         column          输出个数成列表格：cat /etc/passwd | column -t -s:
         fzf             a command line fuzzy finder
+
+27. Cygwin安装X Window System
+    请求的包：xorg-server, xinit
+    $ startxwin         #启动X Window System，此时系统的状态栏会出现x window的图标
+    $ man xwin          #查看xwin的帮助
+    $ man startxwin     #查看startxwin的帮助
 
 vim:ft=help

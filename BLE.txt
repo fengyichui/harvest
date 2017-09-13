@@ -662,6 +662,8 @@
         7、开DCDC就复位，原因是可能芯片外部的DCDC电感没有焊接
         8、睡眠就复位，可能原因是：模拟的retention ldo设置的电压太低，可以设置到1v试试
         9、不需要pin参加唤醒时，也需要调用pmu_wakeup_pin_set(0)
+        10、2.4G的收发调制指数必须是0.5
+        11、debug bus 中 phy 0 可以把RF AD的iq两路全导出来
 
     HS6620-A1 UNFIX BUGS:
         1. 创建连接时，我们做slave，channel map如果不是默认值，会连接不上。
