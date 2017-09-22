@@ -46,7 +46,9 @@
              set history remove-duplicates unlimited # 去除重复的历史记录
              set history save on                     # 存储历史记录
              set pagination off                      # 取消滚屏时候的提示(取消类似more命令的提示)
-             set print pretty                        # 漂亮的打印
+             set print pretty on                     # 漂亮的打印
+             set print elements 0                    # 打印大数组时，不限制个数
+             set print array on                      # 漂亮的打印数组
              set output-radix 0x0A                   # 10进制输出
              set input-radix 0x0A                    # 10进制输入
              set arm force-mode thumb                # 强制使用thumb模式
@@ -249,7 +251,7 @@
             echo text                       # 仅打印出text的字面内容
             output expression               # 输出expression的友好结果，类似p打印，只不过不会输出"$n = xxx"
             output /fmt expression          # 输出expression的格式化结果，类似p打印，只不过不会输出"$n = xxx"
-            printf string, expressions...   # 格式化输出，用法同c语言的printf，但是当输出%s，可能会有问题
+            printf string, expressions...   # 格式化输出，用法同c语言的printf，但是当输出%s，可能会有问题（需要调试程序里有malloc的函数）
 
         example: >
         (gdb) source test.gdb

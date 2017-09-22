@@ -798,6 +798,12 @@
         问题：
             1. retention ldo 必须设置成0.95v，否则可能导致醒不来
             2. 当PMU_ANA_TEST_EN_DISABLE_MASK=0时，reset管脚连续8个脉冲会使芯片进入数字的test mode
+            3. 2.4G接收时，软判决会导致sync后有3bytes的多余的0。硬判决好
+            4. 2.4G发送后睡眠，会导致下一次唤醒的发送数据的PID和睡眠之前的发送包的数据相同. 如果payload再相同，则会导致接收方收不到数据。解决办法是在payload上加一个字节的计数器。
+
+        软件：
+            1. gap appearance not right
+            2. ppcp not right
 
         需要进行的测试：
             2. 环境嘈杂时，
