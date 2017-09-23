@@ -794,6 +794,19 @@
         - 32k RC: 2.5uA
         - deep sleep: 6.2uA(ret ldo 0.9v)  7uA(ret ldo 0.95uA)  7.5uA(ret ldo 1v) (1SRAM)
         - Per SRAM:   0.85uA(ret ldo 0.9v) 1.1uA(ret ld0 0.95v) 1.3uA(ret ldo 1v)
+        - 5 block SRAM Retention, deep sleep:
+          内部上拉，所有IO输出低:  236.4uA
+          内部上拉，所有IO输出该:  12.0uA
+          内部下拉，所有IO输出高:  426.4uA
+          内部下拉，所有IO输出低:  12.0uA
+          内部悬浮，所有IO输出高:  12.0uA
+          内部悬浮，所有IO输出低:  12.0uA
+          内部上拉，所有IO输入:    12.0uA
+          内部下拉，所有IO输入:    12.0uA
+          内部悬浮，所有IO输入:    15.4uA
+        - flash ldo关掉深睡眠：12uA
+          flash ldo开着深睡眠：240uA
+          flash ldo开着深睡眠，并且把flash供电的跳线帽拔掉：180uA
 
         问题：
             1. retention ldo 必须设置成0.95v，否则可能导致醒不来
