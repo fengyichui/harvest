@@ -264,8 +264,8 @@ Keil学习
         c.1 引用名字: ~
                 Load$$region_name$$Base             Load address of the region.
                 Image$$region_name$$Base            Execution address of the region.
-                Image$$region_name$$Length          Execution region length in bytes (multiple of 4).
-                Image$$region_name$$Limit           Address of the byte beyond the end of the execution region. 
+                Image$$region_name$$Length          Execution region length in bytes excluding ZI length.
+                Image$$region_name$$Limit           Address of the byte beyond the end of the non-ZI part of the execution region.
                 Image$$region_name$$ZI$$Base        Execution address of the ZI output section in this region.
                 Image$$region_name$$ZI$$Length      Length of the ZI output section in bytes (multiple of 4).
                 Image$$region_name$$ZI$$Limit       Address of the byte beyond the end of the ZI output sectionin the execution region. 
