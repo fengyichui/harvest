@@ -593,6 +593,11 @@
         - IOS_MIN_PARAM_TIME_OUT = 100
         - IOS_MIN_PARAM_LATENCY  = 0
 
+    iOS_version>=11: HID, iOS会主动更新参数: interval=15ms letency=4  timeout=1000, 且参数更新的最小letency是4
+    iOS_version<=10: HID, slave可以请求参数：interval=15ms letency=50 timeout=5000, 貌似letency没有限制了
+
+    测试时发现, 貌似iPad-Pro的接收灵敏度要比其他几种要低很多
+
 18. Preamble 个数
     Broadcom：16bit
     CSR：8bit
