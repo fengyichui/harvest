@@ -667,6 +667,7 @@
         12、kpp使用时, 行要设置成上拉，列要设置成开漏。
         13、睡眠时3.3v lp ldo驱动能力非常弱，且高电平只到3.0v。所以外部有灯的情况下，最好灯是共阳极的
         14、芯片最好不要有IO是悬空的，会导致电流不稳
+        15、芯片上拉电阻221kOHM~394kOHM, 下拉电阻141kOHM~303kOHM
 
     HS6620-A1 UNFIX BUGS:
         1. 创建连接时，我们做slave，channel map如果不是默认值，会连接不上。
@@ -810,6 +811,17 @@
         - flash ldo关掉深睡眠：12uA
           flash ldo开着深睡眠：240uA
           flash ldo开着深睡眠，并且把flash供电的跳线帽拔掉：180uA
+        - DCDC on:  IDLE:1.40mA  ACTIVE(24MHz):2.50mA  TX(0dB):11.23mA  RX:10.72mA
+          DCDC off: IDLE:2.35mA  ACTIVE(24MHz):3.98mA  TX(0dB):19.03mA  RX:18.00mA
+
+        ---------------------------------------------------------------------------------------------------------------------
+        PSO with DCDC-ON (mA):
+        ROM-PATCH   CEVA    2.4G    PHY     SF      TIMER   UART0   UART1   I2C     SPI     GPIO    1-RAM-OFF
+        +280uA      +150uA                                                                  +20uA
+
+        ---------------------------------------------------------------------------------------------------------------------
+        PSO with DCDC-ON (mA):
+        CPU gate时，CPU=1MHz，0.99mA (CEVA and GPIO open) (模拟占578uA)
 
         问题：
             1. retention ldo 必须设置成0.95v，否则可能导致醒不来
@@ -818,12 +830,8 @@
             4. 2.4G发送后睡眠，会导致下一次唤醒的发送数据的PID和睡眠之前的发送包的数据相同. 如果payload再相同，则会导致接收方收不到数据。解决办法是在payload上加一个字节的计数器。
             5. 开机功能时：开机时，如果当电压是0.5v时，抬起按键，会导致再也无法开机。
 
-        软件：
-            1. gap appearance not right
-            2. ppcp not right
-
-        需要进行的测试：
-            2. 环境嘈杂时，
+        待修改：
+            1. OTA时的DCDC，读取cfg数据，得到DCDC开关状态
 
     原相 BLE键盘评测：
         1. sleep: 45uA （保持连接）
