@@ -889,10 +889,17 @@
         column          输出个数成列表格：cat /etc/passwd | column -t -s:
         fzf             a command line fuzzy finder
 
-27. Cygwin安装X Window System
-    请求的包：xorg-server, xinit
-    $ startxwin         #启动X Window System，此时系统的状态栏会出现x window的图标
-    $ man xwin          #查看xwin的帮助
-    $ man startxwin     #查看startxwin的帮助
+27. X Window System (Cygwin)
+    请求的包： >
+        xorg-server, xinit，xhost(远程登录时)
+<    启动X Window： >
+        $ startxwin                  # 启动X Window System，此时系统的状态栏会出现x window的图标
+        $ man xwin                   # 查看xwin的帮助
+        $ man startxwin              # 查看startxwin的帮助
+<    本地控制台连接到本地Xserver： >
+        $ export DISPLAY=:Num.0      # export DISPLAY=:0.0，Num指当前连接的server (如：/tmp/.X11-unix/X0，/tmp/.X11-unix/X1，...)
+<    通过ssh远程访问Xserver：(ssh登录后执行如下) >
+        $ export DISPLAY=Host:Num.0  # export DISPLAY=172.25.151.1:0.0，Host指client的主机名或者IP地址
+        $ xhost +                    # 任何Host都可以显示图形了
 
 vim:ft=help
