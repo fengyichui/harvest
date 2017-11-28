@@ -868,5 +868,10 @@
         heartrate: 320uA(led blink) 2uA(sleep)
         acceleration: 10uA
 
+    鼠标sensor的扫描间隔：
+        移动：          6.5ms
+        停止移动：      36ms
+        停止移动25s后： 140ms
+
 
 vim: ft=help
