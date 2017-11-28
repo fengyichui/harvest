@@ -300,5 +300,9 @@ Makefile
     .PHONY: FORCE
     FORCE:
 
+16. export
+    这个export和shell的export类似，
+    都可以把export后面的值作为环境变量传递给makefile的子进程
+
 
 vim:ft=help
