@@ -592,6 +592,13 @@
         - IOS_MIN_PARAM_INTV_MAX = 0x10
         - IOS_MIN_PARAM_TIME_OUT = 100
         - IOS_MIN_PARAM_LATENCY  = 0
+    连接参数要求：
+        Interval Max * (Slave Latency + 1) ≤ 2 seconds
+        Interval Min ≥ 20 ms
+        Interval Min + 20 ms ≤ Interval Max
+        Slave Latency ≤ 4
+        connSupervisionTimeout ≤ 6 seconds
+        Interval Max * (Slave Latency + 1) * 3 < connSupervisionTimeout
 
     HID:
         iOS_version<=10: iOS会主动更新参数: interval=15ms letency=4  timeout=1000, 且参数更新的最小letency是4
@@ -865,11 +872,17 @@
         4. RPA地址不会变
         5. 连接3个设备，使用3个广播地址
 
-    微克手环：
+    微克手环F1：
         ldo: 10uA
         LCD: 2uA (close)
         heartrate: 320uA(led blink) 2uA(sleep)
-        acceleration: 10uA
+        acceleration: work-4ms-200uA, sleep-61ms-10uA
+
+        未开机：60uA(sensor都睡)
+        开机不动30s后：70uA(acceleration周期唤醒: work-4ms-200uA, sleep-61ms-10uA)
+
+    Nordic 手环:
+        只是定时器醒的话，唤醒需要500uA
 
     鼠标sensor的扫描间隔：
         移动：          6.5ms
