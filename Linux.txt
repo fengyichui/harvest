@@ -903,7 +903,7 @@
         $ xhost +                    # 任何Host都可以显示图形了
 
 
-28. 包管理 apt
+28. 包管理 apt / dpkg
     apt-get:
         sudo apt-get install package                安装包
         sudo apt-get install package --reinstall    重新安装包  
@@ -928,5 +928,16 @@
         sudo apt-cache dumpavail                    打印软件包列表中所有包的简介信息  
         sudo apt-cache depends package              了解使用依赖  
         sudo apt-cache rdepends package             是查看该包被哪些包依赖
+
+    dpkg (安装离线下载的软件包 *.deb)
+        dpkg –l | grep package 查询deb包的详细信息，没有指定包则显示全部已安装包  
+        dpkg -s package 查看已经安装的指定软件包的详细信息  
+        dpkg -L package 列出一个包安装的所有文件清单  
+        dpkg -S file 查看系统中的某个文件属于哪个软件包  
+        dpkg -i 所有deb文件的安装  
+        dpkg -r 所有deb文件的卸载  
+        dpkg -P 彻底的卸载，包括软件的配置文件  
+        dpkg -c 查询deb包文件中所包含的文件  
+        dpkg -L 查看系统中安装包的的详细清单，同时执行 -c
 
 vim:ft=help
