@@ -19,6 +19,10 @@
     xargs会把标准输入的数据的所有回车去掉.
     当xargs什么参数都不加的时候, 默认把标准输入的参数作为执行命令最尾的参数.
 
+    对xargs内执行多个命令:
+         使用sh -c "commands"方式传入多个指令，如：
+         $ ls | xargs -n1 -I{} sh -c 'echo -e {} && cat {}' ~
+
     eg: 
         $ find -type f | xargs -I{} mv {} ./path/       #查找当前目录及子目录的文件,并把这些文件移动到./path/下   ~
         $ find -name '*.[ch]' | xargs grep -E 'define'  #在当前目录下查找c和h文件中出现的'define'的位置           ~
