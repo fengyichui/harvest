@@ -159,16 +159,30 @@
     $ assoc .="No Extension"
     $ ftype "No Extension"="C:\Program Files\Vim\vim80\gvim.exe" "%1"
 
-6. Cygwin下编译universal-ctags
-    github:
-        git clone https://github.com/universal-ctags/ctags.git
-    安装：
-        $ apt-cyg install mingw64-i686-gcc-core
-        $ apt-cyg install mingw64-i686-win-iconv
-    修改mk_mingw.mak：
-        DEFINES下加入 "-DUNIX_PATH_SEPARATOR"
-    命令：
-        make -f mk_mingw.mak  CC=i686-w64-mingw32-gcc
+6. 源码编译：
+    Cygwin:
+        universal-ctags:
+            github:
+                $ git clone https://github.com/universal-ctags/ctags.git
+            dependence：
+                $ apt-cyg install mingw64-i686-gcc-core
+                $ apt-cyg install mingw64-i686-win-iconv
+            修改mk_mingw.mak：
+                DEFINES下加入 "-DUNIX_PATH_SEPARATOR"
+            command：
+                make -f mk_mingw.mak  CC=i686-w64-mingw32-gcc
+
+        YouCompleteMe:
+            github:
+                $ git clone https://github.com/Valloric/YouCompleteMe.git
+                $ git submodule update --init --recursive
+            dependence:
+                $ apt-cyg install libboost-devel
+                $ apt-cyg install libboost_python3-devel
+                $ apt-cyg install python3-devel
+                $ apt-cyg install libclang-devel
+            command:
+                $ python3 install.py --clang-completer --system-libclang --system-boost
 
 7. 创建常用右键菜单：
     使用winmaster.exe创建有用的右键菜单：
