@@ -1,0 +1,5182 @@
+
+### ab ###
+### alias ###
+### ansi ###
+### apk ###
+### apparmor ###
+### apt ###
+### apt-cache ###
+### apt-get ###
+### aptitude ###
+### aria2c ###
+### asciiart ###
+### asterisk ###
+### at ###
+### awk ###
+### bash ###
+### bower ###
+### bzip2 ###
+### cat ###
+### cd ###
+### cheat ###
+### chmod ###
+### chown ###
+### convert ###
+### cp ###
+### cpdf ###
+### crontab ###
+### cryptsetup ###
+### csplit ###
+### cups ###
+### curl ###
+### cut ###
+### date ###
+### dd ###
+### deb ###
+### df ###
+### dhclient ###
+### diff ###
+### distcc ###
+### dnf ###
+### docker ###
+### dpkg ###
+### du ###
+### emacs ###
+### export ###
+### ffmpeg ###
+### find ###
+### for ###
+### gcc ###
+### gdb ###
+### git ###
+### gpg ###
+### grep ###
+### gs ###
+### gyb ###
+### gzip ###
+### hardware-info ###
+### head ###
+### hg ###
+### history ###
+### http ###
+### hub ###
+### iconv ###
+### ifconfig ###
+### indent ###
+### ip ###
+### iptables ###
+### irssi ###
+### iwconfig ###
+### journalctl ###
+### jq ###
+### jrnl ###
+### kill ###
+### less ###
+### lib ###
+### ln ###
+### ls ###
+### lsof ###
+### lvm ###
+### man ###
+### markdown ###
+### mdadm ###
+### mkdir ###
+### more ###
+### mount ###
+### mv ###
+### mysql ###
+### mysqldump ###
+### nc ###
+### ncat ###
+### ncdu ###
+### netstat ###
+### nkf ###
+### nmap ###
+### nmcli ###
+### notify-send ###
+### nova ###
+### npm ###
+### ntp ###
+### numfmt ###
+### od ###
+### openssl ###
+### org-mode ###
+### p4 ###
+### pacman ###
+### paste ###
+### patch ###
+### pdftk ###
+### perl ###
+### pgrep ###
+### php ###
+### ping ###
+### ping6 ###
+### pip ###
+### pkgtools ###
+### pkill ###
+### popd ###
+### ps ###
+### psql ###
+### pushd ###
+### pwd ###
+### python ###
+### rcs ###
+### readline ###
+### rename ###
+### rm ###
+### route ###
+### rpm ###
+### rpm2cpio ###
+### rss2email ###
+### rsync ###
+### sam2p ###
+### scp ###
+### screen ###
+### sed ###
+### shred ###
+### shutdown ###
+### smbclient ###
+### snmpwalk ###
+### sockstat ###
+### sort ###
+### split ###
+### sport ###
+### sqlite3 ###
+### sqlmap ###
+### ss ###
+### ssh ###
+### ssh-copy-id ###
+### ssh-keygen ###
+### stdout ###
+### strace ###
+### su ###
+### svn ###
+### systemctl ###
+### systemd ###
+### tail ###
+### tar ###
+### tcpdump ###
+### tee ###
+### tmux ###
+### top ###
+### tr ###
+### trashy ###
+### tree ###
+### truncate ###
+### udisksctl ###
+### uname ###
+### uniq ###
+### unzip ###
+### urpm ###
+### vagrant ###
+### vim ###
+### virtualenv ###
+### wc ###
+### weechat ###
+### wget ###
+### xargs ###
+### xmlto ###
+### xrandr ###
+### xxd ###
+### yaourt ###
+### youtube-dl ###
+### yum ###
+### zip ###
+### zoneadm ###
+### zsh ###
+
+
+### ab ###
+ 
+# send 100 requests with a concurency of 50 requests to an URL
+ab -n 100 -c 50 http://www.example.com/
+
+# send requests during 30 seconds with a concurency of 50 requests to an URL
+ab -t 30 -c 50 URL http://www.example.com/
+
+
+### alias ###
+ 
+# Show a list of your current shell aliases
+alias
+
+# Map `ll` to `ls -l` (Can be used per session or put inside a shell config file)
+alias ll='ls -l'
+
+
+### ansi ###
+ 
+# Reset
+Color_Off='\e[0m'       # Text Reset
+
+# Regular Colors
+Black='\e[0;30m'        # Black
+Red='\e[0;31m'          # Red
+Green='\e[0;32m'        # Green
+Yellow='\e[0;33m'       # Yellow
+Blue='\e[0;34m'         # Blue
+Purple='\e[0;35m'       # Purple
+Cyan='\e[0;36m'         # Cyan
+White='\e[0;37m'        # White
+
+# Bold
+BBlack='\e[1;30m'       # Black
+BRed='\e[1;31m'         # Red
+BGreen='\e[1;32m'       # Green
+BYellow='\e[1;33m'      # Yellow
+BBlue='\e[1;34m'        # Blue
+BPurple='\e[1;35m'      # Purple
+BCyan='\e[1;36m'        # Cyan
+BWhite='\e[1;37m'       # White
+
+# Underline
+UBlack='\e[4;30m'       # Black
+URed='\e[4;31m'         # Red
+UGreen='\e[4;32m'       # Green
+UYellow='\e[4;33m'      # Yellow
+UBlue='\e[4;34m'        # Blue
+UPurple='\e[4;35m'      # Purple
+UCyan='\e[4;36m'        # Cyan
+UWhite='\e[4;37m'       # White
+
+# Background
+On_Black='\e[40m'       # Black
+On_Red='\e[41m'         # Red
+On_Green='\e[42m'       # Green
+On_Yellow='\e[43m'      # Yellow
+On_Blue='\e[44m'        # Blue
+On_Purple='\e[45m'      # Purple
+On_Cyan='\e[46m'        # Cyan
+On_White='\e[47m'       # White
+
+# High Intensity
+IBlack='\e[0;90m'       # Black
+IRed='\e[0;91m'         # Red
+IGreen='\e[0;92m'       # Green
+IYellow='\e[0;93m'      # Yellow
+IBlue='\e[0;94m'        # Blue
+IPurple='\e[0;95m'      # Purple
+ICyan='\e[0;96m'        # Cyan
+IWhite='\e[0;97m'       # White
+
+# Bold High Intensity
+BIBlack='\e[1;90m'      # Black
+BIRed='\e[1;91m'        # Red
+BIGreen='\e[1;92m'      # Green
+BIYellow='\e[1;93m'     # Yellow
+BIBlue='\e[1;94m'       # Blue
+BIPurple='\e[1;95m'     # Purple
+BICyan='\e[1;96m'       # Cyan
+BIWhite='\e[1;97m'      # White
+
+# High Intensity backgrounds
+On_IBlack='\e[0;100m'   # Black
+On_IRed='\e[0;101m'     # Red
+On_IGreen='\e[0;102m'   # Green
+On_IYellow='\e[0;103m'  # Yellow
+On_IBlue='\e[0;104m'    # Blue
+On_IPurple='\e[0;105m'  # Purple
+On_ICyan='\e[0;106m'    # Cyan
+On_IWhite='\e[0;107m'   # White
+
+
+### apk ###
+ 
+# Install a package
+apk add $package
+
+# Remove a package
+apk del $package
+
+# Update repos
+apk update
+
+# Upgrade all packages
+apk upgrade
+
+# Find a package
+apk search $package
+
+
+### apparmor ###
+ 
+# Desc: Apparmor will protect the system by confining programs to a limited set of resources.
+
+# To activate a profile:
+sudo aa-enforce usr.bin.firefox
+# OR
+export _PROFILE_='usr.bin.firefox' sudo $(rm /etc/apparmor.d/disable/$_PROFILE_ ; cat /etc/apparmor.d/$_PROFILE_ | apparmor_parser -a )
+
+# TO disable a profile:
+sudo aa-disable usr.bin.firefox
+# OR
+export _PROFILE_='usr.bin.firefox' sudo $(ln -s /etc/apparmor.d/$_PROFILE_ /etc/apparmor.d/disable/ && apparmor_parser -R /etc/apparmor.d/$_PROFILE_)
+
+# To list profiles loaded:
+sudo aa-status
+# OR
+sudo apparmor_status
+
+# List of profiles aviables: /etc/apparmor.d/
+
+
+### apt ###
+ 
+# To search a package:
+apt search package
+
+# To show package informations:
+apt show package
+
+# To fetch package list:
+apt update
+
+# To download and install updates without installing new package:
+apt upgrade
+
+# To download and install the updates AND install new necessary packages:
+apt dist-upgrade
+
+# Full command:
+apt update && apt dist-upgrade
+
+# To install a new package(s):
+apt install package(s)
+
+# To uninstall package(s)
+apt remove package(s)
+
+
+### apt-cache ###
+ 
+# To search for apt packages:
+apt-cache search "whatever"
+
+# To display package records for the named package(s):
+apt-cache show pkg(s)
+
+# To display reverse dependencies of a package
+apt-cache rdepends package_name
+
+# To display package versions, reverse dependencies and forward dependencies 
+# of a package
+apt-cache showpkg package_name
+
+
+### apt-get ###
+ 
+# Desc: Allows to update the operating system
+
+# To fetch package list
+apt-get update
+
+# To download and install updates without installing new package.
+apt-get upgrade
+
+# To download and install the updates AND install new necessary packages
+apt-get dist-upgrade
+
+# Full command:
+apt-get update && apt-get dist-upgrade
+
+# To install a new package(s)
+apt-get install package(s)
+
+# Download a package without installing it. (The package will be downloaded in your current working dir)
+apt-get download modsecurity-crs
+
+# Change Cache dir and archive dir (where .deb are stored).
+apt-get -o Dir::Cache="/path/to/destination/dir/" -o Dir::Cache::archives="./" install ...
+
+# Show apt-get installed packages.
+grep 'install ' /var/log/dpkg.log
+
+# Silently keep old configuration during batch updates
+apt-get update -o DPkg::Options::='--force-confold' ...
+
+
+### aptitude ###
+ 
+# To search for packages:
+aptitude search "whatever"
+
+# To display package records for the named package(s):
+aptitude show pkg(s)
+
+# To install a package:
+aptitude install package
+
+# To remove a package:
+aptitude remove package
+
+# To remove unnecessary package:
+aptitude autoclean
+
+
+
+### aria2c ###
+ 
+# Just download a file
+# The url can be a http(s), ftp, .torrent file or even a magnet link
+aria2c <url>
+
+# To prevent downloading the .torrent file
+aria2c --follow-torrent=mem <url>
+
+# Download 1 file at a time (-j) 
+# continuing (-c) any partially downloaded ones
+# to the directory specified (-d)
+# reading urls from the file (-i)
+aria2c -j 1 -c -d ~/Downloads -i /path/to/file
+
+
+### asciiart ###
+ 
+# To show some text in ASCII Art:
+
+figlet Cheat
+#  ____ _                _
+# / ___| |__   ___  __ _| |_
+#| |   | '_ \ / _ \/ _` | __|
+#| |___| | | |  __/ (_| | |_
+# \____|_| |_|\___|\__,_|\__|
+#
+
+
+# To have some text with color and other options:
+# Show with a border
+toilet -F border Cheat
+# Basic show (filled)
+toilet Cheat
+#   mmm  #                      m
+# m"   " # mm    mmm    mmm   mm#mm
+# #      #"  #  #"  #  "   #    #
+# #      #   #  #""""  m"""#    #
+#  "mmm" #   #  "#mm"  "mm"#    "mm
+#
+
+
+### asterisk ###
+ 
+# To connect to a running Asterisk session:
+asterisk -rvvv
+
+# To issue a command to Asterisk from the shell:
+asterisk -rx "<command>"
+
+# To originate an echo call from a SIP trunk on an Asterisk server, to a specified number:
+asterisk -rx "channel originate SIP/<trunk>/<number> application echo"
+
+# To print out the details of SIP accounts:
+asterisk -rx "sip show peers"
+
+# To print out the passwords of SIP accounts:
+asterisk -rx "sip show users"
+
+# To print out the current active channels:
+asterisk -rx "core show channels"
+
+
+### at ###
+ 
+# To schedule a one time task
+at {time}
+{command 0}
+{command 1}
+Ctrl-d
+
+# {time} can be either
+now | midnight | noon | teatime (4pm)
+HH:MM
+now + N {minutes | hours | days | weeks}
+MM/DD/YY
+
+# To list pending jobs
+atq
+
+# To remove a job (use id from atq)
+atrm {id}
+
+
+### awk ###
+ 
+# sum integers from a file or stdin, one integer per line:
+printf '1\n2\n3\n' | awk '{ sum += $1} END {print sum}'
+
+# using specific character as separator to sum integers from a file or stdin
+printf '1:2:3' | awk -F ":" '{print $1+$2+$3}'
+
+# print a multiplication table
+seq 9 | sed 'H;g' | awk -v RS='' '{for(i=1;i<=NF;i++)printf("%dx%d=%d%s", i, NR, i*NR, i==NR?"\n":"\t")}'
+
+# Specify output separator character
+printf '1 2 3' | awk 'BEGIN {OFS=":"}; {print $1,$2,$3}'
+
+
+### bash ###
+ 
+# To implement a for loop:
+for file in *;
+do 
+    echo $file found;
+done
+
+# To implement a case command:
+case "$1"
+in
+    0) echo "zero found";;
+    1) echo "one found";;
+    2) echo "two found";;
+    3*) echo "something beginning with 3 found";;
+esac
+
+# Turn on debugging:
+set -x
+
+# Turn off debugging:
+set +x
+
+# Retrieve N-th piped command exit status
+printf 'foo' | fgrep 'foo' | sed 's/foo/bar/'
+echo ${PIPESTATUS[0]}  # replace 0 with N
+
+# Lock file:
+( set -o noclobber; echo > my.lock ) || echo 'Failed to create lock file'
+
+
+### bower ###
+ 
+# Install a package locally
+bower install <package-name>
+
+# Install a package locally directly from github
+bower install <user>/<repo>
+
+# Install a specific package locally
+bower install <package-name>#<version>
+
+# Install a package locally and save installed package into bower.json
+bower install <package-name> --save
+
+# Retrieve info of a particular package
+bower info <package-name>
+
+# List local packages
+bower list
+
+# Search for a package by name
+bower search <package-name>
+
+# Update a package to their newest version
+bower update <package-name>
+
+# Remove a local package
+bower uninstall <package-name>
+
+
+### bzip2 ###
+ 
+# compress foo -> foo.bz2
+bzip2 -z foo
+
+# decompress foo.bz2 -> foo
+bzip2 -d foo.bz2
+
+# compress foo to stdout
+bzip2 -zc foo > foo.bz2
+
+# decompress foo.bz2 to stdout
+bzip2 -dc foo.bz2
+
+
+### cat ###
+ 
+# Display the contents of a file
+cat /path/to/foo
+
+# Display contents with line numbers
+cat -n /path/to/foo
+
+# Display contents with line numbers (blank lines excluded)
+cat -b /path/to/foo
+
+
+### cd ###
+ 
+#Go to the given directory
+cd path/to/directory
+
+#Go to home directory of current user
+cd
+
+#Go up to the parent of the current directory
+cd ..
+
+#Go to the previously chosen directory
+cd -
+
+
+### cheat ###
+ 
+# To see example usage of a program:
+cheat <command>
+
+# To edit a cheatsheet
+cheat -e <command>
+
+# To list available cheatsheets
+cheat -l
+
+# To search available cheatsheets
+cheat -s <command>
+
+# To get the current `cheat' version
+cheat -v
+
+
+### chmod ###
+ 
+# Add execute for all (myscript.sh)
+chmod a+x myscript.sh
+
+# Set user to read/write/execute, group/global to read only (myscript.sh), symbolic mode
+chmod u=rwx, go=r myscript.sh 
+
+# Remove write from user/group/global (myscript.sh), symbolic mode
+chmod a-w myscript.sh
+
+# Remove read/write/execute from user/group/global (myscript.sh), symbolic mode
+chmod = myscript.sh
+
+# Set user to read/write and group/global read (myscript.sh), octal notation
+chmod 644 myscript.sh
+
+# Set user to read/write/execute and group/global read/execute (myscript.sh), octal notation
+chmod 755 myscript.sh
+
+# Set user/group/global to read/write (myscript.sh), octal notation
+chmod 666 myscript.sh
+
+# Roles
+u - user (owner of the file)
+g - group (members of file's group)
+o - global (all users who are not owner and not part of group)
+a - all (all 3 roles above)
+
+# Numeric representations
+7 - full (rwx)
+6 - read and write (rw-)
+5 - read and execute (r-x)
+4 - read only (r--)
+3 - write and execute (-wx)
+2 - write only (-w-)
+1 - execute only (--x)
+0 - none (---)
+
+
+### chown ###
+ 
+# Change file owner
+chown user file
+
+# Change file owner and group
+chown user:group file
+
+# Change owner recursively
+chown -R user directory
+
+# Change ownership to match another file
+chown --reference=/path/to/ref_file file
+
+
+### convert ###
+ 
+# To resize an image to a fixed width and proportional height:
+convert original-image.jpg -resize 100x converted-image.jpg
+
+# To resize an image to a fixed height and proportional width:
+convert original-image.jpg -resize x100 converted-image.jpg
+
+# To resize an image to a fixed width and height:
+convert original-image.jpg -resize 100x100 converted-image.jpg
+
+# To resize an image and simultaneously change its file type:
+convert original-image.jpg -resize 100x converted-image.png
+
+# To resize all of the images within a directory:
+# To implement a for loop:
+for file in `ls original/image/path/`;
+    do new_path=${file%.*};
+    new_file=`basename $new_path`;
+    convert $file -resize 150 conerted/image/path/$new_file.png;
+done
+
+
+### cp ###
+ 
+# Create a copy of a file
+cp ~/Desktop/foo.txt ~/Downloads/foo.txt
+
+# Create a copy of a directory
+cp -r ~/Desktop/cruise_pics/ ~/Pictures/
+
+# Create a copy but ask to overwrite if the destination file already exists
+cp -i ~/Desktop/foo.txt ~/Documents/foo.txt
+
+# Create a backup file with date
+cp foo.txt{,."$(date +%Y%m%d-%H%M%S)"}
+
+
+### cpdf ###
+ 
+# Read in.pdf, select pages 1, 2, 3 and 6, and write those pages to
+# out.pdf
+cpdf in.pdf 1-3,6 -o out.pdf
+
+# Select the even pages (2, 4, 6...) from in.pdf and write those pages
+# to out.pdf
+cpdf in.pdf even -o out.pdf
+
+# Using AND to perform several operations in order, here merging two
+# files together and adding a copyright stamp to every page.
+cpdf -merge in.pdf in2.pdf AND -add-text "Copyright 2014" -o out.pdf
+
+# Read control.txt and use its contents as the command line arguments
+# for cpdf.
+cpdf -control control.txt
+
+# Merge in.pdf and in2.pdf into one document, writing to out.pdf.
+cpdf -merge in.pdf in2.pdf -o out.pdf
+
+# Split in.pdf into ten-page chunks, writing them to Chunk001.pdf,
+# Chunk002.pdf etc
+cpdf -split in.pdf -o Chunk%%%.pdf -chunk 10
+
+# Split in.pdf on bookmark boundaries, writing each to a file whose
+# name is the bookmark label
+cpdf -split-bookmarks 0 in.pdf -o @N.pdf
+
+# Scale both the dimensions and contents of in.pdf by a factor of two
+# in x and y directions.
+cpdf -scale-page "2 2" in.pdf -o out.pdf
+
+# Scale the pages in in.pdf to fit the US Letter page size, writing to
+# out.pdf
+cpdf -scale-to-fit usletterportrait in.pdf -o out.pdf
+
+# Shift the contents of the page by 26 pts in the x direction, and 18
+# millimetres in the y direction, writing to out.pdf
+cpdf -shift "26pt 18mm" in.pdf -o out.pdf
+
+# Rotate the contents of the pages in in.pdf by ninety degrees and
+# write to out.pdf.
+cpdf -rotate-contents 90 in.pdf -o out.pdf
+
+# Crop the pages in in.pdf to a 600 pts by 400 pts rectangle.
+cpdf -crop "0 0 600pt 400pt" in.pdf -o out.pdf
+
+# Encrypt using 128bit PDF encryption using the owner password 'fred'
+# and the user password 'joe'
+cpdf -encrypt 128bit fred joe in.pdf -o out.pdf
+
+# Decrypt using the owner password, writing to out.pdf.
+cpdf -decrypt in.pdf owner=fred -o out.pdf
+
+# Compress the data streams in in.pdf, writing the result to out.pdf.
+cpdf -compress in.pdf -o out.pdf
+
+# Decompress the data streams in in.pdf, writing to out.pdf.
+cpdf -decompress in.pdf -o out.pdf
+
+# List the bookmarks in in.pdf. This would produce:
+cpdf -list-bookmarks in.pdf
+
+# Outputs:
+
+# Add bookmarks in the same form from a prepared file bookmarks.txt to
+# in.pdf, writing to out.pdf.
+cpdf -add-bookmarks bookmarks.txt in.pdf -o out.pdf
+
+# Use the Split style to build a presentation from the PDF in.pdf,
+# each slide staying 10 seconds on screen unless manually advanced.
+# The first page, being a title does not move on automatically, and
+# has no transition effect.
+cpdf -presentation in.pdf 2-end -trans Split -duration 10 -o out.pdf
+
+# Stamp the file watermark.pdf on to each page of in.pdf, writing the
+# result to out.pdf.
+cpdf -stamp-on watermark.pdf in.pdf -o out.pdf
+
+# Add a page number and date to all the pages in in.pdf using the
+# Courier font, writing to out.pdf
+cpdf -topleft 10 -font Courier -add-text "Page %Page\nDate %d-%m-%Y" in.pdf -o out.pdf
+
+# Two up impose the file in.pdf, writing to out.pdf
+cpdf -twoup-stack in.pdf -o out.pdf
+
+# Add extra blank pages after pages one, three and four of a document.
+cpdf -pad-after 1,3,4 in.pdf -o out.pdf
+
+# List the annotations in a file in.pdf to standard output.
+cpdf -list-annotations in.pdf
+
+# Might Produce:
+
+# -- # Annotation text content 1 # -- # -- # Annotation text content 2
+# --
+
+# Copy the annotations from from.pdf to in.pdf, writing to out.pdf.
+cpdf -copy-annotations from.pdf in.pdf -o out.pdf
+
+# Set the document title of in.pdf. writing to out.pdf.
+cpdf -set-title "The New Title" in.pdf -o out.pdf
+
+# Set the document in.pdf to open with the Acrobat Viewer's toolbar
+# hidden, writing to out.pdf.
+cpdf -hide-toolbar true in.pdf -o out.pdf
+
+# Set the metadata in a PDF in.pdf to the contents of the file
+# metadata.xml, and write the output to out.pdf.
+cpdf -set-metadata metadata.xml in.pdf -o out.pdf
+
+# Set the document in.pdf to open in Acrobat Viewer showing two
+# columns of pages, starting on the right, putting the result in
+# out.pdf.
+cpdf -set-page-layout TwoColumnRight in.pdf -o out.pdf
+
+# Set the document in.pdf to open in Acrobat Viewer in full screen
+# mode, putting the result in out.pdf.
+cpdf -set-page-mode FullScreen in.pdf -o out.pdf
+
+# Attach the file sheet.xls to in.pdf, writing to out.pdf.
+cpdf -attach-file sheet.xls in.pdf -o out.pdf
+
+# Remove any attachments from in.pdf, writing to out.pdf.
+cpdf -remove-files in.pdf -o out.pdf
+
+# Blacken all the text in in.pdf, writing to out.pdf.
+cpdf -blacktext in.pdf -o out.pdf
+
+# Make sure all lines in in.pdf are at least 2 pts wide, writing to
+# out.pdf.
+cpdf -thinlines 2pt in.pdf -o out.pdf
+
+
+
+### crontab ###
+ 
+# set a shell
+SHELL=/bin/bash
+
+# crontab format
+* * * * *  command_to_execute
+- - - - -
+| | | | |
+| | | | +- day of week (0 - 7) (where sunday is 0 and 7)
+| | | +--- month (1 - 12)
+| | +----- day (1 - 31)
+| +------- hour (0 - 23)
++--------- minute (0 - 59)
+
+# example entries
+# every 15 min
+*/15 * * * * /home/user/command.sh
+
+# every midnight
+0 0 * * * /home/user/command.sh
+
+# every Saturday at 8:05 AM
+5 8 * * 6 /home/user/command.sh
+
+
+### cryptsetup ###
+ 
+# open encrypted partition /dev/sdb1 (reachable at /dev/mapper/backup)
+cryptsetup open --type luks /dev/sdb1 backup
+
+# open encrypted partition /dev/sdb1 using a keyfile (reachable at /dev/mapper/hdd)
+cryptsetup open --type luks --key-file hdd.key /dev/sdb1 hdd
+
+# close luks container at /dev/mapper/hdd
+cryptsetup close hdd
+
+
+### csplit ###
+ 
+# Split a file based on pattern
+csplit input.file '/PATTERN/'
+
+# Use prefix/suffix to improve resulting file names
+csplit -f 'prefix-' -b '%d.extension' input.file '/PATTERN/' '{*}'
+
+
+### cups ###
+ 
+# Manage printers through CUPS:
+http://localhost:631 (in web browser)
+
+# Print file from command line
+lp myfile.txt
+
+# Display print queue
+lpq
+
+# Remove print job from queue
+lprm 545
+or
+lprm -
+
+# Print log location
+/var/log/cups
+
+# Reject new jobs
+cupsreject printername
+
+# Accept new jobs
+cupsaccept printername
+
+
+### curl ###
+ 
+# Download a single file
+curl http://path.to.the/file
+
+# Download a file and specify a new filename
+curl http://example.com/file.zip -o new_file.zip
+
+# Download multiple files
+curl -O URLOfFirstFile -O URLOfSecondFile
+
+# Download all sequentially numbered files (1-24)
+curl http://example.com/pic[1-24].jpg
+
+# Download a file and pass HTTP Authentication
+curl -u username:password URL 
+
+# Download a file with a Proxy
+curl -x proxysever.server.com:PORT http://addressiwantto.access
+
+# Download a file from FTP
+curl -u username:password -O ftp://example.com/pub/file.zip
+
+# Get an FTP directory listing
+curl ftp://username:password@example.com
+
+# Resume a previously failed download
+curl -C - -o partial_file.zip http://example.com/file.zip
+
+# Fetch only the HTTP headers from a response
+curl -I http://example.com
+
+# Fetch your external IP and network info as JSON
+curl http://ifconfig.me/all/json
+
+# Limit the rate of a download
+curl --limit-rate 1000B -O http://path.to.the/file
+
+# Get your global IP
+curl httpbin.org/ip 
+
+# Get only the HTTP status code
+curl -o /dev/null -w '%{http_code}\n' -s -I URL
+
+
+### cut ###
+ 
+# To cut out the third field of text or stdoutput that is delimited by a #:
+cut -d# -f3
+
+
+### date ###
+ 
+# Print date in format suitable for affixing to file names
+date +"%Y%m%d_%H%M%S"
+
+# Convert Unix timestamp to Date(Linux)
+date -d @1440359821
+
+# Convert Unix timestamp to Date(Mac)
+date -r 1440359821
+
+
+### dd ###
+ 
+# Read from {/dev/urandom} 2*512 Bytes and put it into {/tmp/test.txt}
+# Note: At the first iteration, we read 512 Bytes.
+# Note: At the second iteration, we read 512 Bytes.
+dd if=/dev/urandom of=/tmp/test.txt count=2 bs=512
+
+# Watch the progress of 'dd'
+dd if=/dev/zero of=/dev/null bs=4KB &; export dd_pid=`pgrep '^dd'`; while [[ -d /proc/$dd_pid ]]; do kill -USR1 $dd_pid && sleep 1 && clear; done
+
+# Watch the progress of 'dd' with `pv` and `dialog` (apt-get install pv dialog)
+(pv -n /dev/zero | dd of=/dev/null bs=128M conv=notrunc,noerror) 2>&1 | dialog --gauge "Running dd command (cloning), please wait..." 10 70 0
+
+# Watch the progress of 'dd' with `pv` and `zenity` (apt-get install pv zenity)
+(pv -n /dev/zero | dd of=/dev/null bs=128M conv=notrunc,noerror) 2>&1 | zenity --title 'Running dd command (cloning), please wait...' --progress
+
+# Watch the progress of 'dd' with the built-in `progress` functionality (introduced in coreutils v8.24)
+dd if=/dev/zero of=/dev/null bs=128M status=progress
+
+# DD with "graphical" return
+dcfldd if=/dev/zero of=/dev/null bs=500K
+
+# This will output the sound from your microphone port to the ssh target computer's speaker port. The sound quality is very bad, so you will hear a lot of hissing.
+dd if=/dev/dsp | ssh -c arcfour -C username@host dd of=/dev/dsp
+
+
+### deb ###
+ 
+# Extract contents of a .deb file
+$ ar vx foo.deb    # -> data.tar.gz
+$ tar xf data.tar.gz
+
+# Install .deb file to a debian like system, e.g. ubuntu
+$ sudo dpkg -i foo.deb
+$ sudo apt-get install -f
+
+
+### df ###
+ 
+# Printout disk free space in a human readable format
+df -h
+
+
+### dhclient ###
+ 
+# To release the current IP address:
+sudo dhclient -r
+
+# To obtain a new IP address:
+sudo dhclient
+
+# Running the above in sequence is a common way of refreshing an IP.
+
+# To obtain a new IP address for a specific interface:
+sudo dhclient eth0
+
+
+### diff ###
+ 
+# To view the differences between two files:
+diff -u version1 version2
+
+# To view the differences between two directories:
+diff -ur folder1/ folder2/
+
+# To ignore the white spaces:
+diff -ub version1 version2
+
+# To ignore the blank lines:
+diff -uB version1 version2
+
+# To ignore the differences between uppercase and lowercase:
+diff -ui version1 version2
+
+# To report whether the files differ:
+diff -q version1 version2
+
+# To report whether the files are identical:
+diff -s version1 version2
+
+# To diff the output of two commands or scripts:
+diff <(command1) <(command2)
+
+# Generate a patch file from two files
+diff -Naur version1 version2 > version.patch
+
+
+### distcc ###
+ 
+# INSTALL
+# ==============================================================================
+# Edit /etc/default/distcc and set theses vars
+# STARTDISTCC="true"
+# ALLOWEDNETS="127.0.0.1 192.168.1.0/24"# Your computer and local computers
+# #LISTENER="127.0.0.1"# Comment it
+# ZEROCONF="true"# Auto configuration
+
+# REMEMBER 1:
+# Start/Restart your distccd servers before using one of these commands.
+# service distccd start
+
+# REMEMBER 2:
+# Do not forget to install on each machine DISTCC.
+# No need to install libs ! Only main host need libs !
+
+# USAGE
+# ==============================================================================
+
+# Run make with 4 thread (a cross network) in auto configuration.
+# Note: for gcc, Replace CXX by CC and g++ by gcc
+ZEROCONF='+zeroconf' make -j4 CXX='distcc g++'
+
+# Run make with 4 thread (a cross network) in static configuration (2 ip)
+# Note: for gcc, Replace CXX by CC and g++ by gcc
+DISTCC_HOSTS='127.0.0.1 192.168.1.69' make -j4 CXX='distcc g++'
+
+# Show hosts aviables
+ZEROCONF='+zeroconf' distcc --show-hosts
+
+
+### dnf ###
+ 
+# To install the latest version of a package:
+dnf install <package name>
+
+# To search package details for the given string
+dnf search <string>
+
+# To find which package provides a binary
+dnf provides <path to binary>
+
+# The following are available after installing "dnf-plugins-core"
+
+# Download a package
+dnf download <package name>
+
+# install the build dependencies for a SRPM or from a .spec file
+dnf builddep <srpm/.spec file>
+
+
+### docker ###
+ 
+# Start docker daemon
+docker -d
+
+# start a container with an interactive shell
+docker run -ti <image_name> /bin/bash
+
+# "shell" into a running container (docker-1.3+)
+docker exec -ti <container_name> bash
+
+# inspect a running container
+docker inspect <container_name> (or <container_id>)
+
+# Get the process ID for a container
+# Source: https://github.com/jpetazzo/nsenter
+docker inspect --format {{.State.Pid}} <container_name_or_ID>
+
+# List the current mounted volumes for a container (and pretty print)
+# Source:
+# http://nathanleclaire.com/blog/2014/07/12/10-docker-tips-and-tricks-that-will-make-you-sing-a-whale-song-of-joy/
+docker inspect --format='{{json .Volumes}}' <container_id> | python -mjson.tool
+
+# Copy files/folders between a container and your host
+docker cp foo.txt mycontainer:/foo.txt
+
+# list currently running containers
+docker ps
+
+# list all containers
+docker ps -a
+
+# list all images
+docker images
+
+
+### dpkg ###
+ 
+# Install the package or upgrade it
+dpkg -i test.deb
+
+# Remove a package including configuration files
+dpkg -P test.deb
+
+# List all installed packages with versions and details
+dpkg -I
+
+# Find out if a Debian package is installed or not
+dpkg -s test.deb | grep Status
+
+
+### du ###
+ 
+# To sort directories/files by size
+du -sk *| sort -rn
+
+# To show cumulative humanreadable size
+du -sh
+
+
+### emacs ###
+ 
+# Running emacs
+
+  GUI mode            $ emacs
+  Terminal mode       $ emacs -nw
+
+# Basic usage
+
+  Indent              Select text then press TAB
+  Cut                 CTRL-w
+  Copy                ALT-w
+  Paste ("yank")      CTRL-y
+  Begin selection     CTRL-SPACE
+  Search/Find         CTRL-s
+  Replace             ALT-% (ALT-SHIFT-5)
+  Save                CTRL-x CTRL-s
+  Save as             CTRL-x CTRL-w
+  Load/Open           CTRL-x CTRL-f
+  Undo                CTRL-x u
+  Highlight all text  CTRL-x h
+  Directory listing   CTRL-x d
+  Cancel a command    CTRL-g
+  Font size bigger    CTRL-x CTRL-+
+  Font size smaller   CTRL-x CTRL--
+
+# Buffers
+
+  Split screen vertically                         CTRL-x 2
+  Split screen vertically with 5 row height       CTRL-u 5 CTRL-x 2
+  Split screen horizontally                       CTRL-x 3
+  Split screen horizontally with 24 column width  CTRL-u 24 CTRL-x 3
+  Revert to single screen                         CTRL-x 1
+  Hide the current screen                         CTRL-x 0
+  Move to the next screen                         CTRL-x o
+  Kill the current buffer                         CTRL-x k
+  Select a buffer                                 CTRL-x b
+  Run command in the scratch buffer               CTRL-x CTRL-e
+
+# Navigation ( backward / forward )
+  
+  Character-wise                                  CTRL-b , CTRL-f
+  Word-wise                                       ALT-b  , ALT-f
+  Line-wise                                       CTRL-p , CTRL-n
+  Sentence-wise                                   ALT-a  , ALT-e
+  Paragraph-wise                                  ALT-{ , ALT-}
+  Function-wise                                   CTRL-ALT-a , CTRL-ALT-e
+  Line beginning / end                            CTRL-a , CTRL-e
+
+# Other stuff
+
+  Open a shell         ALT-x eshell
+  Goto a line number   ALT-x goto-line
+  Word wrap            ALT-x toggle-word-wrap
+  Spell checking       ALT-x flyspell-mode
+  Line numbers         ALT-x linum-mode
+  Toggle line wrap     ALT-x visual-line-mode
+  Compile some code    ALT-x compile
+  List packages        ALT-x package-list-packages
+
+# Line numbers
+
+  To add line numbers and enable moving to a line with CTRL-l:
+
+    (global-set-key "\C-l" 'goto-line)
+    (add-hook 'find-file-hook (lambda () (linum-mode 1)))
+
+
+### export ###
+ 
+# Calling export with no arguments will show current shell attributes
+export
+
+# Create new environment variable
+export VARNAME="value"
+
+
+### ffmpeg ###
+ 
+# Print file metadata etc.
+ffmpeg -i path/to/file.ext
+
+# Convert all m4a files to mp3
+for f in *.m4a; do ffmpeg -i "$f" -acodec libmp3lame -vn -b:a 320k "${f%.m4a}.mp3"; done
+
+# Convert video from .foo to .bar
+# -g : GOP, for searchability
+ffmpeg -i input.foo -vcodec bar -acodec baz -b:v 21000k -b:a 320k -g 150 -threads 4 output.bar
+
+# Convert image sequence to video
+ffmpeg -r 18 -pattern_type glob -i '*.png' -b:v 21000k -s hd1080 -vcodec vp9 -an -pix_fmt yuv420p -deinterlace output.ext
+
+# Combine video and audio into one file
+ffmpeg -i video.ext -i audio.ext -c:v copy -c:a copy output.ext
+
+# Listen to 10 seconds of audio from a video file
+#
+# -ss : start time
+# -t  : seconds to cut
+# -autoexit : closes ffplay as soon as the audio finishes
+ffmpeg -ss 00:34:24.85 -t 10 -i path/to/file.mp4 -f mp3 pipe:play | ffplay -i pipe:play -autoexit
+
+
+
+### find ###
+ 
+# To find files by case-insensitive extension (ex: .jpg, .JPG, .jpG):
+find . -iname "*.jpg"
+
+# To find directories:
+find . -type d
+
+# To find files:
+find . -type f
+
+# To find files by octal permission:
+find . -type f -perm 777
+
+# To find files with setuid bit set:
+find . -xdev \( -perm -4000 \) -type f -print0 | xargs -0 ls -l
+
+# To find files with extension '.txt' and remove them:
+find ./path/ -name '*.txt' -exec rm '{}' \;
+
+# To find files with extension '.txt' and look for a string into them:
+find ./path/ -name '*.txt' | xargs grep 'string'
+
+# To find files with size bigger than 5 Mebibyte and sort them by size:
+find . -size +5M -type f -print0 | xargs -0 ls -Ssh | sort -z
+
+# To find files bigger than 2 Megabyte and list them:
+find . -type f -size +200000000c -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
+
+# To find files modified more than 7 days ago and list file information
+find . -type f -mtime +7d -ls
+
+# To find symlinks owned by a user and list file information
+find . -type l --user=username -ls
+
+# To search for and delete empty directories
+find . -type d -empty -exec rmdir {} \;
+
+# To search for directories named build at a max depth of 2 directories
+find . -maxdepth 2 -name build -type d
+
+# To search all files who are not in .git directory
+find . ! -iwholename '*.git*' -type f
+
+# To find all files that have the same node (hard link) as MY_FILE_HERE
+find . -type f -samefile MY_FILE_HERE 2>/dev/null
+
+# To find all files in the current directory and modify their permissions
+find . -type f -exec chmod 644 {} \;
+
+
+### for ###
+ 
+# basic loop
+for i in 1 2 3 4 5 6 7 8 9 10
+do
+  echo $i
+done
+
+# loop ls command results
+for var in `ls -alF`
+do
+  echo $var
+done
+
+# loop specified number of times
+for i in `seq 1 10`
+do
+  echo $i
+done
+
+
+### gcc ###
+ 
+# Compile a file
+gcc file.c
+
+# Compile a file with a custom output
+gcc -o file file.c
+
+# Debug symbols
+gcc -g
+
+# Debug with all symbols.
+gcc -ggdb3
+
+# Build for 64 bytes
+gcc -m64
+
+# Include the directory {/usr/include/myPersonnal/lib/} to the list of path for #include <....>
+# With this option, no warning / error will be reported for the files in {/usr/include/myPersonnal/lib/}
+gcc -isystem /usr/include/myPersonnal/lib/
+
+# Build a GUI for windows (Mingw) (Will disable the term/console)
+gcc -mwindows
+
+
+### gdb ###
+ 
+# start the debugger
+gdb your-executable
+
+# set a breakpoint
+b some-method, break some-method
+
+# run the program
+r, run
+
+# when a breakpoint was reached:
+
+# run the current line, stepping over any invocations
+n, next
+# run the current line, stepping into any invocations
+s, step
+# print a stacktrace
+bt, backtrace
+# evaluate an expression and print the result
+p length=strlen(string)
+# list surrounding source code
+l, list
+# continue execution
+c, continue
+
+# exit gdb (after program terminated)
+q, quit
+
+
+### git ###
+ 
+# To set your identity:
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+
+# To set your editor:
+git config --global core.editor emacs
+
+# To enable color:
+git config --global color.ui true
+
+# To stage all changes for commit:
+git add --all
+
+# To stash changes locally, this will keep the changes in a separate changelist
+# called stash and the working directory is cleaned. You can apply changes
+# from the stash anytime
+git stash
+
+# To stash changes with a message
+git stash save "message"
+
+# To list all the stashed changes
+git stash list
+
+# To apply the most recent change and remove the stash from the stash list
+git stash pop
+
+# To apply any stash from the list of stashes. This does not remove the stash
+# from the stash list
+git stash apply stash@{6}
+
+# To commit staged changes
+git commit -m "Your commit message"
+
+# To edit previous commit message
+git commit --amend
+
+# Git commit in the past
+git commit --date="`date --date='2 day ago'`"
+git commit --date="Jun 13 18:30:25 IST 2015"
+# more recent versions of Git also support --date="2 days ago" directly
+
+# To change the date of an existing commit
+git filter-branch --env-filter \
+    'if [ $GIT_COMMIT = 119f9ecf58069b265ab22f1f97d2b648faf932e0 ]
+     then
+         export GIT_AUTHOR_DATE="Fri Jan 2 21:38:53 2009 -0800"
+         export GIT_COMMITTER_DATE="Sat May 19 01:01:01 2007 -0700"
+     fi'
+
+# To removed staged and working directory changes
+git reset --hard
+
+# To go 2 commits back
+git reset --hard HEAD~2
+
+# To remove untracked files
+git clean -f -d
+
+# To remove untracked and ignored files
+git clean -f -d -x
+
+# To push to the tracked master branch:
+git push origin master
+
+# To push to a specified repository:
+git push git@github.com:username/project.git
+
+# To delete the branch "branch_name"
+git branch -D branch_name
+
+# To make an exisiting branch track a remote branch
+git branch -u upstream/foo
+
+# To see who commited which line in a file
+git blame filename
+
+# To sync a fork with the master repo:
+git remote add upstream git@github.com:name/repo.git    # Set a new repo
+git remote -v                                           # Confirm new remote repo
+git fetch upstream                                      # Get branches
+git branch -va                                          # List local - remote branches
+git checkout master                                     # Checkout local master branch
+git checkout -b new_branch                              # Create and checkout a new branch
+git merge upstream/master                               # Merge remote into local repo
+git show 83fb499                                        # Show what a commit did.
+git show 83fb499:path/fo/file.ext                       # Shows the file as it appeared at 83fb499.
+git diff branch_1 branch_2                              # Check difference between branches
+git log                                                 # Show all the commits
+git status                                              # Show the changes from last commit
+
+# Commit history of a set of files
+git log --pretty=email --patch-with-stat --reverse --full-index -- Admin\*.py > Sripts.patch
+
+# Import commits from another repo
+git --git-dir=../some_other_repo/.git format-patch -k -1 --stdout <commit SHA> | git am -3 -k
+
+# View commits that will be pushed
+git log @{u}..
+
+# View changes that are new on a feature branch
+git log -p feature --not master
+git diff master...feature
+
+# Interactive rebase for the last 7 commits
+git rebase -i @~7
+
+# Diff files WITHOUT considering them a part of git
+# This can be used to diff files that are not in a git repo!
+git diff --no-index path/to/file/A path/to/file/B
+
+# To pull changes while overwriting any local commits
+git fetch --all
+git reset --hard origin/master
+
+# Update all your submodules
+git submodule update --init --recursive
+
+# Perform a shallow clone to only get latest commits
+# (helps save data when cloning large repos)
+git clone --depth 1 <remote-url>
+
+# To unshallow a clone
+git pull --unshallow
+
+# Create a bare branch (one that has no commits on it)
+git checkout --orphan branch_name
+
+# Checkout a new branch from a different starting point
+git checkout -b master upstream/master
+
+# Remove all stale branches (ones that have been deleted on remote)
+# So if you have a lot of useless branches, delete them on Github and then run this
+git remote prune origin
+
+# The following can be used to prune all remotes at once
+git remote prune $(git remote | tr '\n' ' ')
+
+# Revisions can also be identified with :/text
+# So, this will show the first commit that has "cool" in their message body
+git show :/cool
+
+# Undo parts of last commit in a specific file
+git checkout -p HEAD^ -- /path/to/file
+
+# Revert a commit and keep the history of the reverted change as a separate revert commit
+git revert <commit SHA>
+
+# Pich a commit from a branch to current branch. This is different than merge as
+# this just applies a single commit from a branch to current branch
+git cherry-pick <commit SHA1>
+
+
+### gpg ###
+ 
+# Create a key
+
+ gpg --gen-key
+
+
+# Show keys
+
+  To list a summary of all keys
+
+    gpg --list-keys
+
+  To show your public key
+
+    gpg --armor --export
+
+  To show the fingerprint for a key
+
+    gpg --fingerprint KEY_ID
+
+# Search for keys
+
+  gpg --search-keys 'user@emailaddress.com'
+
+
+# To Encrypt a File
+
+  gpg --encrypt --recipient 'user@emailaddress.com' example.txt
+
+
+# To Decrypt a File
+
+  gpg --output example.txt --decrypt example.txt.gpg
+
+
+# Export keys
+
+  gpg --output ~/public_key.txt --armor --export KEY_ID
+  gpg --output ~/private_key.txt --armor --export-secret-key KEY_ID
+
+  Where KEY_ID is the 8 character GPG key ID.
+
+  Store these files to a safe location, such as a USB drive, then
+  remove the private key file.
+
+    shred -zu ~/private_key.txt
+
+# Import keys
+
+  Retrieve the key files which you previously exported.
+
+    gpg --import ~/public_key.txt
+    gpg --allow-secret-key-import --import ~/private_key.txt
+
+  Then delete the private key file.
+
+    shred -zu ~/private_key.txt
+
+# Revoke a key
+
+  Create a revocation certificate.
+
+    gpg --output ~/revoke.asc --gen-revoke KEY_ID
+
+  Where KEY_ID is the 8 character GPG key ID.
+
+  After creating the certificate import it.
+
+    gpg --import ~/revoke.asc
+
+  Then ensure that key servers know about the revokation.
+
+    gpg --send-keys KEY_ID
+
+# Signing and Verifying files
+
+  If you're uploading files to launchpad you may also want to include
+  a GPG signature file.
+
+    gpg -ba filename
+
+  or if you need to specify a particular key:
+
+    gpg --default-key <key ID> -ba filename
+
+  This then produces a file with a .asc extension which can be uploaded.
+  If you need to set the default key more permanently then edit the
+  file ~/.gnupg/gpg.conf and set the default-key parameter.
+
+  To verify a downloaded file using its signature file.
+
+  gpg --verify filename.asc
+
+# Signing Public Keys
+
+  Import the public key or retrieve it from a server.
+
+    gpg --keyserver <keyserver> --recv-keys <Key_ID>
+
+  Check its fingerprint against any previously stated value.
+
+    gpg --fingerprint <Key_ID>
+
+  Sign the key.
+
+    gpg --sign-key <Key_ID>
+
+  Upload the signed key to a server.
+
+    gpg --keyserver <keyserver> --send-key <Key_ID>
+
+# Change the email address associated with a GPG key
+
+  gpg --edit-key <key ID>
+  adduid
+
+  Enter the new name and email address. You can then list the addresses with:
+
+    list
+
+  If you want to delete a previous email address first select it:
+
+    uid <list number>
+
+  Then delete it with:
+
+    deluid
+
+  To finish type:
+
+    save
+
+  Publish the key to a server:
+
+    gpg --send-keys <key ID>
+
+# Creating Subkeys
+
+  Subkeys can be useful if you don't wish to have your main GPG key
+  installed on multiple machines. In this way you can keep your
+  master key safe and have subkeys with expiry periods or which may be
+  separately revoked installed on various machines. This avoids
+  generating entirely separate keys and so breaking any web of trust
+  which has been established.
+
+    gpg --edit-key <key ID>
+
+  At the prompt type:
+
+    addkey
+
+  Choose RSA (sign only), 4096 bits and select an expiry period.
+  Entropy will be gathered.
+
+  At the prompt type:
+
+    save
+
+  You can also repeat the procedure, but selecting RSA (encrypt only).
+  To remove the master key, leaving only the subkey/s in place:
+
+    gpg --export-secret-subkeys <subkey ID> > subkeys
+    gpg --export <key ID> > pubkeys
+    gpg --delete-secret-key <key ID>
+
+  Import the keys back.
+
+    gpg --import pubkeys subkeys
+
+  Verify the import.
+
+    gpg -K
+
+  Should show sec# instead of just sec.
+
+
+### grep ###
+ 
+# Search a file for a pattern
+grep pattern file
+
+# Case insensitive search (with line numbers)
+grep -in pattern file
+
+# Recursively grep for string <pattern> in folder:
+grep -R pattern folder
+
+# Read search patterns from a file (one per line)
+grep -f pattern_file file
+
+# Find lines NOT containing pattern
+grep -v pattern file
+
+# You can grep with regular expressions
+grep "^00" file  #Match lines starting with 00
+grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" file  #Find IP add
+
+# Find all files which match {pattern} in {directory}
+# This will show: "file:line my research"
+grep -rnw 'directory' -e "pattern"
+
+# Exclude grep from your grepped output of ps.
+# Add [] to the first letter. Ex: sshd -> [s]shd
+ps aux | grep '[h]ttpd'
+
+# Colour in red {bash} and keep all other lines
+ps aux | grep -E --color 'bash|$'
+
+
+### gs ###
+ 
+# To reduce the size of a pdf file:
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=output.pdf input.pdf
+
+
+
+### gyb ###
+ 
+# To estimate the number and the size of all mails on youremail@gmail.com
+gyb --email youremail@gmail.com --action estimate
+
+# To backup from youremail@gmail.com to your local-folder 
+gyb --email youremail@gmail.com --action backup --local-folder "~/MyLocalFolder/"
+
+# To backup from youremail@gmail.com only important or starred emails to the
+# default local folder GYB-GMail-Backup-youremail@gmail.com
+gyb --email youremail@gmail.com --search "is:important OR is:starred"
+
+# To restore from your local-folder to youremail@gmail.com
+gyb --email youremail@gmail.com --action restore --local-folder "~/MyLocalFolder/" 
+
+
+### gzip ###
+ 
+# To create a *.gz compressed file
+gzip test.txt
+
+# To create a *.gz compressed file to a specific location using -c option (standard out)
+gzip -c test.txt > test_custom.txt.gz
+
+# To uncompress a *.gz file
+gzip -d test.txt.gz
+
+# Display compression ratio of the compressed file using gzip -l
+gzip -l *.gz
+
+# Recursively compress all the files under a specified directory
+gzip -r documents_directory
+
+# To create a *.gz compressed file and keep the original
+gzip < test.txt > test.txt.gz
+
+
+### hardware-info ###
+ 
+# Display all hardware details
+sudo lshw
+
+# List currently loaded kernel modules
+lsmod
+
+# List all modules available to the system
+find /lib/modules/$(uname -r) -type f -iname "*.ko"
+
+# Load a module into kernel
+modprobe modulename
+
+# Remove a module from kernel 
+modprobe -r modulename
+
+# List devices connected via pci bus
+lspci
+
+# Debug output for pci devices (hex)
+lspci -vvxxx
+
+# Display cpu hardware stats
+cat /proc/cpuinfo
+
+# Display memory hardware stats
+cat /proc/meminfo
+
+# Output the kernel ring buffer
+dmesg
+
+# Ouput kernel messages
+dmesg --kernel
+
+
+### head ###
+ 
+# To show the first 10 lines of file
+head file
+
+# To show the first N lines of file
+head -n N file
+
+# To show the first N bytes of file
+head -c N file
+
+
+### hg ###
+ 
+# Clone a directory
+hg clone
+
+# Add files to hg tracker
+hg add filename
+
+# Add all files in a folder to hg tracker
+hg add folder/
+
+# Create a commit with all tracked changes and a message
+hg commit -m "message"
+
+# Push commits to source repository
+hg push
+
+# Pull changes from source repository
+hg pull
+
+# Rebase local commits to disambiguate with remote repository
+hg pull --rebase
+
+
+### history ###
+ 
+# To see most used top 10 commands:
+history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl | head -n10
+
+
+
+### http ###
+ 
+# Custom HTTP method HTTP headers and JSON data:
+http PUT example.org X-API-Token:123 name=John
+
+# Submitting forms:
+http -f POST example.org hello=World
+
+# See the request that is being sent using one of the output options:
+http -v example.org
+
+# Use Github API to post a comment on an issue with authentication:
+http -a USERNAME POST https://api.github.com/repos/jkbrzt/httpie/issues/83/comments body='HTTPie is awesome!'
+
+# Upload a file using redirected input:
+http example.org < file.json
+
+# Download a file and save it via redirected output:
+http example.org/file > file
+
+# Download a file wget style:
+http --download example.org/file
+
+# Use named sessions_ to make certain aspects or the communication
+# persistent between requests to the same host:
+# http --session=logged-in -a username:password httpbin.org/get API-Key:123
+http --session=logged-in httpbin.org/headers
+
+# Set a custom Host header to work around missing DNS records:
+http localhost:8000 Host:example.com
+
+# Simple JSON example:
+http PUT example.org name=John email=john@example.org
+
+# Non-string fields use the := separator, which allows you to embed raw
+# JSON into the resulting object. Text and raw JSON files can also be
+# embedded into fields using =@ and :=@:
+http PUT api.example.com/person/1 name=John age:=29 married:=false hobbies:='["http", "pies"]' description=@about-john.txt bookmarks:=@bookmarks.json
+
+# Send JSON data stored in a file:
+http POST api.example.com/person/1 < person.json
+
+# Regular Forms
+http --form POST api.example.org/person/1 name='John Smith' email=john@example.org cv=@~/Documents/cv.txt
+
+# File Upload Forms
+# If one or more file fields is present, the serialization and content
+# type is multipart/form-data:
+http -f POST example.com/jobs name='John Smith' cv@~/Documents/cv.pdf
+
+# To set custom headers you can use the Header:Value notation:
+http example.org  User-Agent:Bacon/1.0  'Cookie:valued-visitor=yes;foo=bar' X-Foo:Bar  Referer:http://httpie.org/
+
+# Basic auth:
+http -a username:password example.org
+
+# Digest auth:
+http --auth-type=digest -a username:password example.org
+
+# With password prompt:
+http -a username example.org
+
+# Authorization information from your ~/.netrc file is honored as well:
+cat ~/.netrc
+    machine httpbin.org
+    login httpie
+    # password test
+http httpbin.org/basic-auth/httpie/test
+
+# You can specify proxies to be used through the --proxy argument for each
+# protocol (which is included in the value in case of redirects across
+# protocols):
+http --proxy=http:http://10.10.1.10:3128 --proxy=https:https://10.10.1.10:1080 example.org
+
+# With Basic authentication:
+http --proxy=http:http://user:pass@10.10.1.10:3128 example.org
+
+# To skip the HOST'S SSL CERTIFICATE VERIFICATION, you can pass
+# --verify=no (default is yes):
+http --verify=no https://example.org
+
+# You can also use --verify=<CA_BUNDLE_PATH> to set a CUSTOM CA BUNDLE path:
+http --verify=/ssl/custom_ca_bundle https://example.org
+
+# To use a CLIENT SIDE CERTIFICATE for the SSL communication, you can pass
+# the path of the cert file with --cert:
+http --cert=client.pem https://example.org
+
+# If the PRIVATE KEY is not contained in the cert file you may pass the
+# path of the key file with --cert-key:
+http --cert=client.crt --cert-key=client.key https://example.org
+
+# You can control what should be printed via several options:
+  # --headers, -h   Only the response headers are printed.
+  # --body, -b      Only the response body is printed.
+  # --verbose, -v   Print the whole HTTP exchange (request and response).
+  # --print, -p     Selects parts of the HTTP exchange.
+http --verbose PUT httpbin.org/put hello=world
+
+# Print request and response headers:
+  # Character   Stands for
+  # ----------- -------------------
+  # H           Request headers.
+  # B           Request body.
+  # h           Response headers.
+  # b           Response body.
+http --print=Hh PUT httpbin.org/put hello=world
+
+# Let's say that there is an API that returns the whole resource when it
+# is updated, but you are only interested in the response headers to see
+# the status code after an update:
+http --headers PATCH example.org/Really-Huge-Resource name='New Name'
+
+# Redirect from a file:
+http PUT example.com/person/1 X-API-Token:123 < person.json
+
+# Or the output of another program:
+grep '401 Unauthorized' /var/log/httpd/error_log | http POST example.org/intruders
+
+# You can use echo for simple data:
+echo '{"name": "John"}' | http PATCH example.com/person/1 X-API-Token:123
+
+# You can even pipe web services together using HTTPie:
+http GET https://api.github.com/repos/jkbrzt/httpie | http POST httpbin.org/post
+
+# You can use cat to enter multiline data on the terminal:
+cat | http POST example.com
+    <paste>
+    # ^D
+cat | http POST example.com/todos Content-Type:text/plain
+    - buy milk
+    - call parents
+    ^D
+
+# On OS X, you can send the contents of the clipboard with pbpaste:
+pbpaste | http PUT example.com
+
+# Passing data through stdin cannot be combined with data fields specified
+# on the command line:
+echo 'data' | http POST example.org more=data   # This is invalid
+
+
+# AN ALTERNATIVE TO REDIRECTED stdin is specifying a filename (as
+# @/path/to/file) whose content is used as if it came from stdin.
+
+# It has the advantage that THE Content-Type HEADER IS AUTOMATICALLY SET
+# to the appropriate value based on the filename extension. For example,
+# the following request sends the verbatim contents of that XML file with
+# Content-Type: application/xml:
+http PUT httpbin.org/put @/data/file.xml
+
+# Download a file:
+http example.org/Movie.mov > Movie.mov
+
+# Download an image of Octocat, resize it using ImageMagick, upload it
+# elsewhere:
+http octodex.github.com/images/original.jpg | convert - -resize 25% -  | http example.org/Octocats
+
+# Force colorizing and formatting, and show both the request and the
+# response in less pager:
+http --pretty=all --verbose example.org | less -R
+
+# When enabled using the --download, -d flag, response headers are printed
+# to the terminal (stderr), and a progress bar is shown while the response
+# body is being saved to a file.
+http --download https://github.com/jkbrzt/httpie/tarball/master
+
+# You can also redirect the response body to another program while the
+# response headers and progress are still shown in the terminal:
+http -d https://github.com/jkbrzt/httpie/tarball/master |  tar zxf -
+
+# If --output, -o is specified, you can resume a partial download using
+# the --continue, -c option. This only works with servers that support
+# Range requests and 206 Partial Content responses. If the server doesn't
+# support that, the whole file will simply be downloaded:
+http -dco file.zip example.org/file
+
+# Prettified streamed response:
+http --stream -f -a YOUR-TWITTER-NAME https://stream.twitter.com/1/statuses/filter.json track='Justin Bieber'
+
+# Send each new tweet (JSON object) mentioning "Apple" to another
+# server as soon as it arrives from the Twitter streaming API:
+http --stream -f -a YOUR-TWITTER-NAME https://stream.twitter.com/1/statuses/filter.json track=Apple | while read tweet; do echo "$tweet" | http POST example.org/tweets ; done
+
+# Create a new session named user1 for example.org:
+http --session=user1 -a user1:password example.org X-Foo:Bar
+
+# Now you can refer to the session by its name, and the previously used
+# authorization and HTTP headers will automatically be set:
+http --session=user1 example.org
+
+# To create or reuse a different session, simple specify a different name:
+http --session=user2 -a user2:password example.org X-Bar:Foo
+
+# Instead of a name, you can also directly specify a path to a session
+# file. This allows for sessions to be re-used across multiple hosts:
+http --session=/tmp/session.json example.orghttp --session=/tmp/session.json admin.example.orghttp --session=~/.httpie/sessions/another.example.org/test.json example.orghttp --session-read-only=/tmp/session.json example.org
+
+
+### hub ###
+ 
+As a contributor to open-source
+-------------------------------
+
+# clone your own project
+$ git clone dotfiles
+→ git clone git://github.com/YOUR_USER/dotfiles.git
+
+# clone another project
+$ git clone github/hub
+→ git clone git://github.com/github/hub.git
+
+# see the current project's issues
+$ git browse -- issues
+→ open https://github.com/github/hub/issues
+
+# open another project's wiki
+$ git browse mojombo/jekyll wiki
+→ open https://github.com/mojombo/jekyll/wiki
+
+## Example workflow for contributing to a project:
+$ git clone github/hub
+$ cd hub
+# create a topic branch
+$ git checkout -b feature
+→ ( making changes ... )
+$ git commit -m "done with feature"
+# It's time to fork the repo!
+$ git fork
+→ (forking repo on GitHub...)
+→ git remote add YOUR_USER git://github.com/YOUR_USER/hub.git
+# push the changes to your new remote
+$ git push YOUR_USER feature
+# open a pull request for the topic branch you've just pushed
+$ git pull-request
+→ (opens a text editor for your pull request message)
+
+
+As an open-source maintainer
+----------------------------
+
+# fetch from multiple trusted forks, even if they don't yet exist as remotes
+$ git fetch mislav,cehoffman
+→ git remote add mislav git://github.com/mislav/hub.git
+→ git remote add cehoffman git://github.com/cehoffman/hub.git
+→ git fetch --multiple mislav cehoffman
+
+# check out a pull request for review
+$ git checkout https://github.com/github/hub/pull/134
+→ (creates a new branch with the contents of the pull request)
+
+# directly apply all commits from a pull request to the current branch
+$ git am -3 https://github.com/github/hub/pull/134
+
+# cherry-pick a GitHub URL
+$ git cherry-pick https://github.com/xoebus/hub/commit/177eeb8
+→ git remote add xoebus git://github.com/xoebus/hub.git
+→ git fetch xoebus
+→ git cherry-pick 177eeb8
+
+# `am` can be better than cherry-pick since it doesn't create a remote
+$ git am https://github.com/xoebus/hub/commit/177eeb8
+
+# open the GitHub compare view between two releases
+$ git compare v0.9..v1.0
+
+# put compare URL for a topic branch to clipboard
+$ git compare -u feature | pbcopy
+
+# create a repo for a new project
+$ git init
+$ git add . && git commit -m "It begins."
+$ git create -d "My new thing"
+→ (creates a new project on GitHub with the name of current directory)
+$ git push origin master
+
+
+### iconv ###
+ 
+# To convert file (iconv.src) from iso-8859-1 to utf-8 and save to
+# /tmp/iconv.out
+iconv -f iso-8859-1 -t utf-8 iconv.src -o /tmp/iconv.out
+
+
+### ifconfig ###
+ 
+# Display network settings of the first ethernet adapter
+ifconfig wlan0
+
+# Display all interfaces, even if down
+ifconfig -a
+
+# Take down / up the wireless adapter
+ifconfig wlan0 {up|down} 
+
+# Set a static IP and netmask
+ifconfig eth0 192.168.1.100 netmask 255.255.255.0
+
+# You may also need to add a gateway IP
+route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.1
+
+
+### indent ###
+ 
+# format C/C++ source according to the style of Kernighan and Ritchie (K&R), no tabs, 3 spaces per indent, wrap lines at 120 characters.
+indent -i3 -kr -nut -l120
+
+
+### ip ###
+ 
+# Display all interfaces with addresses
+ip addr
+
+# Take down / up the wireless adapter
+ip link set dev wlan0 {up|down}
+
+# Set a static IP and netmask
+ip addr add 192.168.1.100/32 dev eth0
+
+# Remove a IP from an interface
+ip addr del 192.168.1.100/32 dev eth0
+
+# Remove all IPs from an interface
+ip address flush dev eth0
+
+# Display all routes
+ip route
+
+# Display all routes for IPv6
+ip -6 route
+
+# Add default route via gateway IP
+ip route add default via 192.168.1.1
+
+# Add route via interface
+ip route add 192.168.0.0/24 dev eth0
+
+# Change your mac address 
+ip link set dev eth0 address aa:bb:cc:dd:ee:ff
+
+# View neighbors (using ARP and NDP) 
+ip neighbor show
+
+
+### iptables ###
+ 
+# Show hit for rules with auto refresh
+watch --interval 0 'iptables -nvL | grep -v "0     0"'
+
+# Show hit for rule with auto refresh and highlight any changes since the last refresh
+watch -d -n 2 iptables -nvL
+
+# Block the port 902 and we hide this port from nmap.
+iptables -A INPUT -i eth0 -p tcp --dport 902 -j REJECT --reject-with icmp-port-unreachable
+
+# Note, --reject-with accept:
+#	icmp-net-unreachable
+#	icmp-host-unreachable
+#	icmp-port-unreachable <- Hide a port to nmap
+#	icmp-proto-unreachable
+#	icmp-net-prohibited
+#	icmp-host-prohibited or
+#	icmp-admin-prohibited
+#	tcp-reset
+
+# Add a comment to a rule:
+iptables ... -m comment --comment "This rule is here for this reason"
+
+
+# To remove or insert a rule:
+# 1) Show all rules
+iptables -L INPUT --line-numbers
+# OR iptables -nL --line-numbers
+
+# Chain INPUT (policy ACCEPT)
+#     num  target prot opt source destination
+#     1    ACCEPT     udp  --  anywhere  anywhere             udp dpt:domain
+#     2    ACCEPT     tcp  --  anywhere  anywhere             tcp dpt:domain
+#     3    ACCEPT     udp  --  anywhere  anywhere             udp dpt:bootps
+#     4    ACCEPT     tcp  --  anywhere  anywhere             tcp dpt:bootps
+
+# 2.a) REMOVE (-D) a rule. (here an INPUT rule)
+iptables -D INPUT 2
+
+# 2.b) OR INSERT a rule.
+iptables -I INPUT {LINE_NUMBER} -i eth1 -p tcp --dport 21 -s 123.123.123.123 -j ACCEPT -m comment --comment "This rule is here for this reason"
+
+
+### irssi ###
+ 
+# To connect to an IRC server
+/connect <server domain name>
+
+# To join a channel
+/join #<channel name>
+
+# To set a nickname
+/nick <my nickname>
+
+# To send a private message to a user
+/msg <nickname>
+
+# To close the current channel window
+/wc
+
+# To switch between channel windows
+ALT+<number>, eg. ALT+1, ALT+2
+
+# To list the nicknames within the active channel
+/names
+
+# To change the channel topic
+/topic <description>
+
+# To limit channel background noise (joins, parts, quits, etc.)
+/ignore #foo,#bar JOINS PARTS QUITS NICKS   # Quieten only channels `#foo`, `#bar`
+/ignore * JOINS PARTS QUITS NICKS           # Quieten all channels
+
+# To save the current Irssi session config into the configuration file
+/save
+
+# To quit Irssi
+/exit
+
+
+### iwconfig ###
+ 
+# Display wireless settings of the first wireless adapter
+iwconfig wlan0
+
+# Take down / up the wireless adapter
+iwconfig wlan0 txpower {on|auto|off}
+
+# Change the mode of the wireless adapter
+iwconfig wlan0 mode {managed|ad-hoc|monitor}
+
+
+### journalctl ###
+ 
+# Actively follow log (like tail -f)
+journalctl -f
+
+# Display all errors since last boot
+journalctl -b -p err
+
+# Filter by time period
+journalctl --since=2012-10-15 --until="2011-10-16 23:59:59"
+
+# Show list of systemd units logged in journal
+journalctl -F _SYSTEMD_UNIT
+
+# Filter by specific unit
+journalctl -u dbus
+
+# Filter by executable name
+journalctl /usr/bin/dbus-daemon
+
+# Filter by PID
+journalctl _PID=123
+
+# Filter by Command, e.g., sshd
+journalctl _COMM=sshd
+
+# Filter by Command and time period
+journalctl _COMM=crond --since '10:00' --until '11:00'
+
+# List all available boots 
+journalctl --list-boots
+
+# Filter by specific User ID e.g., user id 1000 
+journalctl _UID=1000
+
+
+### jq ###
+ 
+# Pretty print the json
+jq "." < filename.json
+
+# Access the value at key "foo"
+jq '.foo'
+
+# Access first list item
+jq '.[0]'
+
+# Slice & Dice
+jq '.[2:4]'
+jq '.[:3]'
+jq '.[-2:]'
+
+
+### jrnl ###
+ 
+# Add entry to default jrnl (from your configured text editor)
+jrnl
+
+# Add entry to default jrnl
+jrnl Write entry here.
+
+# List of tags
+jrnl --tags
+
+# Entries per tag
+jrnl @tag
+
+# Export jrnl as json
+jrnl --export json
+
+# Entries in a timeframe
+jrnl -from 2009 -until may
+
+# Add Sublime text to .jrnl_config
+
+# Windows
+"editor": "F:\\Powerpack\\Sublime\\sublime_text.exe -w"
+
+# Linux
+"editor": "/usr/bin/sublime -w"
+
+
+### kill ###
+ 
+# Kill a process gracefully
+kill -15 <process id>
+
+# Kill a process forcefully
+kill -9 <process id>
+
+
+### less ###
+ 
+# To disable the terminal refresh when exiting
+less -X
+
+# To save the contents to a file
+# Method 1 - Only works when the input is a pipe
+s <filename>
+
+# Method 2 - This should work whether input is a pipe or an ordinary file.
+Type g or < (g or less-than) | $ (pipe then dollar) then cat > <filename> and Enter.
+
+
+### lib ###
+ 
+# Display available libraries
+ldconfig -p
+
+# Update library resources
+ldconfig
+
+# Display libraries and file location
+ldd
+
+# Libraries available to apps in real-time
+"Dynamic Libraries" (.so.)
+
+# Libraries only available to apps when installed (imported)
+"Static Libraries" (.a.)
+
+# Standard (usual) library file location
+/lib
+
+# Sofware-accessible source for library info 
+/etc/ld.so.cache 	# (binary)
+
+# Human-readable source for library info
+/etc/ld.so.conf 	# (points to /etc/ld.so.conf.d)
+
+
+### ln ###
+ 
+# To create a symlink:
+ln -s path/to/the/target/directory name-of-symlink
+
+# Symlink, while overwriting existing destination files
+ln -sf /some/dir/exec /usr/bin/exec
+
+
+### ls ###
+ 
+# Displays everything in the target directory
+ls path/to/the/target/directory
+
+# Displays everything including hidden files
+ls -a
+
+# Displays all files, along with the size (with unit suffixes) and timestamp
+ls -lh 
+
+# Display files, sorted by size
+ls -S
+
+# Display directories only
+ls -d */
+
+# Display directories only, include hidden
+ls -d .*/ */
+
+
+### lsof ###
+ 
+# List all IPv4 network files
+sudo lsof -i4
+
+# List all IPv6 network files
+sudo lsof -i6
+
+# List all open sockets
+lsof -i
+
+# List all listening ports
+lsof -Pnl +M -i4
+
+# Find which program is using the port 80
+lsof -i TCP:80
+
+# List all connections to a specific host
+lsof -i@192.168.1.5
+
+# List all processes accessing a particular file/directory
+lsof </path/to/file>
+
+# List all files open for a particular user
+lsof -u <username>
+
+# List all files/network connections a command is using
+lsof -c <command-name>
+
+# List all files a process has open
+lsof -p <pid>
+
+# List all files open mounted at /mount/point.
+# Particularly useful for finding which process(es) are using a
+# mounted USB stick or CD/DVD.
+lsof +f -- </mount/point>
+
+# See this primer: http://www.danielmiessler.com/study/lsof/
+# for a number of other useful lsof tips
+
+
+### lvm ###
+ 
+#Exclusive Activation of a Volume Group in a Cluster 
+#Link --> https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/High_Availability_Add-On_Administration/s1-exclusiveactive-HAAA.html 
+1> vgs --noheadings -o vg_name
+2> volume_list = [ "rhel_root", "rhel_home" ]
+3> dracut -H -f /boot/initramfs-$(uname -r).img $(uname -r)
+4> Reboot the node
+5> uname -r to verify the correct initrd image
+
+
+### man ###
+ 
+# Convert a man page to pdf
+man -t bash | ps2pdf - bash.pdf
+
+# View the ascii chart
+man 7 ascii
+
+
+### markdown ###
+ 
+# headers
+h1 header
+=========
+h2 header
+---------
+
+# blockquotes
+> first level and paragraph
+>> second level and first paragraph
+>
+> first level and second paragraph
+
+# lists
+## unordered - use *, +, or -
+        * Red
+        * Green
+        * Blue
+
+## ordered
+        1. First
+        2. Second
+        3. Third
+
+# code - use 4 spaces/1 tab
+regular text
+        code code code
+or:
+Use the `printf()` function
+
+# hr's - three or more of the following
+***
+---
+___
+
+# links
+This is [an example](http://example.com "Title") inline link.
+
+# image
+![Alt Text](/path/to/file.png)
+
+# emphasis
+*em* _em_
+
+**strong** __strong__
+
+
+### mdadm ###
+ 
+# For the sake of briefness, we use Bash  "group compound" stanza:
+#   /dev/sd{a,b,...}1 => /dev/sda1 /dev/sdb1 ...
+# Along the following variables:
+#   ${M} array identifier (/dev/md${M})
+#   ${D} device identifier (/dev/sd${D})
+#   ${P} partition identifier (/dev/sd${D}${P})
+
+# Create (initialize) a new array
+mdadm --create /dev/md${M} --level=raid5 --raid-devices=4 /dev/sd{a,b,c,d,e}${P} --spare-devices=/dev/sdf1
+
+# Manually assemble (activate) an existing array
+mdadm --assemble /dev/md${M} /dev/sd{a,b,c,d,e}${P}
+
+# Automatically assemble (activate) all existing arrays
+mdadm --assemble --scan
+
+# Stop an assembled (active) array
+mdadm --stop /dev/md${M}
+
+# See array configuration
+mdadm --query /dev/md${M}
+
+# See array component configuration (dump superblock content)
+mdadm --query --examine /dev/sd${D}${P}
+
+# See detailed array confiration/status
+mdadm --detail /dev/md${M}
+
+# Save existing arrays configuration
+# (MAY be required by initrd for successfull boot)
+mdadm --detail --scan > /etc/mdadm/mdadm.conf
+
+# Erase array component superblock
+# (MUST do before reusing a partition for other purposes)
+mdadm --zero-superblock /dev/sd${D}${P}
+
+# Manually mark a component as failed
+# (SHOULD when a device shows wear-and-tear signs, e.g. through SMART)
+mdadm --manage /dev/md${M} --fail /dev/sd${D}${P}
+
+# Remove a failed component
+# (SHOULD before preemptively replacing a device, after failing it)
+mdadm --manage /dev/md${M} --remove /dev/sd${D}${P}
+
+# Prepare (format) a new device to replace a failed one
+sfdisk -d /dev/sd${D,sane} | sfdisk /dev/sd${D,new}
+
+# Add new component to an existing array
+# (this will trigger the rebuild)
+mdadm --manage /dev/md${M} --add /dev/sd${D,new}${P}
+
+# See assembled (active) arrays status
+cat /proc/mdstat
+
+# Rename a device
+# (SHOULD after hostname change; eg. name="$(hostname -s)")
+mdadm --assemble /dev/md${M} /dev/sd{a,b,c,d,e}${P} --name="${name}:${M}" --update=name
+
+
+
+### mkdir ###
+ 
+# Create a directory and all its parents
+mkdir -p foo/bar/baz
+
+# Create foo/bar and foo/baz directories
+mkdir -p foo/{bar,baz}
+
+# Create the foo/bar, foo/baz, foo/baz/zip and foo/baz/zap directories
+mkdir -p foo/{bar,baz/{zip,zap}}
+
+
+
+### more ###
+ 
+# To show the file start at line number 5
+more +5 file
+
+
+
+### mount ###
+ 
+# To mount / partition as read-write in repair mode:
+mount -o remount,rw /
+
+# Bind mount path to a second location
+mount --bind /origin/path /destination/path
+
+# To mount Usb disk as user writable:
+mount -o uid=username,gid=usergroup /dev/sdx /mnt/xxx
+
+# To mount a remote NFS directory
+mount -t nfs example.com:/remote/example/dir /local/example/dir
+
+# To mount an ISO
+mount -o loop disk1.iso /mnt/disk
+
+
+### mv ###
+ 
+# Move a file from one place to another
+mv ~/Desktop/foo.txt ~/Documents/foo.txt
+
+# Move a file from one place to another and automatically overwrite if the destination file exists
+# (This will override any previous -i or -n args)
+mv -f ~/Desktop/foo.txt ~/Documents/foo.txt
+
+# Move a file from one place to another but ask before overwriting an existing file
+# (This will override any previous -f or -n args)
+mv -i ~/Desktop/foo.txt ~/Documents/foo.txt
+
+# Move a file from one place to another but never overwrite anything
+# (This will override any previous -f or -i args)
+mv -n ~/Desktop/foo.txt ~/Documents/foo.txt
+
+
+### mysql ###
+ 
+# To connect to a database
+mysql -h localhost -u root -p
+
+# To backup all databases
+mysqldump --all-databases --all-routines -u root -p > ~/fulldump.sql
+
+# To restore all databases
+mysql -u root -p  < ~/fulldump.sql
+
+# To create a database in utf8 charset
+CREATE DATABASE owa CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+# To add a user and give rights on the given database
+GRANT ALL PRIVILEGES ON database.* TO 'user'@'localhost'IDENTIFIED BY 'password' WITH GRANT OPTION;
+
+# To list the privileges granted to the account that you are using to connect to the server. Any of the 3 statements will work. 
+SHOW GRANTS FOR CURRENT_USER();
+SHOW GRANTS;
+SHOW GRANTS FOR CURRENT_USER;
+
+# Basic SELECT Statement
+SELECT * FROM tbl_name;
+
+# Basic INSERT Statement
+INSERT INTO tbl_name (col1,col2) VALUES(15,col1*2);
+
+# Basic UPDATE Statement
+UPDATE tbl_name SET col1 = "example";
+
+# Basic DELETE Statement
+DELETE FROM tbl_name WHERE user = 'jcole';
+
+# To check stored procedure
+SHOW PROCEDURE STATUS;
+
+# To check stored function
+SHOW FUNCTION STATUS;
+
+
+### mysqldump ###
+ 
+# To dump a database to a file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword the-database > db.sql
+
+# To dump a database to a file:
+mysqldump -uusername -p the-database > db.sql
+
+# To dump a database to a .tgz file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword the-database | gzip -9 > db.sql
+
+# To dump a database to a .tgz file:
+mysqldump -uusername -p the-database | gzip -9 > db.sql
+
+# To dump all databases to a file (Note that your password will appear in your command history!):
+mysqldump -uusername -ppassword --all-databases > all-databases.sql
+
+# To dump all databases to a file:
+mysqldump -uusername -p --all-databases > all-databases.sql
+
+# To export the database structure only:
+mysqldump --no-data -uusername -p the-database > dump_file
+
+# To export the database data only:
+mysqldump --no-create-info -uusername -p the-database > dump_file
+
+
+### nc ###
+ 
+# To open a TCP connection to port 42 of host.example.com, using port 31337 as the source port, with a timeout of 5 seconds:
+nc -p 31337 -w 5 host.example.com 42
+
+# To open a UDP connection to port 53 of host.example.com:
+nc -u host.example.com 53
+
+# To open a TCP connection to port 42 of host.example.com using 10.1.2.3 as the IP for the local end of the connection:
+nc -s 10.1.2.3 host.example.com 42
+
+# To create and listen on a UNIX-domain stream socket:
+nc -lU /var/tmp/dsocket
+
+# To connect to port 42 of host.example.com via an HTTP proxy at 10.2.3.4, port 8080. This example could also be used by ssh(1); see the ProxyCommand directive in ssh_config(5) for more information.
+nc -x10.2.3.4:8080 -Xconnect host.example.com 42
+
+# The same example again, this time enabling proxy authentication with username "ruser" if the proxy requires it:
+nc -x10.2.3.4:8080 -Xconnect -Pruser host.example.com 42
+
+# To choose the source IP for the testing using the -s option
+nc -zv -s source_IP target_IP Port
+
+
+### ncat ###
+ 
+# Connect mode (ncat is client) | default port is 31337
+ncat <host> [<port>]
+
+# Listen mode (ncat is server) | default port is 31337
+ncat -l [<host>] [<port>]
+
+# Transfer file (closes after one transfer)
+ncat -l [<host>] [<port>] < file
+
+# Transfer file (stays open for multiple transfers)
+ncat -l --keep-open [<host>] [<port>] < file
+
+# Receive file
+ncat [<host>] [<port>] > file
+
+# Brokering | allows for multiple clients to connect
+ncat -l --broker [<host>] [<port>]
+
+# Listen with SSL | many options, use ncat --help for full list
+ncat -l --ssl [<host>] [<port>]
+
+# Access control
+ncat -l --allow <ip>
+ncat -l --deny <ip>
+
+# Proxying
+ncat --proxy <proxyhost>[:<proxyport>] --proxy-type {http | socks4} <host>[<port>]
+
+# Chat server | can use brokering for multi-user chat
+ncat -l --chat [<host>] [<port>]
+
+
+### ncdu ###
+ 
+# Save results to file
+ncdu -o ncdu.file
+
+# Read from file
+ncdu -f ncdu.file
+
+# Save results to compressed file 
+ncdu -o-| gzip > ncdu.file.gz
+
+# Read from compressed file
+zcat ncdu.file.gz | ncdu -f-
+
+
+### netstat ###
+ 
+# WARNING ! netstat is deprecated. Look below.
+
+# To view which users/processes are listening to which ports:
+sudo netstat -lnptu
+
+# To view routing table (use -n flag to disable DNS lookups):
+netstat -r
+
+# Which process is listening to port <port>
+netstat -pln | grep <port> | awk '{print $NF}'
+
+Example output: 1507/python
+
+# Fast display of ipv4 tcp listening programs
+sudo netstat -vtlnp --listening -4
+
+# WARNING ! netstat is deprecated.
+# Replace it by:
+ss
+
+# For netstat-r
+ip route
+
+# For netstat -i
+ip -s link
+
+# For netstat-g
+ip maddr
+
+
+### nkf ###
+ 
+# check the file's charactor code
+nkf -g test.txt
+
+# convert charactor code to UTF-8
+nkf -w --overwrite test.txt
+
+# convert charactor code to EUC-JP
+nkf -e --overwrite test.txt
+
+# convert charactor code to Shift-JIS
+nkf -s --overwrite test.txt
+
+# convert charactor code to ISO-2022-JP
+nkf -j --overwrite test.txt
+
+# convert newline to LF
+nkf -Lu --overwrite test.txt
+
+# convert newline to CRLF
+nkf -Lw --overwrite test.txt
+
+# convert newline to CR
+nkf -Lm --overwrite test.txt
+
+# MIME encode
+echo テスト | nkf -WwMQ
+
+# MIME decode
+echo "=E3=83=86=E3=82=B9=E3=83=88" | nkf -WwmQ
+
+
+### nmap ###
+ 
+# Single target scan:
+nmap [target]
+
+# Scan from a list of targets:
+nmap -iL [list.txt]
+
+# iPv6:
+nmap -6 [target]
+
+# OS detection:
+nmap -O --osscan_guess [target]
+
+# Save output to text file:
+nmap -oN [output.txt] [target]
+
+# Save output to xml file:
+nmap -oX [output.xml] [target]
+
+# Scan a specific port:
+nmap -source-port [port] [target]
+
+# Do an aggressive scan:
+nmap -A [target]
+
+# Speedup your scan:
+# -n => disable ReverseDNS
+# --min-rate=X => min X packets / sec
+nmap -T5 --min-parallelism=50 -n --min-rate=300 [target]
+
+# Traceroute:
+nmap -traceroute [target]
+
+# Ping scan only: -sP
+# Don't ping:     -PN <- Use full if a host don't reply to a ping.
+# TCP SYN ping:   -PS
+# TCP ACK ping:   -PA
+# UDP ping:       -PU
+# ARP ping:       -PR
+
+# Example: Ping scan all machines on a class C network
+nmap -sP 192.168.0.0/24
+
+# Force TCP scan: -sT
+# Force UDP scan: -sU
+
+# Use some script:
+nmap --script default,safe
+
+# Loads the script in the default category, the banner script, and all .nse files in the directory /home/user/customscripts.
+nmap --script default,banner,/home/user/customscripts
+
+# Loads all scripts whose name starts with http-, such as http-auth and http-open-proxy.
+nmap --script 'http-*'
+
+# Loads every script except for those in the intrusive category.
+nmap --script "not intrusive"
+
+# Loads those scripts that are in both the default and safe categories.
+nmap --script "default and safe"
+
+# Loads scripts in the default, safe, or intrusive categories, except for those whose names start with http-.
+nmap --script "(default or safe or intrusive) and not http-*"
+
+# Scan for the heartbleed
+# -pT:443 => Scan only port 443 with TCP (T:)
+nmap -T5 --min-parallelism=50 -n --script "ssl-heartbleed" -pT:443 127.0.0.1
+
+# Show all informations (debug mode)
+nmap -d ...
+
+
+### nmcli ###
+ 
+# Desc: Command line interface to NetworkManager
+
+# Connect to a wireless access point - Parameters:
+# 	<wiface> -- the name of your wireless interface
+#	<ssid> -- the SSID of the access point
+#	<pass> -- the WiFi password
+nmcli d wifi connect <ssid> password <pass> iface <wiface>
+
+# Disconnect from WiFi - Parameters:
+#	<wiface> -- the name of your wireless interface
+nmcli d wifi disconnect iface <wiface>
+
+# Get WiFi status (enabled / disabled)
+nmcli radio wifi
+
+# Enable / Disable WiFi
+nmcli radio wifi <on|off>
+
+# Show all available WiFi access points
+nmcli dev wifi list
+
+# Refresh the available WiFi connection list
+nmcli dev wifi rescan
+
+# Show all available connections
+nmcli con
+
+# Show only active connections
+nmcli con show --active
+
+# Review the available devices
+nmcli dev status
+
+# Add a dynamic ethernet connection - parameters:
+#	<name> -- the name of the connection
+#	<iface_name> -- the name of the interface
+ncmli con add type ethernet con-name <name> ifname <iface_name>
+
+# Bring up the ethernet connection
+nmcli con up <name>
+
+
+### notify-send ###
+ 
+# To send a desktop notification via dbus:
+notify-send -i 'icon-file/name' -a 'application_name' 'summary' 'body of message'
+
+# The -i and -a flags can be omitted if unneeded.
+
+
+### nova ###
+ 
+# To list VMs on current tenant:
+nova list
+
+# To list VMs of all tenants (admin user only):
+nova list --all-tenants
+
+# To boot a VM on a specific host:
+nova boot --nic net-id=<net_id> \
+          --image <image_id> \
+          --flavor <flavor> \
+          --availability-zone nova:<host_name> <vm_name>
+
+# To stop a server
+nova stop <server>
+
+# To start a server
+nova start <server>
+
+# To attach a network interface to a specific VM:
+nova interface-attach --net-id <net_id> <server>
+
+
+### npm ###
+ 
+# Every command shown here can be used with the `-g` switch for global scope
+
+# Install a package in the current directory
+npm install <package>
+
+# Install a package, and save it in the `dependencies` section of `package.json`
+npm install --save <package>
+
+# Install a package, and save it in the `devDependencies` section of `package.json`
+npm install --save-dev <package>
+
+# Show outdated packages in the current directory
+npm outdated
+
+# Update outdated packages
+npm update
+
+# Update `npm` (will override the one shipped with Node.js)
+npm install -g npm
+
+# Uninstall a package
+npm uninstall <package>
+
+
+### ntp ###
+ 
+# Verify ntpd running:
+service ntp status
+
+# Start ntpd if not running:
+service ntp start
+
+# Display current hardware clock value:
+sudo hwclock -r
+
+# Apply system time to hardware time:
+sudo hwclock --systohc
+
+# Apply hardware time to system time:
+sudo hwclock --hctosys
+
+# Set hwclock to local time:
+sudo hwclock --localtime
+
+# Set hwclock to UTC:
+sudo hwclock --utc
+
+# Set hwclock manually:
+sudo hwclock --set --date="8/10/15 13:10:05"
+
+# Query surrounding stratum time servers
+ntpq -pn
+
+# Config file:
+/etc/ntp.conf
+
+# Driftfile:
+location of "drift" of your system clock compared to ntp servers
+/var/lib/ntp/ntp.drift
+
+
+### numfmt ###
+ 
+# Convert bytes to Human readable format
+numfmt --to=iec --suffix=B --padding=7 1048576
+
+
+### od ###
+ 
+# Dump file in octal format
+od /path/to/binaryfile
+od -o /path/to/binaryfile
+od -t o2 /path/to/binaryfile
+
+# Dump file in hexadecimal format
+od -x /path/to/binaryfile
+od -t x2 /path/to/binaryfile
+
+# Dump file in hexadecimal format, with hexadecimal offsets and a space between each byte
+od -A x -t x1 /path/to/binaryfile
+
+
+### openssl ###
+ 
+# To create a 2048-bit private key:
+openssl genrsa -out server.key 2048
+
+# To create the Certificate Signing Request (CSR):
+openssl req -new -key server.key -out server.csr
+
+# To sign a certificate using a private key and CSR:
+openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+# (The above commands may be run in sequence to generate a self-signed SSL certificate.)
+
+# To show certificate information for a certificate signing request
+openssl req -text -noout -in server.csr
+
+# To show certificate information for generated certificate
+openssl x509 -text -noout -in server.crt 
+
+# To get the sha256 fingerprint of a certificate
+openssl x509 -in server.crt -noout -sha256 -fingerprint
+
+# To view certificate expiration:
+echo | openssl s_client -connect <hostname>:443 2> /dev/null | \
+awk '/-----BEGIN/,/END CERTIFICATE-----/' | \
+openssl x509 -noout -enddate
+
+# Generate Diffie-Hellman parameters:
+openssl dhparam -outform PEM -out dhparams.pem 2048
+
+
+### org-mode ###
+ 
+  Begin org-mode                               ALT-x org-mode
+  Save                                         CTRL-x CTRL-s
+  Export in other file formats (eg HTML,PDF)   CTRL-c CTRL-e
+
+# Outline
+
+  Section heading                              *
+  New headline                                 ALT-return
+  Move headline up or down                     ALT-up_arrow/down_arrow
+  Adjust indent depth of headline              ALT-left_arrow/right_arrow
+  Open/collapse section                        TAB
+  Open/collapse All                            CTRL-TAB
+
+# To-Do Lists
+
+  Mark list item as TODO                       ** TODO
+  Cycle through workflow                       SHIFT-left_arrow/right_arrow
+  Show only outstanding TODO                   items CTRL-c CTRL-v
+
+# Tables
+
+  Table column separator                       Vertical/pipe character
+  Reorganize table                             TAB
+  Move column                                  ALT-left_arrow/right_arrow
+  Move row                                     ALT-up_arrow/down_arrow
+
+# Styles
+
+  *bold*
+  /italic/
+  _underlined_
+  =code=
+  ~verbatim~
+  +strike-through+
+
+# Heading
+
+  Header         -*- mode: org -*-
+
+# .emacs
+
+  To make org-mode automatically wrap lines:
+
+    (add-hook 'org-mode-hook
+              '(lambda ()
+                 (visual-line-mode 1)))
+
+
+### p4 ###
+ 
+# Print details related to Client and server configuration
+p4 info 
+
+# Open a file and add it to depot
+p4 add <filename>
+
+
+### pacman ###
+ 
+# All the following command work as well with multiple package names
+
+# To search for a package
+pacman -Ss <package name>
+
+# To update the local package base and upgrade all out of date packages
+pacman -Suy
+
+# To install a package
+pacman -S <package name>
+
+# To uninstall a package
+pacman -R <package name>
+
+# To uninstall a package and his depedencies, removing all new orphans
+pacman -Rcs <package name>
+
+# To get informations about a package
+pacman -Si <package name>
+
+# To install a package from builded package file (.tar.xz)
+pacman -U <file name/file url>
+
+# To list the commands provided by an installed package
+pacman -Ql <package name> | sed -n -e 's/.*\/bin\///p' | tail -n +2
+
+# To list explicitly installed packages
+pacman -Qe
+
+# To list orphan packages (installed as dependencies and not required anymore)
+pacman -Qdt
+
+
+# You can't directly install packages from the Arch User Database (AUR) with pacman.
+# You need yaourt to perform that. But considering yaourt itself is in the AUR, here is how to build a package from its tarball.
+# Installing a package from AUR is a relatively simple process:
+# - Retrieve the archive corresponding to your package from AUR website
+# - Extract the archive (preferably in a folder for this purpose)
+# - Run makepkg in the extracted directory. (makepkg-s allows you to install any dependencies automatically from deposits.)
+# - Install the package created using pacman
+# Assuming $pkgname contains the package name.
+wget "https://aur.archlinux.org/packages/${pkgname::2}/$pkgname/$pkgname.tar.gz"
+tar zxvf "$pkgname.tar.gz"
+cd "$pkgname"
+# Build the package
+makepkg -s
+# Install
+sudo pacman -U <package file (.pkg.tar.xz)>
+
+
+### paste ###
+ 
+# Concat columns from files
+paste file1 file2 ...
+
+# List the files in the current directory in three columns:
+ls | paste - - -
+
+# Combine pairs of lines from a file into single lines:
+paste -s -d '\t\n' myfile
+
+# Number the lines in a file, similar to nl(1):
+sed = myfile | paste -s -d '\t\n' - -
+
+# Create a colon-separated list of directories named bin,
+# suitable for use in the PATH environment variable:
+find / -name bin -type d | paste -s -d : -
+
+### patch ###
+ 
+# Patch one file
+patch version1 < version.patch
+
+# Reverse a patch
+patch -R version1 < version.patch
+
+# Patch all files in a directory, adding any missing new files
+# -p strips leading slashes
+$ cd dir
+$ patch -p1 -i ../big.patch
+
+# Patch files in a directory, with one level (/) offset
+patch -p1 -r version1/ < version.patch
+
+
+### pdftk ###
+ 
+# Concatenate all pdf files into one:
+pdftk *.pdf cat output all.pdf
+
+# Concatenate specific pdf files into one:
+pdftk 1.pdf 2.pdf 3.pdf cat output 123.pdf
+
+# Concatenate pages 1 to 5 of first.pdf with page 3 of second.pdf
+pdftk A=fist.pdf B=second.pdf cat A1-5 B3 output new.pdf
+
+
+
+### perl ###
+ 
+# To view the perl version:
+perl -v
+
+# Replace string "\n" to newline
+echo -e "foo\nbar\nbaz" | perl -pe 's/\n/\\n/g;'
+
+# Replace newline with multiple line to space
+cat test.txt | perl -0pe "s/test1\ntest2/test1 test2/m"
+
+
+### pgrep ###
+ 
+# Get a list of PIDs matching the pattern 
+pgrep example
+
+# Kill all PIDs matching the pattern
+pgrep -f example | xargs kill
+
+
+### php ###
+ 
+# To view the php version:
+php -v
+
+# To view the installed php modules:
+php -m
+
+# To view phpinfo() information:
+php -i
+
+# To lint a php file:
+php -l file.php
+
+# To lint all php files within the cwd:
+find . -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+
+# To enter an interactive shell:
+php -a
+
+# To locate the system's php.ini files:
+php -i | grep "php.ini"
+
+# To start a local webserver for the cwd on port 3000 (requires php >= 5.4):
+php -S localhost:3000
+
+
+### ping ###
+ 
+# ping a host with a total count of 15 packets overall.    
+ping -c 15 www.example.com
+
+# ping a host with a total count of 15 packets overall, one every .5 seconds (faster ping). 
+ping -c 15 -i .5 www.example.com
+
+# test if a packet size of 1500 bytes is supported (to check the MTU for example)
+ping -s 1500 -c 10 -M do www.example.com
+
+
+### ping6 ###
+ 
+# get all ipv6 neighbors via broadcast ping
+ping6 -I eth0 ff02::1
+
+
+### pip ###
+ 
+# Search for packages
+pip search SomePackage
+
+# Install some packages
+pip install SomePackage
+
+# Install some package in user space
+pip install --user SomePackage
+
+# Upgrade some package
+pip install --upgrade SomePackage
+
+# Output and install packages in a requirement file
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+# Show details of a package
+pip show SomePackage
+
+# List outdated packages
+pip list --outdated
+
+# Upgrade all outdated packages, thanks to http://stackoverflow.com/a/3452888
+pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip install -U
+
+# Upgrade outdated packages on latest version of pip
+pip list --outdated --format=freeze | cut -d = -f 1 | xargs -n1 pip install -U
+
+# Install specific version of a package
+pip install -I SomePackage1==1.1.0 'SomePackage2>=1.0.4'
+
+
+### pkgtools ###
+ 
+# Create a Slackware package from a structured directory and sub-tree
+$ cd /path/to/pkg/dir
+$ su - c 'makepkg --linkadd y --chown n $foo-1.0.3-x86_64-1_tag.tgz'
+
+
+# Install a Slackware package
+installpkg foo-1.0.3-x86_64-1.tgz
+
+# Install a Slackware package to non-standard location
+ROOT=/path/to/dir installpkg foo-1.0.4-noarch-1.tgz
+
+# Create backup of files that will be overwritten when installing
+tar czvf /tmp/backup.tar.gz $(installpkg --warn foo-1.0.4-noarch-1.tgz)
+
+
+# Upgrade a Slackware package including files only in new version
+upgradepkg --install-new foo-1.0.6-noarch-1.tgz
+
+# Upgrade a Slackware package even if version is the same
+upgradepkg --reinstall foo-1.0.4-noarch-1.tgz
+
+
+# Remove a Slackware package
+removepkg foo-0.2.8-x86_64-1
+
+# Remove a Slackware package, retaining a backup (uninstalled) copy
+removepkg -copy foo-0.2.8-x86_64-1  # -> /var/log/setup/tmp/preserved_packages/foo...
+
+### pkill ###
+ 
+# To kill a process using it's full process name
+pkill <processname>
+
+# To kill a process by it's partial name
+pkill -f <string>
+
+
+### popd ###
+ 
+# Returns to the directory at the top of the `pushd' stack
+popd
+
+
+### ps ###
+ 
+# To list every process on the system:
+ps aux
+
+# To list a process tree
+ps axjf
+
+# To list every process owned by foouser:
+ps -aufoouser
+
+# To list every process with a user-defined format:
+ps -eo pid,user,command
+
+# Exclude grep from your grepped output of ps.
+# Add [] to the first letter. Ex: sshd -> [s]shd
+ps aux | grep '[h]ttpd'
+
+
+### psql ###
+ 
+# psql is the PostgreSQL terminal interface. The following commands were tested on version 9.5.
+# Connection options:
+# -U username (if not specified current OS user is used).
+# -p port.
+# -h server hostname/address.
+
+# Connect to a specific database:
+psql -U postgres -h serverAddress -d dbName
+
+# Get databases on a server:
+psql -U postgres -h serverAddress --list
+
+# Execute sql query and save output to file:
+psql -U postgres -d dbName -c 'select * from tableName;' -o fileName
+
+# Execute query and get tabular html output:
+psql -U postgres -d dbName -H -c 'select * from tableName;'
+
+# Execute query and save resulting rows to csv file:
+psql -U postgres -d dbName -t -A -P fieldsep=',' -c 'select * from tableName;' -o fileName.csv
+
+# Read commands from file:
+psql -f fileName
+
+# Restore databases from file:
+psql -f fileName.backup postgres
+
+
+### pushd ###
+ 
+# Pushes your current directory to the top of a stack while changing to the specified directory
+pushd <directory>
+
+# To return use popd
+popd
+
+
+### pwd ###
+ 
+# Show the absolute path of your current working directory on the filesystem
+pwd
+
+
+### python ###
+ 
+# Desc: Python is a high-level programming language.
+
+# Basic example of server with python
+# Will start a Web Server in the current directory on port 8000
+# go to http://127.0.0.1:8000
+
+# Python v2.7
+python -m SimpleHTTPServer
+# Python 3
+python -m http.server 8000
+
+# SMTP-Server for debugging, messages will be discarded, and printed on stdout.
+python -m smtpd -n -c DebuggingServer localhost:1025
+
+# Pretty print a json
+python -mjson.tool
+
+
+### rcs ###
+ 
+# Initial check-in of file (leaving file active in filesystem)
+ci -u <filename>
+
+# Check out with lock
+co -l <filename>
+
+# Check in and unlock (leaving file active in filesystem)
+ci -u <filename>
+
+# Display version x.y of a file
+co -px.y <filename>
+
+# Undo to version x.y (overwrites file active in filesystem with the specified revision)
+co -rx.y <filename>
+
+# Diff file active in filesystem and last revision
+rcsdiff <filename>
+
+# Diff versions x.y and x.z
+rcsdiff -rx.y -rx.z <filename>
+
+# View log of check-ins
+rlog <filename>
+
+# Break an RCS lock held by another person on a file
+rcs -u <filename>
+
+
+### readline ###
+ 
+    Moving around
+Ctrl-b      Move the cursor             one character               ⇦ to the left
+Ctrl-f      Move the cursor             one character               ⇨ to the right
+Alt-b       Move the cursor             one word                    ⇦ to the left
+Alt-f       Move the cursor             one word                    ⇨ to the right
+Ctrl-a      Move the cursor                                         ⇤ to the start of the line
+Ctrl-e      Move the cursor                                         ⇥ to the end of the line
+Ctrl-x-x    Move the cursor                                         ⇤⇥ to the start, and to the end again
+
+    Cut, copy and paste
+Backspace   Delete                      the character               ⇦ to the left of the cursor
+DEL
+Ctrl-d      Delete                      the character               underneath the cursor
+Ctrl-u      Delete                      everything                  ⇤ from the cursor back to the line start
+Ctrl-k      Delete                      everything                  ⇥ from the cursor to the end of the line
+Alt-d       Delete                      word                        ⇨ until before the next word boundary
+Ctrl-w      Delete                      word                        ⇦ until after the previous word boundary
+Ctrl-y      Yank/Paste                  prev. killed text           at the cursor position
+Alt-y       Yank/Paste                  prev. prev. killed text     at the cursor position
+
+    History
+Ctrl-p      Move in history             one line                    ⇧ before this line
+Ctrl-n      Move in history             one line                    ⇩ after this line
+Alt->       Move in history             all the lines               ⇩ to the line currently being entered
+Ctrl-r      Incrementally search        the line history            ⇧ backwardly
+Ctrl-s      Incrementally search        the line history            ⇩ forwardly
+Ctrl-J      End an incremental search
+Ctrl-G      Abort an incremental search and restore the original line
+Alt-Ctrl-y  Yank/Paste                  arg. 1 of prev. cmnd        at the cursor position
+Alt-.
+Alt-_       Yank/Paste                  last arg of prev. cmnd      at the cursor position
+
+    Undo
+Ctrl-_
+Ctrl-x
+Ctrl-u      Undo the last editing command; you can undo all the way back to an empty line
+Alt-r       Undo all changes made to this line
+Ctrl-l      Clear the screen, reprinting the current line at the top
+Ctrl-l      Clear the screen, reprinting the current line at the top
+
+    Completion
+TAB         Auto-complete a name
+Alt-/       Auto-complete a name (without smart completion)
+Alt-?       List the possible completions of the preceeding text
+Alt-*       Insert all possible completions of the preceeding text
+
+    Transpose
+Ctrl-t      Transpose/drag              char. before the cursor     ↷ over the character at the cursor
+Alt-t       Transpose/drag              word before the cursor      ↷ over the word at/after the cursor
+
+
+### rename ###
+ 
+# Lowercase all files and folders in current directory
+rename 'y/A-Z/a-z/' *
+
+
+### rm ###
+ 
+# Remove files and subdirs
+rm -rf path/to/the/target/
+
+# Ignore non existent files
+rm -f path/to/the/target
+
+# Remove a file with his inode
+find /tmp/ -inum 6666 -exec rm -i '{}' \;
+
+
+### route ###
+ 
+# To display routing table IP addresses instead of host names:
+route -n
+
+# To add a default gateway:
+route add default gateway 192.168.0.1
+
+# To add the normal loopback entry, using netmask 255.0.0.0 and associated with the "lo" device (assuming this device was previously set up correctly with ifconfig(8)).
+route add -net 127.0.0.0 netmask 255.0.0.0 dev lo
+
+# To add a route to the local network 192.56.76.x via "eth0".  The word "dev" can be omitted here.
+route add -net 192.56.76.0 netmask 255.255.255.0 dev eth0
+
+# To delete the current default route, which is labeled "default" or 0.0.0.0 in the destination field of the current routing table.
+route del default
+
+# To add a default  route (which will be used if no other route matches).  All packets using this route will be gatewayed through "mango-gw". The device which will actually be used for that route depends on how we can reach "mango-gw" - the static route to "mango-gw" will have to be set up before.
+route add default gw mango-gw
+
+# To add the route to the "ipx4" host via the SLIP interface (assuming that "ipx4" is the SLIP host).
+route add ipx4 sl0
+
+# To add the net "192.57.66.x" to be gateway through the former route to the SLIP interface.
+route add -net 192.57.66.0 netmask 255.255.255.0 gw ipx4
+
+# To install a rejecting route for the private network "10.x.x.x."
+route add -net 10.0.0.0 netmask 255.0.0.0 reject
+
+# This is an obscure one documented so people know how to do it. This sets all of the class D (multicast) IP routes to go via "eth0". This is the correct normal configuration line with a multicasting kernel
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+
+
+### rpm ###
+ 
+# To install a package:
+rpm -ivh <rpm>
+
+# To remove a package:
+rpm -e <package>
+
+# To remove a package, but not its dependencies
+rpm -e --nodeps <package>
+
+# To find what package installs a file:
+rpm -qf </path/to/file>
+
+# To find what files are installed by a package:
+rpm -ql <package>
+rpm -qpl <rpm>
+
+# To find what packages require a package or file:
+rpm -q --whatrequires <package>
+rpm -q --whatrequires <file>
+
+# To list all installed packages:
+rpm -qa
+
+# To find a pkg's dependencies
+rpm -i --test <package>
+
+# Display checksum against source
+rpm -K <package>
+
+# Verify a package
+rpm -V <package>
+
+
+### rpm2cpio ###
+ 
+# List contents of RPM
+rpm2cpio foo.rpm | cpio -vt
+
+# Extract contents of RPM
+rpm2cpio foo.rpm | cpio -vid
+
+### rss2email ###
+ 
+'rss2email -- converts rss feeds and emails them to your inbox'
+
+# List all feeds 
+r2e list
+
+# Convert RSS entries to email
+r2e run
+
+# Add a new feed
+r2e add <feed address>
+
+# Add a new feed with new email address
+r2e add <feed address> [newemail address]
+
+# Delete a feed 
+r2e delete <# of feed in list/>
+
+# Help
+r2e -h
+
+
+
+
+### rsync ###
+ 
+# To copy files from remote to local, maintaining file properties and sym-links (-a), zipping for faster transfer (-z), verbose (-v).  
+rsync -avz host:file1 :file1 /dest/
+rsync -avz /source host:/dest
+
+# Copy files using checksum (-c) rather than time to detect if the file has changed. (Useful for validating backups). 
+rsync -avc /source/ /dest/
+
+# Copy contents of /src/foo to destination:
+
+# This command will create /dest/foo if it does not already exist
+rsync -auv /src/foo /dest
+
+# Explicitly copy /src/foo to /dest/foo
+rsync -auv /src/foo/ /dest/foo
+
+
+### sam2p ###
+ 
+# Concatenate all pdf files into one:
+sam2p *.pdf out.pdf
+
+
+### scp ###
+ 
+# To copy a file from your local machine to a remote server:
+scp foo.txt user@example.com:remote/dir
+
+# To copy a file from a remote server to your local machine:
+scp user@example.com:remote/dir/foo.txt local/dir
+
+
+### screen ###
+ 
+# Start a new named screen session:
+screen -S session_name
+
+# Detach from the current session:
+Press Ctrl+A then press d
+
+# Re-attach a detached session:
+screen -r session_name
+
+# List all screen sessions:
+screen -ls
+
+
+### sed ###
+ 
+# To replace all occurrences of "day" with "night" and write to stdout:
+sed 's/day/night/g' file.txt
+
+# To replace all occurrences of "day" with "night" within file.txt:
+sed -i 's/day/night/g' file.txt
+
+# To replace all occurrences of "day" with "night" on stdin:
+echo 'It is daytime' | sed 's/day/night/g'
+
+# To remove leading spaces
+sed -i -r 's/^\s+//g' file.txt
+
+# To remove empty lines and print results to stdout:
+sed '/^$/d' file.txt
+
+# To replace newlines in multiple lines
+sed ':a;N;$!ba;s/\n//g'  file.txt
+
+
+### shred ###
+ 
+# To shred a file (5 passes) and verbose output:
+shred -n 5 -v file.txt
+
+# To shred a file (5 passes) and a final overwrite of zeroes:
+shred -n 5 -vz file.txt
+
+# To do the above, and then truncate and rm the file:
+shred -n 5 -vzu file.txt
+
+# To shred a partition:
+shred -n 5 -vz /dev/sda
+
+# Remember that shred may not behave as expected on journaled file systems if file data is being journaled.
+
+
+### shutdown ###
+ 
+# Reboot the system immediately
+shutdown -r now
+
+# Shut system down immediately
+shutdown -h now
+
+# Reboot system after 5 minutes
+shutdown -r +5
+
+
+### smbclient ###
+ 
+# To display public shares on the server:
+smbclient -L <hostname> -U%
+
+# To connect to a share:
+smbclient //<hostname>/<share> -U<username>%<password>
+
+
+### snmpwalk ###
+ 
+# To retrieve all of the variables under system for host zeus
+snmpwalk -Os -c public -v 1 zeus system
+
+# To retrieve the scalar values, but omit the sysORTable for host zeus
+snmpwalk -Os -c public -v 1 -CE sysORTable zeus system
+
+
+### sockstat ###
+ 
+# To view which users/processes are listening to which ports:
+sudo sockstat -l
+
+
+### sort ###
+ 
+# To sort a file:
+sort file
+
+# To sort a file by keeping only unique:
+sort -u file
+
+# To sort a file and reverse the result:
+sort -r file
+
+# To sort a file randomly:
+sort -R file
+
+
+### split ###
+ 
+# To split a large text file into smaller files of 1000 lines each:
+split file.txt -l 1000
+
+# To split a large binary file into smaller files of 10M each:
+split file.txt -b 10M
+
+# To consolidate split files into a single file:
+cat x* > file.txt
+
+
+### sport ###
+ 
+# Sync to newest SlackBuild.org tree
+sport r
+
+# Search (fuzzy) SlackBuild tree for packages foo and BaR
+sport s foo bar
+
+# Operate from alternate build tree
+SBOPATH=/path/to/tree sport s foo
+
+# View info and README of BaR (not fuzzy)
+sport c foo BaR
+
+# Build a package
+sport i --build-only foo
+
+# Build and install package foo and BaR
+sport i foo BaR
+
+# Build and install package from current directory
+sport i .
+
+# Upgrade instead of install
+INSTALLER=upgradepkg sport i foo
+
+# Build dependency list for baz
+echo "foo BaR" >> /tmp/baz.list
+
+# Install list of packages from file
+sport i $(< /tmp/baz.list)
+
+# Check if package is installed
+sport k foo
+
+
+### sqlite3 ###
+ 
+# create database and launch interactive shell
+sqlite3 example.db
+
+# create table
+sqlite3 example.db "CREATE TABLE Os(ID INTEGER PRIMARY KEY, Name TEXT, Year INTEGER);"
+
+# insert data
+sqlite3 example.db "INSERT INTO 'Os' VALUES(1,'Linux',1991);"
+
+# list tables
+sqlite3 example.db ".tables"
+
+# view records in table
+sqlite3 example.db "SELECT * FROM 'Os';"
+
+# view records in table conditionally
+sqlite example.db "SELECT * FROM 'Os' WHERE Year='1991';"
+
+# view records with fuzzy matching
+sqlite3 ~/example.db "SELECT * FROM 'Os' WHERE Year like '19%';"
+
+### sqlmap ###
+ 
+# Test URL and POST data and return database banner (if possible)
+./sqlmap.py --url="<url>" --data="<post-data>" --banner
+
+# Parse request data and test | request data can be obtained with burp
+./sqlmap.py -r <request-file> <options>
+
+# Fingerprint | much more information than banner
+./sqlmap.py -r <request-file> --fingerprint
+
+# Get database username, name, and hostname
+./sqlmap.py -r <request-file> --current-user --current-db --hostname
+
+# Check if user is a database admin
+./sqlmap.py -r <request-file> --is-dba
+
+# Get database users and password hashes
+./sqlmap.py -r <request-file> --users --passwords
+
+# Enumerate databases
+./sqlmap.py -r <request-file> --dbs
+
+# List tables for one database
+./sqlmap.py -r <request-file> -D <db-name> --tables
+
+# Other database commands
+./sqlmap.py -r <request-file> -D <db-name> --columns
+                                           --schema
+                                           --count
+# Enumeration flags
+./sqlmap.py -r <request-file> -D <db-name>
+                              -T <tbl-name>
+                              -C <col-name>
+                              -U <user-name>
+
+# Extract data
+./sqlmap.py -r <request-file> -D <db-name> -T <tbl-name> -C <col-name> --dump
+
+# Execute SQL Query
+./sqlmap.py -r <request-file> --sql-query="<sql-query>"
+
+# Append/Prepend SQL Queries
+./sqlmap.py -r <request-file> --prefix="<sql-query>" --suffix="<sql-query>"
+
+# Get backdoor access to sql server | can give shell access
+./sqlmap.py -r <request-file> --os-shell
+
+
+### ss ###
+ 
+ss
+Utility to investigate sockets
+
+Args
+-4/-6 list ipv4/ipv6 sockets
+-n numeric addresses instead of hostnames
+-l list listing sockets
+-u/-t/-x list udp/tcp/unix sockets
+-p Show process(es) that using socket
+
+# show all listing tcp sockets including the corresponding process
+ss -tlp
+
+# show all sockets connecting to 192.168.2.1 on port 80
+ss -t dst 192.168.2.1:80
+
+# show all ssh related connection
+ss -t state established '( dport = :ssh or sport = :ssh )'
+
+
+### ssh ###
+ 
+# To ssh via pem file (which normally needs 0600 permissions):
+ssh -i /path/to/file.pem user@example.com
+
+# To connect on an non-standard port:
+ssh -p 2222 user@example.com
+
+# To connect and forward the authentication agent
+ssh -A user@example.com
+
+# To execute a command on a remote server:
+ssh -t user@example.com 'the-remote-command'
+
+# To tunnel an x session over SSH:
+ssh -X user@example.com
+
+# Redirect traffic with a tunnel between local host (port 8080) and a remote
+# host (remote.example.com:5000) through a proxy (personal.server.com):
+ssh -f -L 8080:remote.example.com:5000 user@personal.server.com -N
+
+# To launch a specific x application over SSH:
+ssh -X -t user@example.com 'chromium-browser'
+
+# To create a SOCKS proxy on localhost and port 9999
+ssh -D 9999 user@example.com
+
+# -X use an xsession, -C compress data, "-c blowfish" use the encryption blowfish
+ssh user@example.com -C -c blowfish -X
+
+# For more information, see:
+# http://unix.stackexchange.com/q/12755/44856
+
+# Copy files and folders through ssh from remote host to pwd with tar.gz compression
+# when there is no rsync command available
+ssh user@example.com "cd /var/www/Shared/; tar zcf - asset1 asset2" | tar zxf -
+
+# Mount folder/filesystem through SSH
+# Install SSHFS from https://github.com/libfuse/sshfs
+# Will allow you to mount a folder securely over a network.
+sshfs name@server:/path/to/folder /path/to/mount/point
+
+# Emacs can read file through SSH
+# Doc: http://www.gnu.org/software/emacs/manual/html_node/emacs/Remote-Files.html
+emacs /ssh:name@server:/path/to/file
+
+
+### ssh-copy-id ###
+ 
+# To copy a key to a remote host:
+ssh-copy-id username@host
+
+# To copy a key to a remote host on a non-standard port:
+ssh-copy-id username@host -p 2222
+
+# To copy a key to a remote host on a non-standard port with non-standard ssh key:
+ssh-copy-id ~/.ssh/otherkey "username@host -p 2222"
+
+
+### ssh-keygen ###
+ 
+# To generate an SSH key:
+ssh-keygen -t rsa
+
+# To generate a 4096-bit SSH key:
+ssh-keygen -t rsa -b 4096
+
+# To update a passphrase on a key
+ssh-keygen -p -P old_passphrase -N new_passphrase -f /path/to/keyfile
+
+# To remove a passphrase on a key
+ssh-keygen -p -P old_passphrase -N '' -f /path/to/keyfile
+
+# To generate a 4096 bit RSA key with a passphase and comment containing the user and hostname
+ssh-keygen -t rsa -b 4096 -C "$USER@$HOSTNAME" -P passphrase
+
+
+### stdout ###
+ 
+# To redirect stderr to stdout:
+some-command 2>&1
+
+# To redirect stderr to a file
+some-command 2> errors.txt
+
+
+### strace ###
+ 
+# Basic stracing
+strace <command>
+
+# save the trace to a file
+strace -o strace.out <other switches> <command>
+
+# follow only the open() system call
+strace -e trace=open <command>
+
+# follow all the system calls which open a file
+strace -e trace=file <command>
+
+# follow all the system calls associated with process
+# management
+strace -e trace=process <command>
+
+# follow child processes as they are created
+strace -f <command>
+
+# count time, calls and errors for each system call
+strace -c <command>
+
+# trace a running process (multiple PIDs can be specified)
+strace -p <pid>
+
+### su ###
+ 
+# Switch to another user account
+su USERNAME
+
+
+### svn ###
+ 
+# update working copy from repository
+svn update "/path"
+
+# show changed files in working copy
+svn status
+
+# show what changed in local file
+svn diff "/path/filename"
+
+# add files or folders
+svn add "path/item"
+
+# revert local uncommited changes
+svn revert "/path/file"
+
+# commit changes to repo
+svn commit -m "message" "/path"
+
+# show help for 'svn diff'
+svn help diff
+
+
+### systemctl ###
+ 
+# List all loaded/active units
+systemctl list-units
+
+# Check the status of a service
+systemctl status foo.service
+
+# Start a service
+systemctl start foo.service
+
+# Restart a service
+systemctl restart foo.service
+
+# Stop a service
+systemctl stop foo.service
+
+# Reload a service's configuration
+systemctl reload foo.service
+
+# Enable a service to startup on boot
+systemctl enable foo.service
+
+# Disable a service to startup on boot
+systemctl disable foo.service
+
+# List the dependencies of a service
+# when no service name is specified, lists the dependencies of default.target
+systemctl list-dependencies foo.service 
+
+# List currently loaded targets
+systemctl list-units --type=target
+
+# Change current target
+systemctl isolate foo.target
+
+# Change default target
+systemctl enable foo.target
+
+
+### systemd ###
+ 
+# Display process startup time
+systemd-analyze
+
+# Display process startup time at service level
+systemd-analyze blame
+
+# List running units
+systemctl list-units
+
+# Load a unit at startup
+systemctl enable foo.service
+
+# Start or Stop a unit
+systemctl <start | stop> foo.service
+
+# Unit file locations
+/etc/systemd/system
+/usr/lib/systemd/system
+
+
+### tail ###
+ 
+# To show the last 10 lines of file
+tail file
+
+# To show the last N lines of file
+tail -n N file
+
+# To show the last lines of file starting with the Nth
+tail -n +N file
+
+# To show the last N bytes of file
+tail -c N file
+
+# To show the last 10 lines of file and to wait for file to grow
+tail -f file
+
+
+### tar ###
+ 
+# To extract an uncompressed archive:
+tar -xvf /path/to/foo.tar
+
+# To create an uncompressed archive:
+tar -cvf /path/to/foo.tar /path/to/foo/
+
+# To extract a .gz archive:
+tar -xzvf /path/to/foo.tgz
+
+# To create a .gz archive:
+tar -czvf /path/to/foo.tgz /path/to/foo/
+
+# To list the content of an .gz archive:
+tar -ztvf /path/to/foo.tgz
+
+# To extract a .bz2 archive:
+tar -xjvf /path/to/foo.tgz
+
+# To create a .bz2 archive:
+tar -cjvf /path/to/foo.tgz /path/to/foo/
+
+# To extract a .tar in specified Directory:
+tar -xvf /path/to/foo.tar -C /path/to/destination/
+
+# To list the content of an .bz2 archive:
+tar -jtvf /path/to/foo.tgz
+
+# To create a .gz archive and exclude all jpg,gif,... from the tgz
+tar czvf /path/to/foo.tgz --exclude=\*.{jpg,gif,png,wmv,flv,tar.gz,zip} /path/to/foo/
+
+# To use parallel (multi-threaded) implementation of compression algorithms:
+tar -z ... -> tar -Ipigz ...
+tar -j ... -> tar -Ipbzip2 ...
+tar -J ... -> tar -Ipixz ...
+
+
+### tcpdump ###
+ 
+# TCPDump is a packet analyzer. It allows the user to intercept and display TCP/IP
+# and other packets being transmitted or received over a network. (cf Wikipedia).
+# Note: 173.194.40.120 => google.com
+
+# Intercepts all packets on eth0
+tcpdump -i eth0
+
+# Intercepts all packets from/to 173.194.40.120
+tcpdump host 173.194.40.120
+
+# Intercepts all packets on all interfaces from / to 173.194.40.120 port 80
+# -nn => Disables name resolution for IP addresses and port numbers.
+tcpdump -nn -i any host 173.194.40.120 and port 80
+
+# Make a grep on tcpdump (ASCII)
+# -A  => Show only ASCII in packets.
+# -s0 => By default, tcpdump only captures 68 bytes.
+tcpdump -i -A any host 173.194.40.120 and port 80 | grep 'User-Agent'
+
+# With ngrep
+# -d eth0 => To force eth0 (else ngrep work on all interfaces)
+# -s0 => force ngrep to look at the entire packet. (Default snaplen: 65536 bytes)
+ngrep 'User-Agent' host 173.194.40.120 and port 80
+
+# Intercepts all packets on all interfaces from / to 8.8.8.8 or 173.194.40.127 on port 80
+tcpdump 'host ( 8.8.8.8 or 173.194.40.127 ) and port 80' -i any
+
+# Intercepts all packets SYN and FIN of each TCP session.
+tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0'
+
+# To display SYN and FIN packets of each TCP session to a host that is not on our network
+tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0 and not src and dst net local_addr'
+
+# To display all IPv4 HTTP packets that come or arrive on port 80 and that contain only data (no SYN, FIN no, no packet containing an ACK)
+tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+# Saving captured data
+tcpdump -w file.cap
+
+# Reading from capture file
+tcpdump -r file.cap
+
+# Show content in hexa
+# Change -x to -xx => show extra header (ethernet).
+tcpdump -x
+
+# Show content in hexa and ASCII
+# Change -X to -XX => show extra header (ethernet).
+tcpdump -X
+
+# Note on packet maching:
+# Port matching:
+# - portrange 22-23
+# - not port 22
+# - port ssh
+# - dst port 22
+# - src port 22
+#
+# Host matching:
+# - dst host 8.8.8.8
+# - not dst host 8.8.8.8
+# - src net 67.207.148.0 mask 255.255.255.0
+# - src net 67.207.148.0/24
+
+
+### tee ###
+ 
+# To tee stdout to a file:
+ls | tee outfile.txt
+
+# To tee stdout and append to a file:
+ls | tee -a outfile.txt
+
+
+### tmux ###
+ 
+# Start tmux:
+tmux
+
+# Detach from tmux:
+Ctrl-b d
+
+# Restore tmux session:
+tmux attach
+
+# Detach an already attached session (great if you are moving devices with different screen resolutions)
+tmux attach -d 
+
+# Display session:
+tmux ls
+
+# Rename session:
+Ctrl-b $
+
+# Switch session:
+Ctrl-b s
+
+# Start a shared session:
+tmux -S /tmp/your_shared_session
+chmod 777 /tmp/your_shared_session
+
+# Help screen (Q to quit):
+Ctrl-b ?
+
+# Scroll in window:
+Ctrl-b PageUp/PageDown
+
+# Reload configuation file
+Ctrl-b : source-file /path/to/file
+
+# Window management
+# =================
+
+# Create window:
+Ctrl-b c
+
+# Destroy window:
+Ctrl-b x
+
+# Switch between windows:
+Ctrl-b [0-9]
+or
+Ctrl-b Arrows
+
+# Split windows horizontally:
+Ctrl-b %
+
+# Split windows vertically:
+Ctrl-b "
+
+
+### top ###
+ 
+# Update every <interval> samples:
+top -i <interval>
+
+# Set the delay between updates to <delay> seconds:
+top -s <delay>
+
+# Set event counting to accumulative mode:
+top -a
+
+# Set event counting to delta mode:
+top -d
+
+# Set event counting to absolute mode:
+top -e
+
+# Do not calculate statistics on shared libraries, also known as frameworks:
+top -F
+
+# Calculate statistics on shared libraries, also known as frameworks (default):
+top -f
+
+# Print command line usage information and exit:
+top -h
+
+# Order the display by sorting on <key> in descending order
+top -o <key>
+
+
+### tr ###
+ 
+#replace : with new line
+echo $PATH|tr ":" "\n" #equivalent with:
+echo $PATH|tr -t ":" \n 
+
+#remove all occurance of "ab"
+echo aabbcc |tr -d "ab"
+#ouput: cc
+
+#complement "aa"
+echo aabbccd |tr -c "aa" 1
+#output: aa11111 without new line
+#tip: Complement meaning keep aa,all others are replaced with 1
+
+#complement "ab\n"
+echo aabbccd |tr -c "ab\n" 1
+#output: aabb111 with new line
+
+#Preserve all alpha(-c). ":-[:digit:] etc" will be translated to "\n". sequeeze mode.
+echo $PATH|tr -cs "[:alpha:]" "\n" 
+
+#ordered list to unordered list
+echo "1. /usr/bin\n2. /bin" |tr -cs " /[:alpha:]\n" "+"
+
+
+### trashy ###
+ 
+# Trash foo and bar
+trash foo bar
+
+# Trash "foo bar"
+trash foo\ bar
+
+# List files in trash
+trash -v --list
+
+# Restore foo from trash
+trash --restore foo
+
+# Empty trash
+trash --empty
+
+
+### tree ###
+ 
+# To display a recursive directory tree
+tree
+
+# To make tree output contents from path `/foo/bar`
+tree /foo/bar
+
+# To make tree omit any empty directories from the output
+tree --prune
+
+# To list directories only (`-d`), and at a max depth of two levels (`-L`)
+tree -d -L 2
+
+
+### truncate ###
+ 
+# To clear the contents from a file:
+truncate -s 0 file.txt
+
+# To truncate a file to 100 bytes:
+truncate -s 100 file.txt
+
+# To truncate a file to 100 KB:
+truncate -s 100K file.txt
+
+# (M, G, T, P, E, Z, and Y may be used in place of "K" as required.)
+
+
+### udisksctl ###
+ 
+# Get info about block device
+udisksctl info -b <block_device>
+
+# Mounting device 
+udisksctl mount --block-device <block_device>
+
+# Unmounting device 
+udisksctl unmount --block-device <block_device>
+
+# Get help 
+udisksctl help 
+
+
+### uname ###
+ 
+# Print all system information
+uname -a
+# Linux system-hostname 3.2.0-4-amd64 #1 SMP Debian 3.2.32-1 x86_64 GNU/Linux
+
+# Print the hostname
+uname -n
+# system-hostname
+
+# Print the kernel release
+uname -r
+# 3.2.0-4-amd64
+
+# Print the kernel version, with more specific information
+uname -v
+# #1 SMP Debian 3.2.32-1
+
+# Print the hardware instruction set
+uname -m
+# x86_64
+
+# Print the kernel name
+uname -s
+# Linux
+
+# Print the operating system
+uname -o
+# GNU/Linux
+
+
+### uniq ###
+ 
+# show all lines without duplication
+# `sort -u` and `uniq` is the same effect.
+sort file | uniq
+
+# show not duplicated lines
+sort file | uniq -u
+
+# show duplicated lines only
+sort file | uniq -d
+
+# count all lines
+sort file | uniq -c
+
+# count not duplicated lines
+sort file | uniq -uc
+
+# count only duplicated lines
+sort file | uniq -dc
+
+
+### unzip ###
+ 
+# Extract archive
+unzip archive.zip
+
+# Test integrity of archive
+unzip -tq archive.zip
+
+# List files and directories in a file
+unzip -l archive.zip
+
+
+### urpm ###
+ 
+# search (fuzzy) for package foo
+urpmq -Y foo
+
+# check if foo is installed
+rpm -q foo
+
+# install package foo
+urpmi foo
+
+# download but don't install foo
+urpmi --no-install foo
+
+# uninstall package foo
+urpme foo
+
+
+### vagrant ###
+ 
+# Initate Vagrant
+mkdir vag-vm; cd vag-vm
+vagrant init
+
+# Add a box to vagrant repo
+vagrant box add hashicorp/precise32
+
+# Add a box  Vagrant file
+config.vm.box = "hashicorp/precise32"
+
+# Add vm to public network as host
+config.vm.network "public_network"
+
+# Add provision script to vagrant file
+config.vm.provision :shell, path: "provision.sh"
+
+# Start vm 
+vagrant up
+
+# Connect to started instance
+vagrant ssh
+
+# Shutdown vm
+vagrant halt
+
+# Hibernate vm
+vagrant suspend
+
+# Set vm to initial state by cleaning all data
+vagrant destroy
+
+# Restart vm with new provision script
+vagran reload --provision
+
+
+### vim ###
+ 
+# File management
+
+:e              reload file
+:q              quit
+:q!             quit without saving changes
+:w              write file
+:w {file}       write new file
+:x              write file and exit
+
+# Movement
+
+    k
+  h   l         basic motion
+    j
+
+w               next start of word
+W               next start of whitespace-delimited word
+e               next end of word
+E               next end of whitespace-delimited word
+b               previous start of word
+B               previous start of whitespace-delimited word
+0               start of line
+$               end of line
+gg              go to first line in file
+G               go to end of file
+gk		move down one displayed line
+gj		move up one displayed line
+
+# Insertion
+#   To exit from insert mode use Esc or Ctrl-C
+#   Enter insertion mode and:
+
+a               append after the cursor
+A               append at the end of the line
+i               insert before the cursor
+I               insert at the beginning of the line
+o               create a new line under the cursor
+O               create a new line above the cursor
+R               enter insert mode but replace instead of inserting chars
+:r {file}       insert from file
+
+# Editing
+
+u               undo
+yy              yank (copy) a line
+y{motion}       yank text that {motion} moves over
+p               paste after cursor
+P               paste before cursor
+<Del> or x      delete a character
+dd              delete a line
+d{motion}       delete text that {motion} moves over
+
+# Search and replace with the `:substitute` (aka `:s`) command
+
+:s/foo/bar/	replace the first match of 'foo' with 'bar' on the current line only
+:s/foo/bar/g	replace all matches (`g` flag) of 'foo' with 'bar' on the current line only
+:%s/foo/bar/g	replace all matches of 'foo' with 'bar' in the entire file (`:%s`)
+:%s/foo/bar/gc	ask to manually confirm (`c` flag) each replacement 
+
+# Preceding a motion or edition with a number repeats it 'n' times
+# Examples:
+50k         moves 50 lines up
+2dw         deletes 2 words
+5yy         copies 5 lines
+42G         go to line 42
+
+
+### virtualenv ###
+ 
+# Create new environment
+virtualenv /path/to/project/env_name
+
+# Create new environment and inherit already installed Python libraries
+virtualenv --system-site-package /path/to/project/env_name
+
+# Create new environment with a given Python interpreter
+virtualenv /path/to/project/env_name -p /usr/bin/python/3.4
+
+# Activate environnment
+source /path/to/project/env_name/bin/activate
+
+# Quit environment
+deactivate
+
+
+# virtualenvwrapper (wrapper for virtualenv)
+# installation
+pip install --user virtualenvwrapper
+# configuration
+# add in ~/.bashrc or similar
+export WORKON_HOME=~/.virtualenvs
+mkdir -p $WORKON_HOME
+source ~/.local/bin/virtualenvwrapper.sh
+
+# Create new environmment (with virtualenvwrapper)
+mkvirtualenv env_name
+# new environmment is stored in ~/.virtualenvs
+
+# Activate environmment (with virtualenvwrapper)
+workon env_name
+
+# Quit environmment (with virtualenvwrapper)
+deactivate
+
+# Delete environmment (with virtualenvwrapper)
+rmvirtualenv env_name
+
+
+
+### wc ###
+ 
+# Count the number of words (file or STDIN)
+wc -w /path/to/foo.txt
+cat /path/to/foo.txt | wc -w
+
+# Count the number of lines (file or STDIN)
+wc -l /path/to/foo.txt
+cat /path/to/foo.txt | wc -l
+
+# Count the number of bytes (file or STDIN)
+wc -c /path/to/foo.txt
+cat /path/to/foo.txt | wc -c
+
+# Count files and directories at a given location
+ls -l | wc -l
+
+# If you ever use `wc` in a shell script and need to compare the output with an int you can
+# clean the output (wc returns extra characters around the integer) by using xargs:
+ls -l | wc -l | xargs
+
+
+### weechat ###
+ 
+# Set unread marker on all windows
+Ctrl-s Ctrl-u
+
+# Switch buffer left
+Ctrl-p, Alt-left
+# Switch buffer right
+Ctrl-n, Alt-right
+# Next buffer with activity
+Alt-a
+# Switch buffers
+Alt-0...9
+
+# Scroll buffer title
+F9/F10
+# Scroll nick list
+F11/F12
+
+
+### wget ###
+ 
+# To download a single file
+wget http://path.to.the/file
+
+# To download a file and change its name
+wget http://path.to.the/file -O newname
+
+# To download a file into a directory
+wget -P path/to/directory http://path.to.the/file
+
+# To continue an aborted downloaded
+wget -c http://path.to.the/file
+
+# To download multiples files with multiple URLs
+wget URL1 URL2
+
+# To parse a file that contains a list of URLs to fetch each one
+wget -i url_list.txt
+
+# To mirror a whole page locally
+wget -pk http://path.to.the/page.html
+
+# To mirror a whole site locally
+wget -mk http://site.tl/
+
+# To download files according to a pattern
+wget http://www.myserver.com/files-{1..15}.tar.bz2
+
+# To download all the files in a directory with a specific extension if directory indexing is enabled
+wget -r -l1 -A.extension http://myserver.com/directory
+
+# Allows you to download just the headers of responses (-S --spider) and display them on Stdout (-O -).
+wget -S --spider -O - http://google.com
+
+# Change the User-Agent to 'User-Agent: toto'
+wget -U 'toto' http://google.com
+
+
+### xargs ###
+ 
+# find all file name ending with .pdf and remove them
+find -name *.pdf | xargs rm -rf
+
+# if file name contains spaces you should use this instead
+find -name *.pdf | xargs -I{} rm -rf '{}'
+
+# Will show every .pdf like:
+#	&toto.pdf=
+#	&titi.pdf=
+# -n1 => One file by one file. ( -n2 => 2 files by 2 files )
+
+find -name *.pdf | xargs -I{} -n1 echo '&{}='
+
+# If find returns no result, do not run rm
+# This option is a GNU extension.
+find -name "*.pdf" | xargs --no-run-if-empty rm
+
+
+### xmlto ###
+ 
+# DocBook XML to PDF
+xmlto pdf mydoc.xml
+
+# DocBook XML to HTML
+xmlto -o html-dir html mydoc.xml
+
+# DocBook XML to single HTML file
+xmlto html-nochunks mydoc.xml
+
+# modify output with XSL override
+xmlto -m ulink.xsl pdf mydoc.xml
+
+# use non-default xsl
+xmlto -x mystylesheet.xsl pdf mydoc.xml
+
+
+### xrandr ###
+ 
+# To enable HDMI2 output with maximal resolution:
+xrandr --output HDMI2 --auto
+
+# To enable HDMI2 output with specific resolution:
+xrandr --output HDMI2 --mode 1280x800
+
+# To enable HDMI2 output next to HDMI1 output:
+xrandr --output HDMI2 --auto --right-of HDMI1
+
+# To disable HDMI2 output:
+xrandr --output HDMI2 --off
+
+
+### xxd ###
+ 
+# Convert bin/string to hex.
+# Result: 34322069732074686520736f6c7574696f6e0a
+echo '42 is the solution' | xxd -p
+
+# Convert hex to bin/string.
+# Result: 42 is the solution
+echo '34322069732074686520736f6c7574696f6e0a' | xxd -r -p
+
+
+
+### yaourt ###
+ 
+# All pacman commands are working the same way with yaourt.
+# Just check the pacman cheatsheet.
+# For instance, to install a package : 
+pacman -S <package name>
+yaourt -S <package name>
+# The difference is that yaourt will also query the Arch User Repository,
+# and if appropriate, donwload the source and build the package requested.
+
+# Here are the commands yaourt provides while pacman doesn't :
+
+# To search for a package and install it
+yaourt <package name>
+
+# To update the local package base and upgrade all out of date package, including the ones from 
+AUR and the packages based on development repos (git, svn, hg...)
+yaourt -Suya --devel
+
+# For all of the above commands, if you want yaourt to stop asking constantly for confirmations, 
+use the option --noconfirm
+
+# To build a package from source
+yaourt -Sb <package name>
+
+
+
+### youtube-dl ###
+ 
+# To download a video in 720p MP4:
+youtube-dl -f 22 example.com/watch?v=id
+
+# To download a video in 720p MP4 or WebM or FLV:
+youtube-dl -f 22/45/120
+
+# To list all available formats of a video:
+youtube-dl -F example.com/watch?v=id
+
+# To download a video to /$uploader/$date/$title.$ext:
+youtube-dl -o '%(uploader)s/%(date)s/%(title)s.%(ext)s' example.com/watch?v=id
+
+# To download a video playlist starting from a certain video:
+youtube-dl --playlist-start 5 example.com/watch?v=id&list=listid
+
+# To simulate a download with youtube-dl:
+youtube-dl -s example.com/watch?v=id
+
+# To download audio in mp3 format with best quality available
+youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 example.com/watch?v=id
+
+# For all video formats see
+# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+
+
+### yum ###
+ 
+# To install the latest version of a package:
+yum install <package name>
+
+# To perform a local install:
+yum localinstall <package name>
+
+# To remove a package:
+yum remove <package name>
+
+# To search for a package:
+yum search <package name>
+
+# To find what package installs a program:
+yum whatprovides </path/to/program>
+
+# To find the dependencies of a package:
+yum deplist <package name>
+
+# To find information about a package:
+yum info <package name>
+
+# List currently enabled repositories:
+yum repolist
+
+# List packages containing a certain keyword:
+yum list <package_name_or_word_to_search>
+ 
+# To download the source RPM for a package:
+yumdownloader --source <package name>
+
+# (You have to install yumdownloader first, which is installed by the yum-utils package)
+
+
+### zip ###
+ 
+# Create zip file
+zip archive.zip file1 directory/
+
+# To list, test and extract zip archives, see unzip
+cheat unzip
+
+
+### zoneadm ###
+ 
+# Halt zone
+zoneadm -z <zone_name> halt
+
+# Delete Zone 
+zoneadm -z <zone_name> halt
+zoneadm -z <zone_name> uninstall
+
+# Verify Zone
+zoneadm -z <zone_name> verify
+
+# Installing Zone 
+zoneadm -z <zone_name> install
+
+# Boot Zone
+zoneadm -z <zone_name> boot
+
+# Reboot Zone
+zoneadm -z <zone_name> reboot
+
+# List Zones
+zoneadm list -cv
+
+
+### zsh ###
+ 
+# A plain old glob
+print -l *.txt
+print -l **/*.txt
+
+# Show text files that end in a number from 1 to 10
+print -l **/*<1-10>.txt
+
+# Show text files that start with the letter a
+print -l **/[a]*.txt
+
+# Show text files that start with either ab or bc
+print -l **/(ab|bc)*.txt
+
+# Show text files that don't start with a lower or uppercase c
+print -l **/[^cC]*.txt
+
+# Show only directories
+print -l **/*(/)
+
+# Show only regular files
+print -l **/*(.)
+
+# Show empty files
+print -l **/*(L0)
+
+# Show files greater than 3 KB
+print -l **/*(Lk+3)
+
+# Show files modified in the last hour
+print -l **/*(mh-1)
+
+# Sort files from most to least recently modified and show the last 3
+print -l **/*(om[1,3])
+
+# `.` show files, `Lm-2` smaller than 2MB, `mh-1` modified in last hour,
+# `om` sort by modification date, `[1,3]` only first 3 files
+print -l **/*(.Lm-2mh-1om[1,3])
+
+# Show every directory that contain directory `.git`
+print -l **/*(e:'[[ -d $REPLY/.git ]]':)
+
+# Return the file name (t stands for tail)
+print -l *.txt(:t)
+
+# Return the file name without the extension (r stands for remove_extension)
+print -l *.txt(:t:r)
+
+# Return the extension
+print -l *.txt(:e)
+
+# Return the parent folder of the file (h stands for head)
+print -l *.txt(:h)
+
+# Return the parent folder of the parent
+print -l *.txt(:h:h)
+
+# Return the parent folder of the first file
+print -l *.txt([1]:h)
+
+# Parameter expansion
+files=(*.txt)          # store a glob in a variable
+print -l $files
+print -l $files(:h)    # this is the syntax we saw before
+print -l ${files:h}
+print -l ${files(:h)}  # don't mix the two, or you'll get an error
+print -l ${files:u}    # the :u modifier makes the text uppercase
+
+# :s modifier
+variable="path/aaabcd"
+echo ${variable:s/bc/BC/}    # path/aaaBCd
+echo ${variable:s_bc_BC_}    # path/aaaBCd
+echo ${variable:s/\//./}     # path.aaabcd (escaping the slash \/)
+echo ${variable:s_/_._}      # path.aaabcd (slightly more readable)
+echo ${variable:s/a/A/}      # pAth/aaabcd (only first A is replaced)
+echo ${variable:gs/a/A/}     # pAth/AAAbcd (all A is replaced)
+
+# Split the file name at each underscore
+echo ${(s._.)file}
+
+# Join expansion flag, opposite of the split flag.
+array=(a b c d)
+echo ${(j.-.)array} # a-b-c-d
+
+# vim: ft=conf
