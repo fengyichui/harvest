@@ -725,5 +725,25 @@
         //message[@id=0]//books/*[local-name()='book' and namespace-uri()='http://www.amazon.com/books/schema']   选择books下的所有的book节点，(节点名和命名空间都匹配)
         /messages/message[1]/body/attachments/parent::* /messages/message[1]/body/attachments/..                  ..也表示父节点. 表示自身节点）
 
+31. readline模块: 让input拥有自动补全和历史记录的功能
+    >
+    import readline
+
+    # Set parse mode
+    readline.parse_and_bind("tab: complete")
+
+    # Read history
+    try:
+        readline.read_history_file('./.history')
+    except IOError:
+        pass
+
+    # Read user commands (The input commands will be recorded by readline automatically)
+    cmd = input('>>>')
+    ...
+
+    # Write history
+    readline.set_history_length(1000)
+    readline.write_history_file('./.history')
 
 vim:ft=help
