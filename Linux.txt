@@ -948,7 +948,7 @@
     $ net user NewUserName NewUserPassword /add /yes        # add user
     $ net localgroup <an_local_group> NewUserName /add      # add user with group
     $ passwd NewUserName                                    # change user password
-    $ mkpassd -l -u NewUserName >> /etc/passwd              # add it to etc
+    $ mkpasswd -l -u NewUserName >> /etc/passwd              # add it to etc
 
 30. Linux搭建git服务器
     创建git用户
