@@ -746,14 +746,4 @@
     readline.set_history_length(1000)
     readline.write_history_file('./.history')
 
-32. traceback 追踪异常
-    >
-    import traceback
-
-    try:
-        xxxx
-    except:
-        traceback.print_exc()
-
-
 vim:ft=help
