@@ -567,9 +567,7 @@
         执行GDB命令。默认输出到终端，如果to_string=True的话，输出通过返回值返回
 <    2. gdb.parse_and_eval(expression_string) >
         解析表达式，并通过返回值返回。可使用str(),int()等强制转换返回值
-<    3. gdb.write(string)  gdb.flush() >
-        打印数据到终端
-<    4. raise gdb.GdbError(string) >
+<    3. raise gdb.GdbError(string) >
         raise 异常使用
 
 vim: ft=help
