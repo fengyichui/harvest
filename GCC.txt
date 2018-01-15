@@ -572,5 +572,8 @@
         获得某个缓冲的字符串：string = gdb.parse_and_eval('FlashDevice.DevName').string()
 <    3. raise gdb.GdbError(string) >
         raise 异常使用
+<    4. gdb.objfiles() >
+        当前调试文件,通过file命令添加的, 返回一个list
+        gdb.objfiles()[0].filename: 第一个调试文件的名字
 
 vim: ft=help
