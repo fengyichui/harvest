@@ -20,6 +20,8 @@
 3. objdump
     elf -> disassemble >
     objdump -d a.elf > a.dis
+<    binary -> disassemble (ARM cortex-m3 thumb) >
+    arm-none-eabi-objdump -D -b binary -m arm -M force-thumb a.bin > a.dis
 
 4. readelf
     读取elf文件头信息, 包括ENTRY等 >
