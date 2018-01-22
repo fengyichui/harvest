@@ -20,6 +20,8 @@
 3. objdump
     elf -> disassemble >
     objdump -d a.elf > a.dis
+<    binary -> disassemble (ARM cortex-m3 thumb) >
+    arm-none-eabi-objdump -D -b binary -m arm -M force-thumb a.bin > a.dis
 
 4. readelf
     读取elf文件头信息, 包括ENTRY等 >
@@ -511,5 +513,69 @@
             . = ALIGN(4);
             _ebss = .;
         } >ram
+
+10. 使用Python扩展GDB:
+    自定义命令的例子： >
+    # 1. 导入gdb模块来访问gdb提供的python接口
+    import gdb
+
+    # 2. 用户自定义命令需要继承自gdb.Command类
+    class Move(gdb.Command):
+
+        # 3. gdb会提取该类的__doc__属性作为对应命令的文档
+        """Move breakpoint
+        Usage: mv old_breakpoint_num new_breakpoint
+        Example:
+            (gdb) mv 1 binary_search -- move breakpoint 1 to `b binary_search`
+        """
+
+        def __init__(self):
+            # 4. 在构造函数中注册该命令的名字 (gdb.COMPLETE_FILENAME: 文件名字自动完成,不需要的话可以去掉)
+            super(self.__class__, self).__init__("mv", gdb.COMMAND_USER, gdb.COMPLETE_FILENAME)
+
+        # 5. 在invoke方法中实现该自定义命令具体的功能
+        # args表示该命令后面所衔接的参数，这里通过string_to_argv转换成数组
+        def invoke(self, args, from_tty):
+            argv = gdb.string_to_argv(args)
+            if len(argv) != 2:
+                raise gdb.GdbError('输入参数数目不对，help mv以获得用法')
+            # 6. 使用gdb.execute来执行具体的命令
+            gdb.execute('delete ' + argv[0])
+            gdb.execute('break ' + argv[1])
+
+    # 7. 向gdb会话注册该自定义命令
+    Move()
+<
+    断点的例子： >
+    import gdb
+    # 继承断点类
+    class MyBreakpoint (gdb.Breakpoint):
+        # 断点命中之后做什么
+        def stop (self):
+            inf_val = gdb.parse_and_eval("foo")
+            if inf_val == 3:
+                # 停止执行
+                return True
+            else:
+                # 继续执行
+                return False
+
+    # 设置断点
+    MyBreakpoint("source.cpp:42")
+    gdb.execute("c")
+<
+    GDB提供的重要的API：
+    1. gdb.execute(command_string, to_string=False) >
+        执行GDB命令。默认输出到终端，如果to_string=True的话，输出通过返回值返回
+<    2. gdb.parse_and_eval(expression_string) >
+        解析表达式(函数,变量,等)，并通过返回值返回。可使用str(),int()等强制转换返回值
+        获得某个函数的返回值：flash_id = int(gdb.parse_and_eval('sf_read_id(0)'))
+        获得某个变量的地址: buffer_address = int(gdb.parse_and_eval('m_buffer').cast(gdb.lookup_type('int')))
+        获得某个缓冲的字符串：string = gdb.parse_and_eval('FlashDevice.DevName').string()
+<    3. raise gdb.GdbError(string) >
+        raise 异常使用
+<    4. gdb.objfiles() >
+        当前调试文件,通过file命令添加的, 返回一个list
+        gdb.objfiles()[0].filename: 第一个调试文件的名字
 
 vim: ft=help

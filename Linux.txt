@@ -714,7 +714,7 @@
        $ ssh server@192.168.1.123  #使用服务器端的用户名密码
 <    4、客户端不用每次都再输入密码： >
        $ ssh-keygen                        #创建密码，一路回车
-       $ ssh-copy-id server@192.168.1.123  #拷贝密码到服务器
+       $ ssh-copy-id server@192.168.1.123  #拷贝密码到服务器 或者拷贝客户端的id_rsa.pub文件的内容到服务器的.ssh/authorized_keys内
        NOTE: 确保服务器的 ~/.ssh的权限是700，~/.ssh/authorized_keys的权限是600
 <    5、查看或踢出已经登录的用户： >
        $ sudo w -f            #查看登录用户
@@ -943,5 +943,25 @@
         dpkg -P 彻底的卸载，包括软件的配置文件  
         dpkg -c 查询deb包文件中所包含的文件  
         dpkg -L 查看系统中安装包的的详细清单，同时执行 -c
+
+29. Cygwin上添加新用户 (like Linux 'adduser'):
+    $ net user NewUserName NewUserPassword /add /yes        # add user
+    $ net localgroup <an_local_group> NewUserName /add      # add user with group
+    $ passwd NewUserName                                    # change user password
+    $ mkpasswd -l -u NewUserName >> /etc/passwd              # add it to etc
+
+30. Linux搭建git服务器
+    创建git用户
+        adduser git
+    创建证书登录:
+        收集所有需要登录的用户的公钥，就是他们自己的id_rsa.pub文件，
+        把所有公钥导入到/home/git/.ssh/authorized_keys文件里，一行一个。
+    创建git库
+        sudo git init --bare sample.git
+        sudo chown -R git:git sample.git
+    禁用shell登录
+        修改/etc/passwd的git用户的shell为/usr/bin/git-shell
+    客户端clone:
+        git clone git@serverIP:/gitsrv/sample.git
 
 vim:ft=help
