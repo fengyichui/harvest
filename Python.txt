@@ -753,7 +753,8 @@
     try:
         xxxx
     except:
-        traceback.print_exc()
+        traceback.print_exc()   # print exception
+        traceback.format_exc()  # return a exception string
 
 
 vim:ft=help
