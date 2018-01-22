@@ -861,6 +861,7 @@
             10. 应用里的静态地址 cfg
             11. bootloader里重新考虑 HS_PMU->BOOT_SEL (HS_PMU->AHB_REMAP & PMU_WDT_RESET_MASK)
             12. deep sleep: wdt_restore
+            13. cfg只烧写有效数据
 
 
         电池电压不准，因为假如ad出来是准确的4.1v，但是可能把充电器拔下来，可能就是4.0v了。电池电压不准，因为假如ad出来是准确的4.1v，但是可能把充电器拔下来，可能就是4.0v电池电压不准，因为假如ad出来是准确的4.1v，但是可能把充电器拔下来，可能就是4.0v了
