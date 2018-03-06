@@ -176,6 +176,9 @@
              p $<var>             (eg: p $i)     查看变量值
              show convenience 查看所有变量
 
+         查看数据结构offset和size：
+            ptype /o <struct>
+
          命中断点时候自动执行命令：
              (gdb) command 6 //6是断点号。如果没有断点号，则默认使用上面紧跟的断点
              Type commands for breakpoint(s) 6, one per line.
