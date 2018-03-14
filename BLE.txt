@@ -948,4 +948,11 @@
         31. 充电器插入开机
         32. DCDC挑电感，效率低
 
+    
+    API修改：
+        1. co_power_register_sleep_event 参数: typedef void (*co_power_sleep_callback_t)(co_power_sleep_state_t sleep_state, co_power_status_t power_status);
+        2. pmu_force_into_isp_mode -> pmu_force_into_ota_isp_mode
+        3. PMU_REBOOT_FROM_ISP -> PMU_REBOOT_FROM_OTA_ISP
+        4. cpft 时的sf_write不能用了，使用sf_write_page替代
+
 vim: ft=help

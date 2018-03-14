@@ -304,5 +304,18 @@ Makefile
     这个export和shell的export类似，
     都可以把export后面的值作为环境变量传递给makefile的子进程
 
+17. 函数
+    定义：
+        define function_name
+            @echo $@ $(1) $(2) $(0)
+        endef
+        注意：
+            $(0)表示函数名
+            $(1),$(2)...表示传入的第1个、第2个...参数
+            如果第n个位置没有参数的话，则$(n)为空
+    调用：
+        $(call function_name,1,2)
+        注意：
+            参数和前面的","直接别加空格，否则传入的参数前面会出现空格
 
 vim:ft=help
