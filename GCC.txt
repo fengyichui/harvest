@@ -581,4 +581,23 @@
         当前调试文件,通过file命令添加的, 返回一个list
         gdb.objfiles()[0].filename: 第一个调试文件的名字
 
+11. GNU Binary Utilities Tools:
+    • ar:           Create, modify, and extract from archives
+    • nm:           List symbols from object files
+    • objcopy:      Copy and translate object files
+    • objdump:      Display information from object files
+    • ranlib:       Generate index to archive contents
+    • size:         List section sizes and total size
+    • strings:      List printable strings from files
+    • strip:        Discard symbols
+    • c++filt:      Filter to demangle encoded C++ symbols
+    • cxxfilt:      MS-DOS name for c++filt
+    • addr2line:    Convert addresses to file and line
+    • nlmconv:      Converts object code into an NLM
+    • windmc:       Generator for Windows message resources
+    • windres:      Manipulate Windows resources
+    • dlltool:      Create files needed to build and use DLLs
+    • readelf:      Display the contents of ELF format files
+    • elfedit:      Update the ELF header of ELF files
+
 vim: ft=help
