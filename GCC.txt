@@ -103,6 +103,7 @@
                   b <linenum>      (eg: b 15)       断点设置到当前文件的第15行
                   b <+/-offset>    (eg: b +10)      断点设置到当前行+10的位置
                   b if <condition> (eg: b if i=10)  当i=100的时候停住
+                  b <where> if <condition> (eg: b func if i=10)
                   b <filename:linenum> (eg: b a.c:10)
              info break：查看已经存在的断点     
              clear 清除所有断点
@@ -276,6 +277,14 @@
                 c
             end
             run
+<
+    GDB 问题处理:
+        1. 如果打印某个符号时发现GDB报如下错时： >
+            No symbol "HS_PMU" in current context.
+<           可以使用"list"命令，选择该符号所在的上下文，如：l main
+           原因是GDB在解析某个符号时,必须要求该符号在要求的上下文中。(某些宏和变量和函数可以用static声明)
+           注意：变量可以使用'file'::var的方式声明作用域，但是宏不行
+
 
 7. 使用GDB调试KEIL产生的AXF文件:
     使用GDB调试原始的keil的AXF文件有功能性问题

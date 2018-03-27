@@ -267,6 +267,17 @@
 <        执行命令： >
         $ git config branch.master.remote origin
         $ git config branch.master.merge refs/heads/master
+<
+    git 解决冲突 (conflict)
+        二进制文件冲突解决： >
+            $ git checkout --ours xxx/xx/x      # 强制使用我的文件
+            $ git checkout --theirs xxx/xx/x    # 强制使用其他人的文件
+<        文本文件冲突解决： >
+            $ git mergetool                     # 使用mergetool自动解决
+<
+        先通过上面两种方法解决冲突然后： >
+            $ git add xxx/xx/x                  # 提交解决冲突后的文件到缓存区
+            $ git commit -m "resolve conflict"  # 提交缓存区的文件
 
 10. Doxygen
     a. 按原始注释输出(保留空格和换行)

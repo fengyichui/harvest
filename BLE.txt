@@ -947,6 +947,7 @@
         30. 开机变砖问题
         31. 充电器插入开机
         32. DCDC挑电感，效率低
+        33. rssi的filter增益没有计算在内
 
     
     API修改：
@@ -954,5 +955,7 @@
         2. pmu_force_into_isp_mode -> pmu_force_into_ota_isp_mode
         3. PMU_REBOOT_FROM_ISP -> PMU_REBOOT_FROM_OTA_ISP
         4. cpft 时的sf_write不能用了，使用sf_write_page替代
+        5. 删除gpio的单沿触发的模式, 且回调中加入了pin_level_mask参数
+
 
 vim: ft=help
