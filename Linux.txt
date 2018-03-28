@@ -964,4 +964,9 @@
     客户端clone:
         git clone git@serverIP:/gitsrv/sample.git
 
+31. 启动cygserver,以优化系统性能
+    管理员身份运行：
+    $ cygserver-config
+    $ cygrunsrv -S cygserver
+
 vim:ft=help
