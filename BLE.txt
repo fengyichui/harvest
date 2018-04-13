@@ -948,6 +948,7 @@
         31. 充电器插入开机
         32. DCDC挑电感，效率低
         33. rssi的filter增益没有计算在内
+        34. debug bus睡眠
 
     
     API修改：

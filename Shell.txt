@@ -596,4 +596,8 @@ Shell 总结
         esac
         done
 
+31. 命令执行作为独立于后台的进程
+    $ (nohup command &) &   #这个创建的command会独立于后台运行，并把标准输出重定向到nohup.out
+
+
 vim:ft=help
