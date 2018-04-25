@@ -58,7 +58,9 @@ awk处理的单位为行(record), 即对每一行调用处理操作.
     长度      ：length([string])
     变小写    ：tolower(string)
     变大写    ：toupper(string)
-    
+    查找      ：match(string, /regexp/) #如果没有找到则返回0，找到的话返回开始位置，且找到的字符串的位置记录在RSTART,RLENGTH中
+    截取      ：substr(string, start_index, length)
+
 3、内建变量
     $0       当前记录（这个变量中存放着整个行的内容）
     $1~$n    当前记录的第n个字段，字段间由FS分隔
