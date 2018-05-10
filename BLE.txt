@@ -607,6 +607,28 @@
     测试时发现,
         iPad-Pro的接收时要求设备端发送的的preamble个数不能太少(少于8个bit会导致接收灵敏度变低)
 
+    The accessory is responsible for the connection parameters used for the Low Energy connection. The accessory
+    should request connection parameters appropriate for its use case by sending an L2CAP Connection Parameter
+    Update Request at the appropriate time. See the Bluetooth 4.0 specification, Volume 3, Part A, Section 4.20 for
+    details.
+    The connection parameter request may be rejected if it does not comply with all of these rules:
+     ● Slave Latency ≤ 30
+     ● 2 seconds ≤ connSupervisionTimeout ≤ 6 seconds
+     ● Interval Min modulo 15 ms == 0
+     ● Interval Min ≥ 15 ms
+     ● One of the following:
+          ● Interval Min + 15 ms ≤ Interval Max
+          ● Interval Min == Interval Max == 15 ms
+     ● Interval Max * (Slave Latency + 1) ≤ 2 seconds
+     ● Interval Max * (Slave Latency + 1) * 3 <connSupervisionTimeout
+    Note that if an accessory requests Interval Min == Interval Max == 15 ms, some Apple devices will scale the
+    interval to 30 ms to balance power and performance constraints.
+    If Bluetooth Low Energy HID is one of the connected services of an accessory, connection interval down to
+    11.25 ms may be accepted by the Apple product.
+    The Apple product will not read or use the parameters in the Peripheral Preferred Connection Parameters
+    characteristic. See the Bluetooth 4.0 specification, Volume 3, Part C, Section 12.5.
+
+
 18. Preamble 个数
     Broadcom：16bit
     CSR：8bit
@@ -866,6 +888,9 @@
 
         电池电压不准，因为假如ad出来是准确的4.1v，但是可能把充电器拔下来，可能就是4.0v了。
         一般AD测充满是这个算法：AD测充满，然后关闭充电电路，再测一次，
+        6620中模拟检测充满的的状态，是当充电电流小到一定程度是报的，但是有些锂电池内阻较大(分压，自身耗电)，
+        导致电流会一直有，这样模拟的充满状态可能永远也不会报上来。所以最后的有效检测充满的方法是：
+        用AD检测电压大于多少V，如果大于的话，则再充半个小时，则认为充满了。
 
     原相 BLE键盘评测 (PAR2801)：
         1. sleep: 45uA （保持连接）
@@ -950,7 +975,8 @@
         33. rssi的filter增益没有计算在内
         34. debug bus睡眠
 
-    
+        没有经历过睡眠的情况下，导致无法等到晶体的状态。导致看门狗等复位手段失效。
+
     API修改：
         1. co_power_register_sleep_event 参数: typedef void (*co_power_sleep_callback_t)(co_power_sleep_state_t sleep_state, co_power_status_t power_status);
         2. pmu_force_into_isp_mode -> pmu_force_into_ota_isp_mode

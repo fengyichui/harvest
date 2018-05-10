@@ -206,6 +206,22 @@
             使用cygport编译安装
 
 
+        vim:
+            $ make distclean
+            cd src
+            $ ./configure --with-features=huge \
+                          --enable-multibyte \
+                          --enable-pythoninterp=yes \
+                          --enable-python3interp=yes \
+                          --enable-rubyinterp=yes \
+                          --enable-perlinterp=yes \
+                          --enable-luainterp=yes \
+                          --enable-cscope \
+                          --enable-fail-if-missing
+            $ make
+            $ make install
+
+
 7. 创建常用右键菜单：
     使用winmaster.exe创建有用的右键菜单：
     1、cygwin >
