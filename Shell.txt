@@ -747,5 +747,11 @@ Shell 总结
         右移    : rshift(val,count)
         按位取反: compl(val)
 
+33. command stdio buffering
+    当使用如下命令时，常发现tail的结果不能实时输出： >
+    $ tail -f /var/log/foo | egrep -v 'some|stuff' | sed | awk
+<    解决方法, 使用stdbuf命令：
+    $ tail -f /var/log/foo | stdbuf -o0 COMMAND
+
 
 vim:ft=help
