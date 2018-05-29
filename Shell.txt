@@ -626,7 +626,7 @@ Shell 总结
             pattern1, pattern2             ：
 
         逻辑控制：
-            if (condition) statement [ else statement ]
+            if (condition) { statement } else if (condition) { statement } else { statement }
             while (condition) statement
             do statement while (condition)
             for (expr1; expr2; expr3) statement
