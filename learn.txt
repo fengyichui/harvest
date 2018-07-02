@@ -204,7 +204,7 @@
                     删除PATCH_URI里的内容
                 用最新版本的gdb替换.tar.xz文件
             使用cygport编译安装
-
+            requires: cygwin libexpat1 libgcc1 libiconv2 libintl8 liblzma5 libncursesw10 libstdc++6 python2 zlib0 
 
         vim:
             $ make distclean

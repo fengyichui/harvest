@@ -751,8 +751,13 @@
         2.42mA  1.6mA   0.82mA
 
         ---------------------------------------------------------------------------------------------------------------------
-        RF TX RX
-        PHY: 4mA
+        PHY       ADC_RST  total   ANA     DIG      => PHY      (ADC_RST: yes is PHY no data input)
+        not_gate  NO       23.8mA  11.1mA  12.7mA
+        gate      NO       20.3mA  11.9mA   8.4mA      4.5mA
+        not_gate  YES      21.3mA  11.1mA  10.2mA
+        gate      YES      19.4mA  11.1mA   8.3mA      1.9mA
+
+        DIG(7.4mA) = phy + ceva_mac + 2.4_mac + wfi_gate_xxx
 
     HS6620-A0-BUG
         软件相关：
@@ -974,6 +979,7 @@
         32. DCDC挑电感，效率低
         33. 在系统工作在3.3v时，adc采>3.3v电时 会导致芯片出问题
         34. debug bus睡眠
+        35. SPI接收数据时，要求其时钟是CPU时钟的8倍以下
 
 
         没有经历过睡眠的情况下，导致无法等到晶体的状态。导致看门狗等复位手段失效。
