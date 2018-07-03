@@ -3,8 +3,12 @@
 
 ############################################################################################
 
+# Include other makefile files
+include .config
+#include hardware/hardware.mk
+
 # Project
-PROJECT		= hs6620_driver
+PROJECT		= hs6620
 
 # Base
 BASE_DIR	= .
@@ -31,6 +35,9 @@ OPTIMIZE	= 1
 # CPU
 CPU			= cortex-m3
 
+# build obj files direcotry
+BUILDDIR	= build
+
 ############################################################################################
 
 # verbose mode
@@ -40,8 +47,8 @@ TRACE_LD  =
 TRACE_AS  =
 Q=
 else
-TRACE_CC  = @echo "CC    $<"
-TRACE_AS  = @echo "AS    $<"
+TRACE_CC  = @echo "	CC    $<"
+TRACE_AS  = @echo "	AS    $<"
 TRACE_LD  = @echo "Linking $@ ..."
 Q=@
 endif
@@ -85,50 +92,95 @@ LDFLAGS		= -nostartfiles -static $(CCFLAGS) $(LD_OPTIMIZE) -T$(LDSCRIPT) -Wl,-Ma
 # Librarys
 LDLIBS		= --specs=nano.specs -lc -lnosys -lm
 
+# Files
+FILES_C_OBJ = $(patsubst %,$(BUILDDIR)/%,$(filter %.o, $(SOURCES:%.c=%.o)))
+FILES_S_OBJ = $(patsubst %,$(BUILDDIR)/%,$(filter %.o, $(SOURCES:%.s=%.o)))
+FILES_DEPEND = $(patsubst %,$(BUILDDIR)/%,$(filter %.d, $(SOURCES:%.c=%.d)))
+
 # PHONY
 .PHONY: all clean print
 
 # Target
 all: $(TARGET_HEX) $(TARGET_BIN)
 
+# bin
 $(TARGET_BIN) : $(TARGET_HEX)
 	$(Q)$(OBJCP) $(OBJCPFLAGS_HEX_TO_BIN) $< $@
 	@echo "Build done"
 
+# hex
 $(TARGET_HEX) : $(TARGET_ELF)
 	$(Q)$(OBJCP) $(OBJCPFLAGS_ELF_TO_HEX) $< $@
 
-$(TARGET_ELF) : $(filter %.o, $(SOURCES:%.c=%.o)) $(filter %.o, $(SOURCES:%.s=%.o))
+# elf
+$(TARGET_ELF) : $(FILES_C_OBJ) $(FILES_S_OBJ)
 	$(TRACE_LD)
 	$(Q)$(CC) $+ $(LDFLAGS) $(LDLIBS) -o $@
 	$(Q)$(OBJSIZE) -B -d $@
 
-# c -> o (c -> d)
-%.o : %.c
+#
+# %.o : %.c
+#   Delete the built-in rules for building object files from .c files, so that our
+#   rule is used instead. Do the same for the other built-in rules.
+#
+# ... %.d
+#   Declare the generated dependency file as a prerequisite of the target, so that
+#   if it’s missing the target will be rebuilt.
+#
+# Dependency flag:
+# -MT $@
+#   Set the name of the target in the generated dependency file.
+# -MMD
+#   Generate dependency information as a side-effect of compilation, not instead of
+#   compilation. This version omits system headers from the generated dependencies:
+#   if you prefer to preserve system headers as prerequisites, use -MD.
+# -MP
+#   Adds a target for each prerequisite in the list, to avoid errors when deleting files.
+# -MF $*.Td
+#   Write the generated dependency file to a temporary location $(DEPDIR)/$*.Td.
+#
+# @mkdir -p $(@D) >/dev/null
+#   Create building direcory tree
+#
+# @mv -f $*.Td $*.d && touch $@ :
+#   First rename the generated temporary dependency file to the real dependency file.
+#   We do this in a separate step so that failures during the compilation won’t leave
+#   a corrupted dependency file. Second touch the object file; it’s been reported that
+#   some versions of GCC may leave the object file older than the dependency file,
+#   which causes unnecessary rebuilds.
+#
+$(BUILDDIR)/%.o : %.c
+$(BUILDDIR)/%.o : %.c $(BUILDDIR)/%.d
 	$(TRACE_CC)
-	$(Q)$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o $@
-	@$(CC) -MM $(CCFLAGS) $(CPPFLAGS) $*.c > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -i 's/\r$$//' $*.d.tmp
-	@sed 's|.*:|$*.o:|' $*.d.tmp > $*.d
-	@sed 's/.*://; s/\\$$//' $*.d.tmp | fmt -1 | sed 's/^ *//; s/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
+	@mkdir -p $(@D) >/dev/null
+	$(Q)$(CC) -MT $@ -MMD -MP -MF $(BUILDDIR)/$*.Td $(CCFLAGS) $(CPPFLAGS) -c $< -o $@
+	@mv -f $(BUILDDIR)/$*.Td $(BUILDDIR)/$*.d
 
 # s -> o
-%.o : %.s
+$(BUILDDIR)/%.o : %.s
 	$(TRACE_AS)
+	@mkdir -p $(@D) >/dev/null
 	$(Q)$(AS) $(ASFLAGS) -c $< -o $@
 
+# Create a pattern rule with an empty recipe,
+# so that make won’t fail if the dependency file doesn’t exist.
+$(BUILDDIR)/%.d: ;
+# Mark the dependency files precious to make,
+# so they won’t be automatically deleted as intermediate files.
+.PRECIOUS: $(BUILDDIR)/%.d
+
 # Include dependent (*.d)
--include $(filter %.d, $(SOURCES:%.c=%.d))
+include $(FILES_DEPEND)
 
 # some info
 print:
 	@echo $(SOURCES)
+	@echo $(FILES_DEPEND)
 
 # Clean
 clean:
-	$(Q)find -type f -regex ".*\.\(hex\|bin\|elf\|map\|o\|d\)$$" | xargs rm -f
+	$(Q)rm -rf $(BUILDDIR)
+	$(Q)find -type f -regex ".*\.\(hex\|bin\|elf\|map\|o\|d\|Td\)$$" | xargs rm -f
 
 # KConfig
 %config:
