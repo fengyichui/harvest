@@ -1,0 +1,754 @@
+######################################################################
+## @file Kconfig
+## @brief Huntersun HS662x stack configuration
+## @date 2017/11/22 15:35:41
+## @author liqiang
+#####################################################################
+
+#
+# System
+#
+menu "System"
+
+choice
+    prompt "Hardware"
+    default HS6620_ASIC
+config HS6600_FPGA
+    bool "HS6600 FPGA"
+config HS6600_ASIC
+    bool "HS6600 ASIC"
+config HS6620_FPGA
+    bool "HS6620 FPGA"
+config HS6620_ASIC
+    bool "HS6620 AISC"
+endchoice
+
+config HARDWARE
+    int
+    default 1 if HS6600_FPGA
+    default 2 if HS6600_ASIC
+    default 4 if HS6620_FPGA
+    default 8 if HS6620_ASIC
+
+choice
+    prompt "Hardware Version"
+    default HARDWARE_VERSION_A2
+config HARDWARE_VERSION_A1
+    bool "A1"
+config HARDWARE_VERSION_A2
+    bool "A2"
+config HARDWARE_VERSION_A3
+    bool "A3"
+config HARDWARE_VERSION_A4
+    bool "A4"
+endchoice
+
+config HARDWARE_VERSION
+    int
+    default 1 if HARDWARE_VERSION_A1
+    default 2 if HARDWARE_VERSION_A2
+    default 3 if HARDWARE_VERSION_A3
+    default 4 if HARDWARE_VERSION_A4
+
+config SLEEP_SUPPORT
+    bool "Sleep support"
+    default n
+
+config SLEEP_WITH_CPU_DOWN
+    bool "Sleep with CPU power down (Can't debug with JLink)"
+    default y
+
+config BOOTLOADER
+    bool "Bootloader"
+    default n
+
+config RAM_APPLICATION
+    depends on !BOOTLOADER
+    bool "RAM application (use ROM symbol)"
+    default n
+
+config CONTROLLER_ONLY
+    depends on !BOOTLOADER
+    bool "Controller Only"
+    default n
+
+config COMPANY_ID
+    hex "Company ID"
+    default 01BF
+
+config MAJOR_VERSION
+    hex "Major version"
+    default 2
+
+config MINOR_VERSION
+    hex "Minor version"
+    default 0
+
+config BUILD_RELEASE
+    int "Build release"
+    default 20150410
+
+config SIMULATION
+    bool "Simulation"
+    default n
+
+config MMI_DISPLAY
+    bool "MMI Display"
+    default y
+
+config ASSERT
+    bool 'Assert support'
+    default y
+
+config DEBUG
+    bool 'Debug support'
+    default y
+
+config STACK_DEBUG
+    depends on DEBUG
+    bool "Stack debug"
+    default n
+
+config HEAP_DEBUG
+    depends on DEBUG
+    bool "Heap debug"
+    default n
+
+config LOG_OUTPUT
+    depends on DEBUG
+    bool "Log output"
+    default y
+
+config LOG_LEVEL
+    depends on LOG_OUTPUT
+    int "Log level (0-None 1-Error 2-Warning 3-Info 4-Debug)"
+    default 4
+
+config SEGGER_RTT
+    depends on LOG_OUTPUT
+    bool "Use Segger RTT as print output"
+    default n
+    help
+        In sleep mode, Segger RTT are worse than UART print output.
+
+config MONITOR_LINK_QUALITY
+    depends on DEBUG
+    bool "Monitor link quality"
+    default n
+
+config MONITOR_MEM_LEAKS
+    depends on DEBUG
+    bool "Monitor memery leaks"
+    default n
+
+config MONITOR_CPU_UTILIZATION
+    depends on DEBUG
+    bool "Monitor CPU utilization"
+    default n
+
+config OPTIMIZATION_LEVEL
+    int "Optimization level (0-None 1-Level1 2-Level2 3-Size 4-UltraSize)"
+    default 3
+
+config CALIBRATE_DELAY
+    bool 'Calibrate delay'
+    default n
+
+config CALIBRATED_DELAY_1US_COUNTER
+    depends on !CALIBRATE_DELAY
+    int "Calibrated 1us counter"
+    default 4
+
+config CALIBRATED_DELAY_10US_COUNTER
+    depends on !CALIBRATE_DELAY
+    int "Calibrated 10us counter"
+    default 35
+
+config CALIBRATED_DELAY_1MS_COUNTER
+    depends on !CALIBRATE_DELAY
+    int "Calibrated 1ms counter"
+    default 3500
+
+endmenu
+
+
+#
+# Flash CFG
+#
+menu "Flash CFG"
+
+config CFG_SECTION_NUM
+    int "The number of sections >=2 (SYS-1 USR-2)"
+    default 2
+
+config CFG_BACKGROUND_ERASE
+    bool 'Enable background erase when reclaim write'
+    default n
+
+config CFG_STATISTICS
+    bool 'Enable statistics'
+    default n
+
+config CFG_TEST_POWER_FAILURE
+    bool 'Enable power failure simulation test'
+    default n
+
+endmenu
+
+
+#
+#
+#
+
+menu 'Bluetooth Core'
+
+config BT_CLASSIC
+    bool
+    default n
+
+config BLE
+    bool 'Bluetooth Low Energy'
+    default y
+
+config BQB_TEST
+    bool 'BQB Test'
+    default n
+
+choice
+    prompt 'Bluetooth Version'
+    default BT_42
+config BT_40
+    bool '4.0'
+config BT_41
+    bool '4.1'
+config BT_42
+    bool '4.2'
+endchoice
+
+config BLE_VERSION
+    int
+    default 6 if BT_40
+    default 7 if BT_41
+    default 8 if BT_42
+
+config HCI_VERSION
+    hex "HCI Version"
+    default 1
+
+config HCI_REVISION
+    hex "HCI Revision"
+    default 1
+
+config BROADCASTER
+    bool 'Broadcaster Role'
+    default y
+
+config OBSERVER
+    bool 'Observer Role'
+    default y
+
+config PERIPHERAL
+    bool 'Peripheral Role'
+    default y
+
+config CENTRAL
+    bool 'Central Role'
+    default y
+
+config MESH
+    bool 'Mesh Role'
+    default y
+
+config TRANSCEIVER
+    bool 'Transceiver Role'
+    default y
+
+config  LE_MAX_LINKS_NUM
+    int 'Max LE links number'
+    default 8
+
+config WHITE_LIST
+    bool 'Enable White List'
+    default y
+
+endmenu
+
+#
+# Controller
+#
+menu 'BLE Controller'
+
+config LE_ACL_PKT_SIZE
+    int 'LE ACL packet size' 
+    default  54
+
+config LE_ACL_PKT_NUM
+    int 'LE ACL packet number' 
+    default 10
+
+config LE_CMD_PKT_NUM
+    int 'LE Comand packet number'
+    default 10
+
+config LE_HW_ECC
+    bool #'LE ECC in Hardware'
+    default n
+
+config LE_HW_WLIST
+    depends on WHITE_LIST
+    bool 'LE White List in Hardware (Software should open optimization)'
+    default y
+
+config LE_WLIST_NUM
+    depends on WHITE_LIST
+    int 'LE Whilte List number (HW: 6 in HS6600 and 10 in HS6620)'
+    default 10
+
+config PRIVACY_IN_CONTROLLER
+    depends on BT_42
+    bool 'LE Privacy in Controller' 
+    default y
+
+config LE_HW_RLIST
+    depends on PRIVACY_IN_CONTROLLER
+    bool 'LE Resolvable List in Hardware'
+    default y
+
+config LE_RLIST_NUM
+    depends on PRIVACY_IN_CONTROLLER
+    int 'LE Whilte List number (HW: 2)'
+    default 2
+
+config ADVANCE_SLEEP_TIMER
+    bool 'Advance Sleep Timer (Disable AUX Timer)'
+    default y
+
+config TCI
+    bool 'LE Host controller test interface' 
+    default y
+
+config SECURITY
+    bool 'Enable Security'
+    default y
+
+endmenu
+
+#
+# Host
+#
+menu 'BLE Host'
+
+config HUNTERSUN_HOST_ADVANCED
+    bool #'Huntersun Bluetooth Host Stack Advanced version'
+    default n
+
+config HUNTERSUN_NORDIC_SDK
+    bool
+    default y
+
+config GATT
+    bool 'BLE GATT (Generic Attribute Profile)' 
+    default y
+
+config SMP
+    bool 'BLE SMP (Security Manager Specification)'
+    default y
+
+config PRIVACY_IN_HOST
+    depends on !PRIVACY_IN_CONTROLLER
+    bool 'LE Privacy in Host'
+    default y if !PRIVACY_IN_CONTROLLER
+    default n if PRIVACY_IN_CONTROLLER
+
+config HOST_RAND
+    bool 'Host has Random Generator'
+    default y
+
+config HOST_AES
+    bool 'Host has AES Algorithm'
+    default y
+
+config HOST_LOCAL_INFO
+    bool 'Host has Controller local information'
+    default y
+
+config HOST_FAST_STARTUP
+    bool 'Host fast startup w/o HCI Reset' 
+    default y
+
+config BOND_LIST_SIZE
+    int 'The number of records in Bond List'
+    default 8
+
+config GATT_SERVER
+    bool 'GATT Server'
+    default y
+
+config GATT_CLIENT
+    bool 'GATT Client'
+    default y
+
+config GATT_DEBUG
+    bool 'GATT Debug'
+    default y
+
+endmenu
+
+#
+# Mesh
+#
+menu 'BLE Mesh'
+
+config MESH_EDGE_MODE
+    bool 'Edge mode'
+    default y
+
+config MESH_RELAY_MODE
+    bool 'Relay mode'
+    default y
+
+config MESH_FRIEND_MODE
+    bool 'Friend mode'
+    default y
+
+config MESH_LOWPOWER_MODE
+    bool 'Low power mode'
+    default y
+
+config MESH_PROXY_MODE
+    bool 'Proxy mode'
+    default y
+
+config MESH_PING_MODE
+    bool 'Ping mode'
+    default y
+
+config  MESH_NETWORK_MSG_CACHE_SIZE
+    int 'Network message cache size (>=2)'
+    default 3
+
+config MESH_MAX_SUPPORT_NETWORK_NUM
+    int 'Max number of supported network'
+    default 2
+
+endmenu
+
+#
+# BLE Application
+#
+menu 'BLE Application'
+
+config CONFIG_TRACE_LOG
+    bool 'Trace log support in Application' 
+    default n
+
+choice
+    prompt 'Application Role'
+    depends on !CONTROLLER_ONLY
+    default CONFIG_APP_PERIPHERAL
+config CONFIG_APP_PERIPHERAL
+    bool "Peripheral"
+config CONFIG_APP_CENTRAL
+    bool "Central"
+config CONFIG_APP_BROADCASTER
+    bool "Broadcaster"
+config CONFIG_APP_IOT
+    bool "IOT"
+config CONFIG_APP_24G
+    bool "2.4G"
+config CONFIG_APP_HCI_ACI
+    bool "HCI ACI"
+endchoice
+
+choice
+    prompt "Broadcaster APP"
+    depends on CONFIG_APP_BROADCASTER
+    default CONFIG_LE_BCAST_LED_MESH
+config CONFIG_LE_BCAST_LED_MESH
+    bool 'BLE APP LED MESH'
+config CONFIG_LE_BCAST_GATEWAY
+    bool 'BLE APP GATEWAY'
+endchoice
+
+choice
+    prompt "Central APP"
+    depends on CONFIG_APP_CENTRAL
+    default CONFIG_LE_CENTRAL_MULTILINK
+config CONFIG_LE_CENTRAL_HRS_C
+    bool 'BLE APP HRS Client'
+    select CONFIG_BAS_CLIENT
+    select CONFIG_HRS_CLIENT
+config CONFIG_LE_CENTRAL_MULTILINK
+    bool 'BLE APP Multilink Central'
+config CONFIG_LE_PERIPHERAL_MULTILINK
+    bool 'BLE APP Multilink PERIPHERAL'
+config CONFIG_LE_CENTRAL_CONNECTIVITY
+    bool 'BLE APP Connectivity'
+config CONFIG_LE_PERIPHERAL_SECURE_PAIRING_C
+    bool 'BLE APP Secure Pairing Client'
+config CONFIG_LE_CENTRAL_PRIVACY
+    bool 'BLE APP PRIVACY' 
+endchoice
+
+choice
+    prompt "Peripheral APP"
+    depends on CONFIG_APP_PERIPHERAL
+    default CONFIG_LE_PERIPHERAL_HID_MOUSE
+
+config CONFIG_LE_PERIPHERAL_ALERT
+    bool 'BLE APP Alert'
+    select CONFIG_ANS_CLIENT
+
+config CONFIG_LE_PERIPHERAL_BEACON
+    bool 'BLE APP BEACON'
+
+config CONFIG_LE_PERIPHERAL_BPS
+    bool 'BLE APP BPS'
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_BPS_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_CSCS
+    bool 'BLE APP CSCS'
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_CSCS_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_PRIVACY
+    bool 'BLE APP PRIVACY' 
+
+config CONFIG_LE_PERIPHERAL_CTS_C
+    bool 'BLE APP CTS CLIENT'
+    select CONFIG_CTS_CLIENT 
+
+config CONFIG_LE_PERIPHERAL_GLS
+    bool 'BLE APP GLS'
+    select CONFIG_GLS_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_HRS
+    bool 'BLE APP HRS'
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_HRS_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_HTS
+    bool 'BLE APP HTS'
+    select CONFIG_HTS_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_OTA
+    bool 'BLE APP OTA'
+    select CONFIG_OTA_SERVICE
+
+config CONFIG_LE_PERIPHERAL_COM
+    bool 'BLE APP COM'
+
+config CONFIG_LE_PERIPHERAL_RFSTAR
+    bool 'BLE APP rfStar'
+    select CONFIG_RFSTAR_SERVICE
+
+config CONFIG_LE_PERIPHERAL_PROXIMITY
+    bool 'BLE APP Proximity'
+    select CONFIG_TPS_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_IAS_SERVICE
+    select CONFIG_LLS_SERVICE
+    select CONFIG_IAS_CLIENT
+
+config CONFIG_LE_PERIPHERAL_PWR_PROFILING
+    bool 'BLE APP Power profiling'
+
+config CONFIG_LE_PERIPHERAL_RSCS
+    bool 'BLE APP RSCS'
+    select CONFIG_RSCS_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_HID_KEYBOARD
+    bool 'BLE APP HID Keyboard'
+    select CONFIG_HID_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_HID_MOUSE
+    bool 'BLE APP HID Mouse'
+    select CONFIG_HID_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_2_4G_PERIPHERAL_HID
+    bool 'BLE 2.4G APP HID Keyboard'
+    select CONFIG_HID_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_2_4G_PERIPHERAL_HID_MOUSE
+    bool 'BLE 2.4G APP HID Mouse'
+    select CONFIG_HID_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_UART
+    bool 'BLE APP UART'
+    select CONFIG_NUS_SERVICE
+
+config CONFIG_LE_PERIPHERAL_EXPERIMENTAL_ANCS
+    bool 'BLE APP Experimental Ancs'
+
+config CONFIG_LE_PERIPHERAL_SECURE_PAIRING
+    bool 'BLE APP Secure Pairing'
+    select CONFIG_GLS_SERVICE
+    select CONFIG_BATTERY_SERVICE
+    select CONFIG_DEVICE_INFO_SERVICE
+
+config CONFIG_LE_PERIPHERAL_WECHAT
+    bool 'BLE APP Wechat Device'
+
+config CONFIG_LE_PERIPHERAL_AUDIO
+    bool 'BLE APP Audio'
+    select CONFIG_BLE_AUDIO
+
+endchoice
+
+choice
+    prompt "IOT APP"
+    depends on CONFIG_APP_IOT
+    default CONFIG_LE_IOT_TEST
+config CONFIG_LE_IOT_TEST
+    bool 'BLE APP IOT TEST'
+config CONFIG_IOT_TCP_SERVER
+    bool 'TCP Server'
+config CONFIG_IOT_TCP_CLIENT
+    bool 'TCP Client'
+config CONFIG_IOT_UDP_LWIP_SERVER
+    bool 'UDP LWIP Server'
+config CONFIG_IOT_UDP_LWIP_CLIENT
+    bool 'UDP LWIP Client'
+config CONFIG_IOT_COAP_LWIP_SERVER
+    bool 'Coap LWIP Server'
+endchoice
+
+choice
+    prompt "2.4G APP"
+    depends on CONFIG_APP_24G
+    default CONFIG_24G_AIRCRAFT
+config CONFIG_24G_AIRCRAFT
+    bool 'Aircraft'
+config CONFIG_24G_LED
+    bool 'LED'
+endchoice
+
+choice
+    prompt "HCI ACI APP"
+    depends on CONFIG_APP_HCI_ACI
+    default CONFIG_APP_HCI
+config CONFIG_APP_HCI
+    bool 'BLE HCI'
+config CONFIG_APP_ACI
+    bool 'BLE ACI'
+endchoice
+
+#
+# BLE Service
+#
+menu 'BLE Service'
+
+config CONFIG_BATTERY_SERVICE
+    bool 'Battery Servcie'
+    default n
+
+config CONFIG_BPS_SERVICE
+    bool 'Blood Pressure Service'
+    default n
+
+config CONFIG_CGM_SERVICE
+    bool 'Continuous Glucose Monitoring Service'
+    default n
+
+config CONFIG_CSCS_SERVICE
+    bool 'Cycling Speed And Cadence Servcie'
+    default n
+
+config CONFIG_DEVICE_INFO_SERVICE
+    bool 'Device Info Service'
+    default n
+
+config CONFIG_GLS_SERVICE
+    bool 'Glucose Service'
+    default n
+
+config CONFIG_HID_SERVICE
+    bool 'Human Interface Device Service'
+    default n
+
+config CONFIG_HRS_SERVICE
+    bool 'Heart Rate Service'
+    default n
+
+config CONFIG_HTS_SERVICE
+    bool 'Health Thermometer Service'
+    default n
+
+config CONFIG_IAS_SERVICE
+    bool 'Immediate Alert Service'
+    default n
+
+config CONFIG_LLS_SERVICE
+    bool 'Link Loss Service'
+    default n
+
+config CONFIG_NUS_SERVICE
+    bool 'Nordic UART Service'
+    default n
+
+config CONFIG_BLE_AUDIO
+    bool 'Audio Service'
+    default n
+
+config CONFIG_OTA_SERVICE
+    bool 'OTA Service'
+    default n
+
+config CONFIG_RFSTAR_SERVICE
+    bool 'rfStar Service'
+    default n
+
+config CONFIG_RSCS_SERVICE
+    bool 'Running Speed and Cadence'
+    default n
+
+config CONFIG_TPS_SERVICE
+    bool 'Tx Power Service'
+    default n
+
+config CONFIG_DFU_SERVICE
+    bool 'Device Firmware Update Service'
+    default n
+
+config CONFIG_ANS_CLIENT
+    bool 'Alert Notification Client'
+    default n
+
+config CONFIG_BAS_CLIENT
+    bool 'Battery Client'
+    default n
+
+config CONFIG_CTS_CLIENT
+    bool 'Current Time Client'
+    default n
+
+config CONFIG_HRS_CLIENT
+    bool 'Heart Rate Client'
+    default n
+
+config CONFIG_IAS_CLIENT
+    bool 'Immediate Alert Client'
+    default n
+
+endmenu
+
+endmenu
+
