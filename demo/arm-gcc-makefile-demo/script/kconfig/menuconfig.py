@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (c) 2018, Ulf Magnusson
+# Copyright (c) 2018, Nordic Semiconductor ASA and Ulf Magnusson
 # SPDX-License-Identifier: ISC
 
 """
@@ -150,7 +150,8 @@ _JUMP_TO_HELP_LINES = """
 Type text to narrow the search. Regexes are supported (via Python's 're'
 module). The up/down cursor keys step in the list. [Enter] jumps to the
 selected symbol. [ESC] aborts the search. Type multiple space-separated
-strings/regexes to find entries that match all of them.
+strings/regexes to find entries that match all of them. Type Ctrl-F to
+view the help of the selected item without leaving the dialog.
 """[1:-1].split("\n")
 
 def _init_styles():
@@ -499,7 +500,7 @@ def _menuconfig(stdscr):
             if _save_dialog(_kconf.write_config, _config_filename,
                             "configuration") and \
                _save_dialog(_kconf.write_autoconf, _config_autoheader_filename,
-			                "autoconf header"):
+                            "autoconf header"):
                 _conf_changed = False
             # }
 
@@ -514,7 +515,7 @@ def _menuconfig(stdscr):
             _resize_main()
 
         elif c == "?":
-            _info_dialog(_shown[_sel_node_i])
+            _info_dialog(_shown[_sel_node_i], False)
             # The terminal might have been resized while the fullscreen info
             # dialog was open
             _resize_main()
@@ -548,11 +549,11 @@ def quit_dialog():
        if c == "y":
            # liqiang<> {
            if _try_save(_kconf.write_config, _config_filename,
-		                "configuration") and \
+                        "configuration") and \
               _try_save(_kconf.write_autoconf, _config_autoheader_filename,
-			            "autoconf header"):
+                        "autoconf header"):
                return "Configuration saved to '{}' and '{}'" \
-			          .format(_config_filename, _config_autoheader_filename)
+                        .format(_config_filename, _config_autoheader_filename)
             # }
 
        elif c == "n":
@@ -1419,6 +1420,12 @@ def _draw_frame(win, title):
     win.attroff(_DIALOG_FRAME_STYLE)
 
 def _jump_to_dialog():
+    # Implements the jump-to dialog, where symbols can be looked up via
+    # incremental search and jumped to.
+    #
+    # Returns True if the user jumped to a symbol, and False if the dialog was
+    # canceled.
+
     # Search text
     s = ""
     # Previous search text
@@ -1538,17 +1545,25 @@ def _jump_to_dialog():
             if matches:
                 _jump_to(matches[sel_node_i])
                 _safe_curs_set(0)
-                return
+                return True
 
-        if c == "\x1B":  # \x1B = ESC
+        elif c == "\x1B":  # \x1B = ESC
             _safe_curs_set(0)
-            return
+            return False
 
-
-        if c == curses.KEY_RESIZE:
+        elif c == curses.KEY_RESIZE:
             # We adjust the scroll so that the selected node stays visible in
             # the list when the terminal is resized, hence the 'scroll'
             # assignment
+            scroll = _resize_jump_to_dialog(
+                edit_box, matches_win, bot_sep_win, help_win,
+                sel_node_i, scroll)
+
+        elif c == "\x06":  # \x06 = Ctrl-F
+            _safe_curs_set(0)
+            _info_dialog(matches[sel_node_i], True)
+            _safe_curs_set(1)
+
             scroll = _resize_jump_to_dialog(
                 edit_box, matches_win, bot_sep_win, help_win,
                 sel_node_i, scroll)
@@ -1711,8 +1726,13 @@ def _draw_jump_to_dialog(edit_box, matches_win, bot_sep_win, help_win,
 
     edit_box.noutrefresh()
 
-def _info_dialog(node):
-    # Shows a fullscreen window with information about 'node'
+def _info_dialog(node, from_jump_to_dialog):
+    # Shows a fullscreen window with information about 'node'.
+    #
+    # If 'from_jump_to_dialog' is True, the information dialog was opened from
+    # within the jump-to-dialog. In this case, we make '/' from within the
+    # information dialog just return, to avoid a confusing recursive invocation
+    # of the jump-to-dialog.
 
     # Top row, with title and arrows point up
     top_line_win = _styled_win(_SEPARATOR_STYLE)
@@ -1767,6 +1787,22 @@ def _info_dialog(node):
         elif c in (curses.KEY_UP, "k", "K"):
             if scroll > 0:
                 scroll -= 1
+
+        elif c == "/":
+            # Support starting a search from within the information dialog
+
+            if from_jump_to_dialog:
+                # Avoid recursion
+                return
+
+            if _jump_to_dialog():
+                # Jumped to a symbol. Cancel the information dialog.
+                return
+
+            # Stay in the information dialog if the jump-to dialog was
+            # canceled. Resize it in case the terminal was resized while the
+            # fullscreen jump-to dialog was open.
+            _resize_info_dialog(top_line_win, text_win, bot_sep_win, help_win)
 
         elif c in (curses.KEY_LEFT, curses.KEY_BACKSPACE, _ERASE_CHAR,
                    "\x1B",  # \x1B = ESC
@@ -2332,9 +2368,8 @@ def _is_num(name):
     # they get their name as their value when the symbol is undefined.
 
     try:
-        int(name, 10)
+        int(name)
         return True
-
     except ValueError:
         if not name.startswith(("0x", "0X")):
             return False
@@ -2342,7 +2377,6 @@ def _is_num(name):
         try:
             int(name, 16)
             return True
-
         except ValueError:
             return False
 
