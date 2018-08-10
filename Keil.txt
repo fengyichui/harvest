@@ -403,5 +403,8 @@ Keil学习
     // Multi Attribute
     uint32_t var[10] __attribute__((section(".xdata"), aligned(8)));
 
+11. 在win10中，有时候进入调试或者下载模式时，keil直接退出的问题
+    注册表中：计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
+    删除所有包含UV4.exe项
 
 vim: ft=help

@@ -16,6 +16,9 @@
     $ objcopy -O ihex a.elf a.hex
 <    elf -> bin >
     $ objcopy -O binary a.elf a.bin
+<
+    NOTE: 如果elf产生的ihex或bin文件过大的话，可以对objcopy使用-j选项来指定产生文件的section： >
+    $ objcopy -j .text -O binary a.elf a.bin
 
 3. objdump
     elf -> disassemble >
