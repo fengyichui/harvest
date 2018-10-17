@@ -996,4 +996,12 @@
         5. 删除gpio的单沿触发的模式, 且回调中加入了pin_level_mask参数
 
 
+    Ellisys:
+        vanguard: 6.7w刀
+        tracker_pro: 2w刀 (1.9w)
+        explorer_pro: 4.6w刀
+        explorer_std: 3.9w刀
+        SIG会员85折
+        孙皓(销售): 15801471720, hao.sun@ellisys.com
+
 vim: ft=help
