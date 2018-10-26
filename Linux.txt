@@ -973,4 +973,129 @@
 32. 源码编译时 安装文件到指定路径
     make install DESTDIR=/install/directory
 
+33. ss/ssr/v2ray/socks5 透明代理 [https://www.zfl9.com/ss-redir.html]
+
+    先说 ss/ssr 透明代理吧，ss-redir 是 ss-libev[https://github.com/shadowsocks/shadowsocks-libev]、
+    ssr-libev[https://github.com/shadowsocksr-backup/shadowsocksr-libev] 中的一个工具，配合 iptables
+    可以在 Linux 上实现 ss、ssr 透明代理，ss-redir 的 TCP 透明代理是通过 REDIRECT 方式实现的，而 UDP
+    透明代理是通过 TPROXY 方式实现的。强调一点，利用 ss-redir 实现透明代理必须使用 ss-libev 或
+    ssr-libev，python、go 等版本没有 ss-redir、ss-tunnel 程序。
+
+    当然，ss、ssr 透明代理并不是只能用 ss-redir 来实现，使用 ss-local + redsocks2/tun2socks 同样可以
+    实现 socks5（ss-local 是 socks5 服务器）全局透明代理；ss-local + redsocks2 实际上是 ss-redir
+    的分体实现，TCP 使用 REDIRECT 方式，UDP 使用 TPROXY 方式；ss-local + tun2socks 则相当于 Android
+    版 SS/SSR 的 VPN 模式，因为它实际上是通过一张虚拟的 tun 网卡来进行代理的。
+
+    最后说一下 v2ray 的透明代理，其实原理和 ss/ssr-libev 一样，v2ray 可以看作是 ss-local、ss-redir、
+    ss-tunnel、ss-server 四者的合体，因为同一个 v2ray 程序既可以作为 server 端，也可以作为 client 端。
+    所以 v2ray 的透明代理也有两种实现方式，一是利用对应的 ss-redir/ss-tunnel + iptables，二是利用对应的
+    ss-local + redsocks2/tun2socks（redsocks2/tun2socks 可以与任意 socks5 代理组合，实现透明代理）。
+
+    组件区别
+    ss-server
+    shadowsocks 服务端程序，核心部件之一，各大版本均提供 ss-server 程序。
+
+    ss-local
+    shadowsocks 客户端程序，核心部件之一，各大版本均提供 ss-local 程序。
+    ss-local 是运行在本地的 socks5 代理服务器，根据 OSI 模型，socks5 是会话层协议，支持 TCP 和 UDP 的代理。
+
+    但是现在只有少数软件直接支持 socks5 代理协议，绝大多数都只支持 http 代理协议。好在我们可以利用 privoxy
+    将 socks5 代理转换为 http 代理，使用 privoxy 还有一个好处，那就是可以实现 gfwlist 分流模式（不过现在的
+    ss-tproxy 脚本也可以了），如果你对它感兴趣，可以看看 ss-local 终端代理[https://www.zfl9.com/ss-local.html]。
+
+    ss-redir
+    shadowsocks-libev 提供的socks5 透明代理工具，也就是今天这篇文章的主题 - 实现透明代理！
+
+    正向代理
+    正向代理，即平常我们所说的代理，比如 http 代理、socks5 代理等，都属于正向代理。
+    正向代理的特点就是：如果需要使用正向代理访问互联网，就必须在客户端进行相应的代理设置。
+
+    透明代理
+    透明代理和正向代理的作用是一样的，都是为了突破某些网络限制，访问网络资源。
+    但是透明代理对于客户端是透明的，客户端不需要进行相应的代理设置，就能使用透明代理访问互联网。
+
+    反向代理
+    当然，这个不在本文的讨论范畴之内，不过既然提到了前两种代理，就顺便说说反向代理。
+    反向代理是针对服务端来说的，它的目的不是为了让我们突破互联网限制，而是为了实现负载均衡。
+
+    举个栗子：
+    ss-local 提供 socks5 正向代理，要让软件使用该代理，必须对软件进行相应的代理配置，否则不会走代理；
+    ss-redir 提供 socks5 透明代理，配置合适网络规则后，软件会在不知情的情况下走代理，不需要额外配置。
+
+    ss-tunnel
+    shadowsocks-libev 提供的本地端口转发工具，通常用于解决 dns 污染问题。
+
+    假设 ss-tunnel 监听本地端口 53，转发的远程目的地为 8.8.8.8:53；系统 dns 为 127.0.0.1。
+    去程：上层应用请求 dns 解析 -> ss-tunnel 接收 -> ss 隧道 -> ss-server 接收 -> 8.8.8.8:53；
+    回程：8.8.8.8:53 响应 dns 请求 -> ss-server 接收 -> ss 隧道 -> ss-tunnel 接收 -> 上层应用。
+
+    方案说明
+    用过 Linux SS/SSR 客户端（尤其指命令行界面）的都知道，它们比 Windows/Android 中的 SS/SSR 客户端难用多了，
+    安装好就只有一个 ss-local（libev 版还有 ss-redir、ss-tunnel，但我相信大部分人装得都是 python 版的），
+    启动 ss-local 后并不会像 Windows/Android 那样自动配置系统代理，此时它仅仅是一个本地 socks5 代理服务器，
+    默认监听 127.0.0.1:1080，如果需要利用该 socks5 代理上外网，必须在命令中指定对应的代理，
+    如 curl -4sSkL -x socks5h://127.0.0.1:1080 https://www.google.com。
+
+    但我想大部分人要的代理效果都不是这种的，太原始了。那能不能配置所谓的“系统代理”呢，可以是可以，
+    但是好像只支持 http 类型的代理，即在当前 shell 中设置 http_proxy、https_proxy 环境变量，假设存在
+    一个 http 代理（支持 CONNECT 请求方法），监听地址是 127.0.0.1:8118，可以这样做：
+    export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy。执行完后，git、curl、wget
+    等命令会自动从环境变量中读取 http 代理信息，然后通过 http 代理连接目的服务器。
+
+    那问题来了，ss-local 提供的是 socks5 代理，不能直接使用怎么办？也简单，Linux 中有很多将 socks5 包装为
+    http 代理的工具，比如 privoxy。只需要在 /etc/privoxy/config 里面添加一行 forward-socks5 / 127.0.0.1:1080 .，
+    启动 privoxy，默认监听 127.0.0.1:8118 端口，注意别搞混了，8118 是 privoxy 提供的 http 代理地址，
+    而 1080 是 ss-local 提供的 socks5 代理地址，发往 8118 端口的数据会被 privoxy 处理并转发给 ss-local。
+    所以我们现在可以执行 export http_proxy=http://127.0.0.1:8118; export https_proxy=$http_proxy 来配置
+    当前终端的 http 代理，这样 git、curl、wget 这些就会自动走 ss-local 出去了。
+
+    当然我们还可以利用 privoxy 灵活的配置，实现 Windows/Android 中的 gfwlist 分流模式。gfwlist.txt 其实是
+    对应的 Adblock Plus 规则的 base64 编码文件，显然不能直接照搬到 privoxy 上。这个问题其实已经有人解决了，
+    利用 snachx/gfwlist2privoxy python 脚本就可轻松搞定。但其实我也重复的造了一个轮子：zfl9/gfwlist2privoxy，
+    我并不是吃饱了没事干，是因为我当时运行不了他的脚本（也不知道什么原因），所以花了点时间用 shell 脚本实现
+    了一个 gfwlist2privoxy（但其实我是用 perl 转换的，只不过用 shell 包装了一下）。脚本转换出来的是一个
+    gfwlist.action 文件，我们只需将该 gfwlist.action 文件放到 /etc/privoxy 目录，然后在 config 中添加一行
+    actionsfile gfwlist.action（当然之前 forward-socks5 那行要注释掉），重启 privoxy 就可以实现 gfwlist 分流了。
+
+    但仅仅依靠 http_proxy、https_proxy 环境变量实现的终端代理效果不是很好，因为有些命令根本不理会你的
+    http_proxy、https_proxy 变量，它们依旧走的直连。但又有大神想出了一个巧妙的方法，即 rofl0r/proxychains-ng，
+    其原理是通过 LD_PRELOAD 特殊环境变量提前加载指定的动态库，来替换 glibc 中的同名库函数。这个 LD_PRELOAD
+    指向的其实就是 proxychains-ng 实现的 socket 包装库，这个包装库会读取 proxychains-ng 的配置文件（这里面配
+    置代理信息），之后执行的所有命令调用的 socket 函数其实都是 proxychains-ng 动态库中的同名函数，于是就实现
+    了全局代理，而命令对此一无所知。将 proxychains-ng 与 privoxy 结合起来基本上可以完美实现 ss/ssr 的本地全局
+    gfwlist代理（小技巧，在 shell 中执行 exec proxychains -q bash 可以实现当前终端的全局代理，如果需要每个终端
+    都自动全局代理，可以在 bashrc 文件中加入这行）。
+
+    但是很多人对此依然无法满足，因为他们想实现 OpenWrt 那种路由级别的全局透明代理（并且还有 gfwlist、绕过大陆
+    地址段这些分流模式可选择），这样只要设备连到 WiFi 就能直接无缝上网，完全感觉不到“墙”的存在。如果忽略分流
+    模式（即全部流量都走代理出去），那么实现是很简单的（几条 iptables 就可以搞定，但是这太简单粗暴了，很多国
+    内网站走代理会非常慢，体验很不好）；但是如果要自己实现 gfwlist、绕过大陆地址段这些模式，恐怕很多人都会望
+    而却步，因为确实复杂了一些。但这种透明代理的模式的确很诱人，毕竟只要设置一次就可以让所有内网设备上 Internet，
+    所以我开始摸索如何在 Linux 软路由中（我用的是树莓派 3B，目前还凑合，当然也可以直接在 Windows 中利用 
+    VMware/VirtualBox 建一个桥接模式的虚拟机，做所谓的 代理网关）实现类似 OpenWrt 的代理模式，而我摸索出来的
+    成果就是 ss-tproxy 透明代理脚本。
+
+    ShadowsocksR
+    ShadowsocksR（简称 SSR）是由 @breakwa11 发起的一个 Shadowsocks 分支，主要特点是增加了协议插件（增强安全性）
+    和混淆插件（降低识别率），虽然 breakwa11 早在 2017 年 7 月就已经删除了 SSR 相关源码，但我目前仍然使用的 SSR
+    （V2Ray 速度不行，我的树莓派 3B 完全带不起），自写了一个 C 语言版的 v2ray，即 tls-proxy，用在树莓派上完全没
+    问题，速度与 ss/ssr-libev 基本没区别。因为原版 SS 被 QoS（Quality of Service，服务质量）影响严重
+    （SS + simple-obfs 也能像 SSR 那样混淆），如果不将流量伪装为 HTTP/HTTPS 数据，那么代理的速度很难提上来
+    （即使装了锐速、BBR 魔改）。为什么呢，因为 HTTP/HTTPS 流量的优先级相对来说是比较高的（标准端口，HTTP/80、HTTPS/443），
+    优先级高的包在国际出口上就会先发送，尽量不滞留，路顺畅了速度自然就上来了。
+
+    SSR 混淆说明
+    ## Client -> Server 方向
+    客户端请求 -> ss-local -> 协议插件 -> 加密 -> 混淆插件
+    x======================== GFW =======================
+    混淆插件 -> 解密 -> 协议插件 -> ss-server -> 目标服务器
+    ## 协议插件与混淆插件的作用
+    "协议插件": 主要用于增加数据完整性校验，增强安全性，进行包长度混淆等
+    "混淆插件": 主要用于伪装为其它协议（如 HTTP、HTTPS），扰乱 GFW 的检测
+    ## 推荐的协议插件与混淆插件
+    协议插件: "auth_sha1_v4"、"auth_aes128_md5"、"auth_aes128_sha1"、"auth_chain_a"
+    混淆插件: "plain"（即：不混淆）、"http_simple"、"http_post"、"tls1.2_ticket_auth"
+    # 为什么推荐 plain，因为混淆不总是有效果的，有时候不混淆让其看起来像随机数据会更好一些
+
+
 vim:ft=help
