@@ -79,32 +79,34 @@ Shell 总结
 
 6. [ ... ] [[ ... ]] 测试指令:
     条件测试。注意这里的两边空格很重要。要确保方括号的空格。
+    [ -t FD ]            如果文件描述符 FD 打开且指向一个终端则为真。
     [ -a FILE ]          如果 FILE 存在则为真。
     [ -b FILE ]          如果 FILE 存在且是一个块特殊文件则为真。
     [ -c FILE ]          如果 FILE 存在且是一个字特殊文件则为真。
     [ -d FILE ]          如果 FILE 存在且是一个目录则为真。
     [ -e FILE ]          如果 FILE 存在则为真。
     [ -f FILE ]          如果 FILE 存在且是一个普通文件则为真。
-    [ -g FILE ]          如果 FILE 存在且已经设置了SGID则为真。 [ -h FILE ]  如果 FILE 存在且是一个符号连接则为真。
+    [ -g FILE ]          如果 FILE 存在且已经设置了SGID则为真。
+    [ -h FILE ]          如果 FILE 存在且是一个符号连接则为真。
     [ -k FILE ]          如果 FILE 存在且已经设置了粘制位则为真。
     [ -p FILE ]          如果 FILE 存在且是一个名字管道(F如果O)则为真。
     [ -r FILE ]          如果 FILE 存在且是可读的则为真。
     [ -s FILE ]          如果 FILE 存在且大小不为0则为真。
-    [ -t FD ]            如果文件描述符 FD 打开且指向一个终端则为真。
     [ -u FILE ]          如果 FILE 存在且设置了SUID (set user ID)则为真。
     [ -w FILE ]          如果 FILE 如果 FILE 存在且是可写的则为真。
     [ -x FILE ]          如果 FILE 存在且是可执行的则为真。
     [ -O FILE ]          如果 FILE 存在且属有效用户ID则为真。
     [ -G FILE ]          如果 FILE 存在且属有效用户组则为真。
     [ -L FILE ]          如果 FILE 存在且是一个符号连接则为真。
-    [ -N FILE ]          如果 FILE 存在 and has been mod如果ied since it was last read则为真。
+    [ -N FILE ]          如果 FILE 存在且已经被修改自从最后一次被读则为真。
     [ -S FILE ]          如果 FILE 存在且是一个套接字则为真。
-    [ -o OPTIONNAME ]    如果 shell选项 “OPTIONNAME” 开启则为真。
-    [ -z STRING ]        “STRING” 的长度为零则为真
-    [ -z $VAR ]          变量未定义或者长度为零则为真
-    [ -n STRING ]        “STRING” 的长度为非零 non-zero则为真。
-    [ STRING ]           “STRING” 的长度为非零 non-zero则为真。
-    [ FILE1 -nt FILE2 ]  如果 FILE1 has been changed more recently than FILE2, or 如果 FILE1 exists and FILE2 does not则为真。
+    [ -o OPTIONNAME ]    如果 shell选项 OPTIONNAME 开启则为真。
+    [ -z STRING ]        STRING 的长度为零则为真
+    [ -n STRING ]        STRING 的长度为非零则为真。
+    [ -z $VARNAME ]      变量未定义或者长度为零则为真
+    [ -v VARNAME ]       变量被定义过则为真（var= 也算定义过）
+    [ STRING ]           STRING 的长度为非零则为真。
+    [ FILE1 -nt FILE2 ]  如果 FILE1 比 FILE2 要新，或者 FILE1 存在且 FILE2 不存在则为真。
     [ FILE1 -ot FILE2 ]  如果 FILE1 比 FILE2 要老, 或者 FILE2 存在且 FILE1 不存在则为真。
     [ FILE1 -ef FILE2 ]  如果 FILE1 和 FILE2 指向相同的设备和节点号则为真。
 
@@ -773,6 +775,7 @@ Shell 总结
     $ sed '/fish/d' my.txt                  # d命令 是删除匹配行。删除匹配到/fish/的行
     $ sed '2d' my.txt                       # 删除第2行
     $ sed '2,$d' my.txt                     # 删除第2到最后一行
+    $ sed '2w a.txt' my.txt                 # w命令 是写匹配到的行到某个文件中
     $ sed '/fish/p' my.txt                  # p命令 是打印行。匹配fish并输出，可以看到fish的那一行被打了两遍。这是因为sed处理时会把处理的信息输出
     $ sed -n '/fish/p' my.txt               # -n 仅打印匹配到的行
     $ sed -n '/dog/,/fish/p' my.txt         # 仅打印匹配/dog/到匹配/fish/的行
