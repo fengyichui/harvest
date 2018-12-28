@@ -1055,6 +1055,7 @@
 
 HS6621FPGA:
     线损：3.2dBm
+    NF: 4.8dBm
     硬判决：
         2MHz    -90.5dBm
         1MHz    -93.2dBm

@@ -202,9 +202,15 @@
              make      #可以直接执行
              pwd       #查看当前所在的目录
 
-         链接断开远程调试：
-             链接：target remote 192.168.1.160:2331
+         连接断开远程调试：
+             连接：target remote 192.168.1.160:2331
              断开：kill
+
+        启用仿真模式SIM：
+            file a.axf
+            target sim
+            load
+            run
 
          加载符号：
             file <file>:
