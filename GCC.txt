@@ -262,6 +262,9 @@
             output /fmt expression          # 输出expression的格式化结果，类似p打印，只不过不会输出"$n = xxx"
             printf string, expressions...   # 格式化输出，用法同c语言的printf，但是当输出%s，可能会有问题（需要调试程序里有malloc的函数）
 
+        执行字符串：
+            eval "format_string", arg1, arg2, arg3, ..., argn   # 转换 printf "format_string", arg1, arg2, arg3, ..., argn 为一个命令行，然后调用它
+
         example: >
         (gdb) source test.gdb
         (file) test.gdb:

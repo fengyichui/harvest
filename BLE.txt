@@ -1014,21 +1014,58 @@
         SIG会员85折
         孙皓(销售): 15801471720, hao.sun@ellisys.com
 
-    
-    2.  数字不死等, 模拟有自适应的LDO驱动外部电路的以防止外部i2c设备死掉
-    3.  不修
-    4.  准备修
-    5.  修了，除以2 ？
-    6.  准备做
-    7.  不修?
-    8.  修
-    9.  重新考虑
-    10. 修
-    11. 不修
-    12. 修，reset div32k, 通相位
-    13. 再说
-    17. 修
-    18. 修
-    20. 修
+    HS6620 PUYA(0x856013) flash speed test:
+        size=100kB sfspeed=6MHz  sfwith=1 erase=178ms write=842ms  read=216ms
+        size=200kB sfspeed=6MHz  sfwith=1 erase=357ms write=1684ms read=433ms
+        size=300kB sfspeed=6MHz  sfwith=1 erase=536ms write=2527ms read=650ms
+        size=400kB sfspeed=6MHz  sfwith=1 erase=715ms write=3369ms read=867ms
+        size=100kB sfspeed=6MHz  sfwith=2 erase=178ms write=842ms  read=109ms
+        size=200kB sfspeed=6MHz  sfwith=2 erase=357ms write=1684ms read=218ms
+        size=300kB sfspeed=6MHz  sfwith=2 erase=536ms write=2527ms read=327ms
+        size=400kB sfspeed=6MHz  sfwith=2 erase=715ms write=3369ms read=437ms
+        size=100kB sfspeed=6MHz  sfwith=4 erase=178ms write=842ms  read=58ms
+        size=200kB sfspeed=6MHz  sfwith=4 erase=357ms write=1684ms read=117ms
+        size=300kB sfspeed=6MHz  sfwith=4 erase=536ms write=2527ms read=175ms
+        size=400kB sfspeed=6MHz  sfwith=4 erase=715ms write=3369ms read=234ms
+        size=100kB sfspeed=12MHz sfwith=1 erase=177ms write=687ms  read=80ms
+        size=200kB sfspeed=12MHz sfwith=1 erase=354ms write=1375ms read=160ms
+        size=300kB sfspeed=12MHz sfwith=1 erase=531ms write=2062ms read=240ms
+        size=400kB sfspeed=12MHz sfwith=1 erase=708ms write=2750ms read=320ms
+        size=100kB sfspeed=12MHz sfwith=2 erase=177ms write=687ms  read=40ms
+        size=200kB sfspeed=12MHz sfwith=2 erase=354ms write=1375ms read=81ms
+        size=300kB sfspeed=12MHz sfwith=2 erase=531ms write=2062ms read=122ms
+        size=400kB sfspeed=12MHz sfwith=2 erase=708ms write=2750ms read=163ms
+        size=100kB sfspeed=12MHz sfwith=4 erase=177ms write=687ms  read=22ms
+        size=200kB sfspeed=12MHz sfwith=4 erase=354ms write=1375ms read=45ms
+        size=300kB sfspeed=12MHz sfwith=4 erase=531ms write=2062ms read=68ms
+        size=400kB sfspeed=12MHz sfwith=4 erase=708ms write=2750ms read=91ms
+        size=100kB sfspeed=24MHz sfwith=1 erase=178ms write=690ms  read=46ms
+        size=200kB sfspeed=24MHz sfwith=1 erase=356ms write=1381ms read=92ms
+        size=300kB sfspeed=24MHz sfwith=1 erase=535ms write=2072ms read=138ms
+        size=400kB sfspeed=24MHz sfwith=1 erase=713ms write=2762ms read=184ms
+        size=100kB sfspeed=24MHz sfwith=2 erase=178ms write=690ms  read=23ms
+        size=200kB sfspeed=24MHz sfwith=2 erase=356ms write=1381ms read=47ms
+        size=300kB sfspeed=24MHz sfwith=2 erase=535ms write=2072ms read=70ms
+        size=400kB sfspeed=24MHz sfwith=2 erase=713ms write=2762ms read=94ms
+        size=100kB sfspeed=24MHz sfwith=4 erase=178ms write=690ms  read=14ms
+        size=200kB sfspeed=24MHz sfwith=4 erase=356ms write=1381ms read=28ms
+        size=300kB sfspeed=24MHz sfwith=4 erase=535ms write=2072ms read=42ms
+        size=400kB sfspeed=24MHz sfwith=4 erase=713ms write=2762ms read=56ms
+
+
+HS6621FPGA:
+    线损：3.2dBm
+    硬判决：
+        2MHz    -90.5dBm
+        1MHz    -93.2dBm
+        500kHz  -99.0dBm
+        125kHz  -103.0dBm
+    软判决：
+        2MHz    -93.2dBm
+        1MHz    -96.2dBm
+        500kHz/125kHz不支持软判决
+
+
+
 
 vim: ft=help
