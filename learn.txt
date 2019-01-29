@@ -1,3 +1,5 @@
+|include| *note.md*
+|include| *misc.md*
 
 |include| *BLE.txt*
 |include| *GCC.txt*
