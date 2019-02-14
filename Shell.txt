@@ -855,5 +855,26 @@ Shell 总结
 <    解决方法, 使用stdbuf命令：
     $ tail -f /var/log/foo | stdbuf -o0 COMMAND
 
+35. < << <<< 用法
+    command < file          将file里的内容作为"标准输入"传入给command，等价于: cat file | command
+    command << EOF ... EOF  将两个EOF之间的内容作为"标准输入"传递给command, EOF之间可以有换行
+    command <<< $strings    将strings做为command的"标准输入", strings既可以是字符串也可以是变量，等价于: echo $string | command
+    command <(cmds)         将cmds的标准输出作为"文件"给command，等价于: cmds >/tmp/tmpfile; command /tmp/tmpfile; rm /tmp/tmpfile
+
+    例子： >
+     1. while read name surname films
+        do
+            echo $films $name $surname > filmsfirst.txt
+        done < CBActors.txt
+
+     2. vim - << EOF
+        abc
+        abcd
+        abcde
+        EOF
+
+     3. vim - <<< $string
+
+     4. diff <(ls /original/dir/) <(ls /backup/dir/)
 
 vim:ft=help
