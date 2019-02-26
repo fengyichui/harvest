@@ -59,6 +59,7 @@ TARGET_ELF	 			:= $(TARGET).elf
 TARGET_BIN				:= $(TARGET).bin
 TARGET_HEX				:= $(TARGET).hex
 TARGET_MAP				:= $(TARGET).map
+TARGET_DIS				:= $(TARGET).dis
 OBJCPFLAGS_ELF_TO_BIN	 = -Obinary
 OBJCPFLAGS_ELF_TO_HEX	 = -Oihex
 OBJCPFLAGS_HEX_TO_BIN	 = -Obinary -Iihex
@@ -69,6 +70,7 @@ AS			= arm-none-eabi-as
 LD			= arm-none-eabi-ld
 AR			= arm-none-eabi-ar
 OBJCP		= arm-none-eabi-objcopy
+OBJDUMP		= arm-none-eabi-objdump
 OBJSIZE		= arm-none-eabi-size
 
 # Optimize
@@ -85,7 +87,7 @@ WARNINGS 	= -Wall -Wformat=0 -Wstrict-aliasing=0
 
 # Flags
 CPPFLAGS	= $(INCLUDES) $(DEFINES)
-CCFLAGS		= -mcpu=$(CPU) -mthumb -g3 -std=gnu99 $(WARNINGS) $(CC_OPTIMIZE)
+CCFLAGS		= -mcpu=$(CPU) -mthumb -g3 -std=gnu99 $(WARNINGS) $(CC_OPTIMIZE) #-fPIC #-mno-pic-data-is-text-relative -msingle-pic-base -mpic-register=r9
 ASFLAGS		= -mcpu=$(CPU) -mthumb
 LDFLAGS		= -nostartfiles -static $(CCFLAGS) $(LD_OPTIMIZE) -T$(LDSCRIPT) -Wl,-Map=$(TARGET_MAP)
 
@@ -117,6 +119,7 @@ $(TARGET_ELF) : $(FILES_C_OBJ) $(FILES_S_OBJ)
 	$(TRACE_LD)
 	$(Q)$(CC) $+ $(LDFLAGS) $(LDLIBS) -o $@
 	$(Q)$(OBJSIZE) -B -d $@
+	$(Q)$(OBJDUMP) -d $@ > $(TARGET_DIS)
 
 #
 # %.o : %.c
