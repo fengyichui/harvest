@@ -879,6 +879,7 @@
         addr2line       Convert addresses into line number/file name pairs
         strings         Display printable strings in files
         gprof           display call graph profile data
+        strip           Removes symbols and sections from files
     其他：
         ps              Report process status
         date            Display the current time in the given FORMAT, or set the system date.
