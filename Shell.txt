@@ -885,12 +885,14 @@ Shell 总结
     arr["key1"]=val1
     arr+=( ["key2"]=val2 ["key3"]=val3 )
 
+    引用 ~
+    ${arr[key2]}  某个key所对应的value
+    ${!arr[@]}    所有的key
+    ${arr[@]}     所有value
+
     遍历 ~
     for key in ${!arr[@]}; do
         echo ${key} ${arr[${key}]}
     done
-
-    引用 ~
-    echo ${arr[key2]}
 
 vim:ft=help
