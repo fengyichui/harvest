@@ -877,4 +877,20 @@ Shell 总结
 
      4. diff <(ls /original/dir/) <(ls /backup/dir/)
 
+36. 字典
+    声明 ~
+    declare -A arr
+
+    定义 ~
+    arr["key1"]=val1
+    arr+=( ["key2"]=val2 ["key3"]=val3 )
+
+    遍历 ~
+    for key in ${!arr[@]}; do
+        echo ${key} ${arr[${key}]}
+    done
+
+    引用 ~
+    echo ${arr[key2]}
+
 vim:ft=help
