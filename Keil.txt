@@ -113,36 +113,40 @@ Keil学习
             .ANY (+RW +ZI)
         }
     }
-<    NOTE：不能使用全局变量，使用到全局变量的地方都要转换成const变量，然后再强制转换 >
-    L6248E: <objname>(<secname>) in <attr1> region '<r1>' cannot have <rtype> relocation to <symname> in <attr2> region '<r2>'.
-        This error can occur when you are trying to build position-independent (PI) code. Consider, for example the following code:
-        #include <stdio.h>
-        char *str = "test";
-        int main(void)
-        {
-            printf ("%s",str);
-        }
-        When you compile and link this using:
-        armcc -c --apcs /ropi/rwpi pi.c
-        armlink --ropi --rwpi pi.o
-        the linker reports the following error message:
-        Error: L6248E: pi.o(.data) in PI region 'ER_RW' cannot have address type relocation to .conststring in PI region 'ER_RO'.
-        This is because the compiler generates a global pointer str that must be initialized to the address of the string in the .conststring section. However, absolute addresses cannot be used in a PI system, so the link step fails.
-        To resolve this, you must re-write the code to avoid the explicit pointer. You can do this using either of the following methods:
-        Use a global array instead of a global pointer, for example:
-        #include <stdio.h>
-        const char str[] = "test";
-        int main(void)
-        {
-            printf ("%s",str);
-        }
-        Use a local pointer instead of a global pointer, for example:
-        #include <stdio.h>
-        int main(void)
-        {
+    勾选 C/C++ 和 Asm 选项卡中的 Read-Only Position Independent / Read-Write Position Independent
+    不勾选的话：
+        不能使用全局变量，使用到全局变量的地方都要转换成const变量，然后再强制转换
+        L6248E: <objname>(<secname>) in <attr1> region '<r1>' cannot have <rtype> relocation to <symname> in <attr2> region '<r2>'.
+            This error can occur when you are trying to build position-independent (PI) code. Consider, for example the following code:
+            #include <stdio.h>
             char *str = "test";
-            printf ("%s",str);
-        }
+            int main(void)
+            {
+                printf ("%s",str);
+            }
+            When you compile and link this using:
+            armcc -c --apcs /ropi/rwpi pi.c
+            armlink --ropi --rwpi pi.o
+            the linker reports the following error message:
+            Error: L6248E: pi.o(.data) in PI region 'ER_RW' cannot have address type relocation to .conststring in PI region 'ER_RO'.
+            This is because the compiler generates a global pointer str that must be initialized to the address of the string in the .conststring section. However, absolute addresses cannot be used in a PI system, so the link step fails.
+            To resolve this, you must re-write the code to avoid the explicit pointer. You can do this using either of the following methods:
+            Use a global array instead of a global pointer, for example:
+            #include <stdio.h>
+            const char str[] = "test";
+            int main(void)
+            {
+                printf ("%s",str);
+            }
+            Use a local pointer instead of a global pointer, for example:
+            #include <stdio.h>
+            int main(void)
+            {
+                char *str = "test";
+                printf ("%s",str);
+            }
+    勾选的话：
+        有别的限制，生成的文件大小可能不包含全局变量的大小
 
 
 9. 分散加载文件详解:
