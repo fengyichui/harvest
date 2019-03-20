@@ -229,6 +229,13 @@
               $ ./configure && make
               $ make install
 
+        sshfs:
+            下载WinFsp并安装: https://github.com/billziss-gh/winfsp/releases
+            在Cygwin下执行这个脚本："%ProgramFiles(x86)%\WinFsp\opt\cygfuse\install.sh
+            下载sshfs：https://github.com/libfuse/sshfs/releases
+            安装依赖：$ apt-cyg install libglib2.0-devel meson
+            在sshfs源代码目录执行：$ ./test/appveyor-build.sh; ninja install
+            eg: sshfs -o allow_other,reconnect,delay_connect,ConnectTimeout=5,ServerAliveInterval=5,port=9000,uid=-1,gid=-1,FileInfoTimeout=-1 u0_a103@192.168.100.230:storage/downloads/1 /mnt/mate9
 
 7. 创建常用右键菜单：
     使用winmaster.exe创建有用的右键菜单：
