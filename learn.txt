@@ -327,4 +327,11 @@
 11. ellisys最新版本
     https://www.ellisys.com/better_analysis/bta_latest.htm
 
+12. 取消 "UNC paths are not supported. Defaulting to Windows directory" 提示
+    Under the registry path
+       HKEY_CURRENT_USER\Software\Microsoft\Command Processor
+    add the value DisableUNCCheck REG_DWORD and set the value to 0 x 1 (Hex).
+    Note: On Windows 10 version 1803, the setting seems to be located under HKLM:
+        HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor
+
 vim: ft=help
