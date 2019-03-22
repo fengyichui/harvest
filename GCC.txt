@@ -622,4 +622,94 @@
     • readelf:      Display the contents of ELF format files
     • elfedit:      Update the ELF header of ELF files
 
+12. M0的HardFault调试小结(不带操作系统时)
+    J-Link>h   #看当前处理器状态, 查堆栈指针位置 ~
+      +-----------------------------------------------------------------+
+      | R0 = 000002A4, R1 = 40007000, R2 = 02000000, R3 = 100003D9      |
+      | R4 = 00000000, R5 = 03FFFDDF, R6 = E000ED00, R7 = E000E100      |   HardFault(IPSR)时的状态
+      | R8 = FFFFFFFF, R9 = FFFFFFFF, R10= FFFFFFFF, R11= FFFFFFFF      |   主要寄存器: 
+      | R12= 00000000, R13= 10007240, |MSP|= 10007240, PSP= FFFFFFFC      |-> MSP: 当前堆栈指针的位置
+      | R14(LR) = 10004839, |R15(PC)| = 100000D4                          |   IPSR: 3表明在HardFault中断内
+      | XPSR 61000003, APSR 60000000, EPSR 01000000, |IPSR| 00000003      |   PC
+      | CFBP 00000000, |CONTROL| 00, FAULTMASK 00, BASEPRI 00, PRIMASK 00 |
+      +-----------------------------------------------------------------+
+
+    J-Link>mem32 0x10007240,40   #看堆栈 (还需要查询原始的堆栈指针的位置,即复位时候的SP值) ~
+      +------------------------------------------------+
+      |               |R0|       |R1|       |R2|       |R3|    |   进入HardFault前一刻的状态("一帧数据").
+      | 10007240 = 00000000 FFFFFFFF E000E180 00010101 |-> 这个例子表示:在CPU执行向量号为0x13(xPSR)
+      |               |R12|      |LR|   |ReturnAddr|  |xPSR|   |   的中断服务程序且在"准备"执行到地址为0x01000500
+      | 10007250 = 00000000 FFFFFFF9 01000500 80000013 |   (return address)的时候,进入了HardFault.
+      +------------------------------------------------+   函数调用顺序为: FFFFFFF9(中断) -> 01000500
+
+      +------------------------------------------------+   进入中断向量号为0x13前一刻的状态("一帧数据")
+      | 10007260 = 00000000 FFFFFFFF E000E180 00010101 |-> 这个例子表示: CPU"准备"执行到地址为0x10003B7E
+      | 10007270 = 00000000 10003B6F 10003B7E 81000000 |   (非中断(xPSR))时进入了0x13号中断
+      +------------------------------------------------+   函数调用顺序为: 10003B6F -> 10003B7E
+
+      +------------------------------------------------+
+      | 10007280 = 50000000 00000001 00000002 03FFFDDF |-> 其他一些函数调用或自动变量等产生的堆栈数据
+      | 10007290 = E000E100 10000483 00000001 1000578D |
+      +------------------------------------------------+
+
+    中断进出过程(CPU自动做的): ~
+        进入: 
+            1. 按xPSR, return address(PC), LR, R12, R3, R2, R1, R0的顺序依次入栈(8个寄存器). 
+               入栈时使用的堆栈指针取决于 *CONTROL* [1] 寄存器值, 0:MSP 1:PSP.
+               嵌套中断肯定使用的是MSP.
+            2. 堆栈指针更新, 使用MSP作为堆栈指针;
+            3. 更新PC指针为中断相连表的指针;
+            4. 更新寄存器, LR(EXE_RETURN), IPSR, NVIC寄存器;
+            5. 执行中断服务程序
+        退出:
+            1. 加载(BX或POP)EXC_RETURN执行中断退出过程. 出栈, 根据EXC_RETURN判断使用MSP或PSP.
+            2. 执行之前中断的程序
+
+
+    xPSR作用: ~
+        +----31----+--30--+--29---+----28----+----------+--24---+----------+----5~0-----+
+        | |Negative| | |Zero| | |Carry| | |Overflow| | Reserved | |Thumb| | Reserved | |ISR_Number| |
+        +----------+------+-------+----------+----------+-------+----------+------------+
+        xPSR由三个寄存器组成: APSR EPSR IPSR
+        ResetHandle的中断向量号(IPSR)是1, 其它的依次递增. 例如HardFault是3. ISR的起始值为16.
+        中断向量号(IPSR)为0时候,表示CPU在非中断下执行
+
+    LR(Link Register)寄存器的作用: ~
+        1.  保存函数调用时候的返回地址.  ~
+            BL指令会自动设置LR寄存器为函数返回地址. (函数调用前要push原始lr寄存器到堆栈)
+            关于函数调用LR寄存器的使用情况的一个例子: >
+            void func2(void) {
+                return;
+            }
+            void func1(void) {
+                func2();
+            }
+            void main(void) {
+                func1();
+            }
+<
+            main()函数的执行汇编如下: >
+            +----PUSH {lr}    #保存func1执行前的lr, 即main的返回地址
+            |    BL   func1   #跳转到func1, 同时设置返回地址到lr
+            |+---PUSH {lr}    #保存func2执行前的lr, 即func1的返回地址
+            ||+--BL   func2   #跳转到func2, 同时设置返回地址到lr
+            ||+--BX   lr      #func2返回
+            |+---POP  {pc}    #func1返回
+            +----POP  {pc}    #main退出
+<
+        2.  保存中断的EXE_RETURN. ~
+            进入中断时候, LR会自动被CPU赋予EXE_RETURN值.
+            |EXC_RETURN|    |Condition|
+            0xFFFFFFF1    Return to Handler mode (nested exception case) 嵌套中断
+            0xFFFFFFF9    Return to Thread mode and use the main stack for return
+            0xFFFFFFFD    Return to Thread mode and use the process stack for return
+
+        3. 所以BX lr指令就有了两种含义(对应上面的两种): ~
+            1> 跳到函数返回地址. 没啥好解释
+            2> 执行中断返回过程. 因为0xFXXXXXXX地址空间是CPU的保留地址空间,
+                                 所以在CPU检测到BX 0xFXXXXXXX时候会自动做出栈和堆栈指针选择等操作.
+                                 中断退出过程的两个指令: BX或POP
+
+    记住: 进入Hard Fault可能会有滞后性. ~
+
 vim: ft=help
