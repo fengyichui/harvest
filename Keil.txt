@@ -68,6 +68,10 @@ Keil学习
     调用：
     function_name();
 
+<    按钮： >
+    KILL BUTTON *   //删除曾经所有的按钮
+    DEFINE BUTTON "RESET", "RESET; PC = 0x100000D4; E INT 0x40000080 = 0xC0000000;"
+
 <    Example1 (自动remap后load程序，不勾选"Load Application at Startup"): >
     // 5:ROM 6:RAM
     func void remap (int m)
@@ -410,5 +414,8 @@ Keil学习
 11. 在win10中，有时候进入调试或者下载模式时，keil直接退出的问题
     注册表中：计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
     删除所有包含UV4.exe项
+
+12. KEIL同时挂多个jlink:
+    在option->debug->settings->jlink cmd 输入命令行：USBADDR = <address>
 
 vim: ft=help
