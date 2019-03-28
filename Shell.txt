@@ -314,7 +314,12 @@ Shell 总结
     <Ctrl-Z>      #使前台正在执行的进程转到后台，并设置为suspended(暂停)状态 ~
     $ fg %N       #使标号为N的后台进程进入前台执行 ~
     $ bg %N       #使标号为N的后台处于suspended(暂停)状态的进程进入running(运行)状态 ~
-    $ kill %N     #使标号为N的进程终止执行 ~
+    $ kill %N     #使标号为N的进程终止执行，也可使用PID ~
+    任务的标号 (JobSpec):
+        %n        where n is a job number (e.g., fg %1)
+        %str      where str is the beginning of the command that started the job. (e.g., bg %mysqldump)
+        %?str     where str is a substring of the command that started the job. (e.g., kill %rails will match  bundle exec rails &)
+        %%, %+    match the current job (that is, the job most recently started in the background or suspended)
     example: >
     proj_dir="asic fpga"
     for p in $proj_dir; do
