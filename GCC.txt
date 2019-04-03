@@ -178,6 +178,7 @@
          定义环境变量
              set $<var> = <value> (eg: set $i=0) 设置变量
              p $<var>             (eg: p $i)     查看变量值
+             p $                                 上一次使用的变量
              show convenience 查看所有变量
 
          查看数据结构offset和size：

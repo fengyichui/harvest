@@ -336,4 +336,9 @@
     Note: On Windows 10 version 1803, the setting seems to be located under HKLM:
         HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor
 
+13. windows ‘copy’ 命令不修改文件modify-time属性
+    这个问题会导致git status命令漏文件
+    更新文件的modify-time属性:
+        copy /B /Y source_file+,,    把source_file复制到当前文件夹，并修改时间属性。
+
 vim: ft=help
