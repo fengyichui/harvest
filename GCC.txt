@@ -299,6 +299,14 @@
            原因是GDB在解析某个符号时,必须要求该符号在要求的上下文中。(某些宏和变量和函数可以用static声明)
            注意：变量可以使用'file'::var的方式声明作用域，但是宏不行
 
+    在Cortex-M系列芯片的Hardware Fault时，GDB的backtrace不能工作的问题：
+        GDB没有考虑到ARM的中断机制, 修复步骤： >
+        set $lr=*(unsigned int *)($sp+20)
+        set $pc=*(unsigned int *)($sp+24)
+        set $xpsr=*(unsigned int *)($sp+28)
+        set $sp=$sp+32
+        bt
+
 
 7. 使用GDB调试KEIL产生的AXF文件:
     使用GDB调试原始的keil的AXF文件有功能性问题
