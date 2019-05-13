@@ -256,6 +256,8 @@
             end
 
             while (id)
+                loop_break
+                loop_continue
             end
 
         变量

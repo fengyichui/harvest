@@ -296,7 +296,8 @@ Shell 总结
     [[]]    测试表达式，比[]更加通用：`[[ "$" =~ "[a-z]" ]]`
     {}      扩展：`echo {1..4}.txt` or `echo {1,2,3,4}.txt` 两个dou输出：1.txt 2.txt 3.txt 4.txt
     $()     执行命令，返回命令的标准输出：`$(cmd)`
-    $(())   执行表达式，返回表达式的结果
+    "$()"   执行命令，返回命令的标准输出：`$(cmd)`，和不带双引号的区别是：不带：换行符会被替换为分隔符；带：保留换行符
+    $(())   执行表达式，返回表达式的结果, 也可以做任意进制转为十进制：$((2#11010101))
     ${}     变量使用
 
 17. 执行一个字符串
@@ -474,10 +475,10 @@ Shell 总结
         expr index $str ""   # 0
     选取子串:
         str="abcdef"
-        echo ${str:2}        # 从第二个位置开始提取字符串， bcdef
-        echo ${str:2:3}      # 从第二个位置开始提取3个字符, bcd
-        echo ${str:(-6):5}   # 从倒数第二个位置向左提取字符串, abcde
-        echo ${str:(-4):3}   # 从倒数第二个位置向左提取6个字符, cde
+        echo ${str:2}        # 从第2个位置开始提取字符串， bcdef
+        echo ${str:2:3}      # 从第2个位置开始提取3个字符, bcd
+        echo ${str:(-6)}     # 从倒数第6个位置向左提取字符串, abcdef
+        echo ${str:(-4):3}   # 从倒数第4个位置向左提取6个字符, cde
     截取子串:
         str="abbc,def,ghi,abcjkl"
         echo ${str#a*c}      # 输出,def,ghi,abcjkl  一个井号(#) 表示从左边截取掉最短的匹配 (这里把abbc字串去掉）
@@ -901,5 +902,32 @@ Shell 总结
     for key in ${!arr[@]}; do
         echo ${key} ${arr[${key}]}
     done
+
+37. 脚本或者函数判断是否有标准输入
+    >
+    if [[ -t 0 ]]; then
+        echo $*     # 无标准输入，打印参数
+    else
+        cat -       # 有标准输入，打印标准输入
+    fi
+
+38. 关于$()和"$()"的一些区别 (命令替换)
+    Command Substitution:
+    Embedded newlines are not deleted, but they may be removed during word splitting.
+    If the substitution appears within double quotes, word splitting and pathname expansion are not performed on the results.
+
+    a.txt: >
+        hello
+        world
+        !
+<
+    echo $(cat a.txt) >
+        hello world !
+<
+    echo "$(cat a.txt)" >
+        hello
+        world
+        !
+
 
 vim:ft=help
