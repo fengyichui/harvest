@@ -914,6 +914,16 @@
         4. RPA地址不会变
         5. 连接3个设备，使用3个广播地址
 
+    罗技M720鼠标评测：
+        未配对广播状态：
+            ADV_IND  F6:C9:B9:64:D2:9E (Static), LimitedDiscoverable, Appearance=Mouse, Services=Human Interface Device, Name="M720 Triathlon"
+            SCAN_RSP F6:C9:B9:64:D2:9E (Static), Tx Power=4 dBm
+        配对后广播状态：
+            ADV_IND  F6:C9:B9:64:D2:9E (Static), Appearance=Mouse, Services=Human Interface Device, Name="M720 Triathlon"
+            SCAN_RSP F6:C9:B9:64:D2:9E (Static), Tx Power=4 dBm
+            无直接广播
+        总结：M720没有privacy，没有直接广播，配对和未配对广播的区别是LimitedDiscoverable
+
     微克手环F1：
         ldo: 10uA
         LCD: 2uA (close)
@@ -1081,5 +1091,31 @@
         在byte program预处理时，program成“0”的cell可能会变成“1”。但写入数据是“0”时，该cell又会被program成“0”。（写入数据与原来cell数据“与”处理在这时候起作用）
         每一次byte program时，都是对整个page做一次program。所以如果一个page有多次byte或bit方式的program，可能会影响该page擦写次数。
         采用byte program时编程时间比其他传统flash要长。但在最小erase区间，erase时间，功耗等各个方面有明显优势。
+
+23. 认证
+    HS6620 BLE BQB 认证 （4.2 Endproduct, BITE）（2016/08/xx）
+        1.1 BT LE RF PHY（1Ms）testing           ¥21,000.00
+        1.2 BT LE Controller protocol testing    ¥24,000.00
+        1.3 BT LE Hoster protocol testing        ¥30,000.00
+        1.4 BT BQE review                        ¥20,000.00
+                                                 ¥95,000.00
+
+    HS6620 BLE BQB 认证 （5.1 Component, Frontline Harmony） （2019/06/11）
+        1.1 BT LE RF PHY（1Ms）testing           ¥15,000.00   核心版本5.1,测试内容4.2
+        1.2 BT LE Controller protocol testing    ¥60,000.00   核心版本5.1,测试内容4.2
+        1.3 BT LE Hoster protocol testing        ¥40,000.00   核心版本5.1,测试内容4.2
+        1.4 BT BQE review                        ¥20,000.00   all TCs
+                                                 ¥135,000.00
+
+    HS6620 性能测试（2016/08/22）
+            Item                                 Hour   Unit price   Price(RMB)   Comment
+        1.1 射频性能：vco相噪 110dBc@1MHz        2      ¥1,500.00    ¥3,000.00    计时测试，客户自带测试列表
+        1.2 电压范围：2.7V-4.2V                  2      ¥1,500.00    ¥3,000.00    计时测试，客户自带测试列表
+        1.3 功耗：发射功耗3.5mA，接收功耗3.5mA   2      ¥1,500.00    ¥3,000.00    计时测试，客户自带测试列表
+        1.4 封装尺寸4X4mm QFN封装                2      ¥1,500.00    ¥3,000.00    计时测试，客户自带测试列表
+        1.5 Report Fee                           1      ¥2,000.00    ¥2,000.00
+                                                        Total(RMB)   ¥14,000.00
+
+
 
 vim: ft=help

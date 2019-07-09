@@ -341,4 +341,11 @@
     更新文件的modify-time属性:
         copy /B /Y source_file+,,    把source_file复制到当前文件夹，并修改时间属性。
 
+14. ss
+    104.18.18.18 free-ss.site
+
+15. windows蓝屏调试
+    计算机管理-事件查看器-Windows日志-系统 里会记录蓝屏事件
+    蓝屏时系统会把内存转储文件存放到：C:\WINDOWS\MEMORY.DMP，使用WinDbg可以调试该文件
+
 vim: ft=help

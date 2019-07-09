@@ -15,7 +15,7 @@ Keil学习
     产生bin文件 >
     fromelf --bin --output gpio.bin gpio.axf
 <    产生Intel Hex文件 >
-    fromelf --i32 --output gpio.bin gpio.axf
+    fromelf --i32 --output gpio.hex gpio.axf
 <    产生源文件的汇编文件 >
     fromelf --text -c --output=outfile.asm infile.axf
 

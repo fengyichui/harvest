@@ -975,8 +975,8 @@
     $ cygserver-config
     $ cygrunsrv -S cygserver
 
-32. 源码编译时 安装文件到指定路径
-    make install DESTDIR=/install/directory
+32. 源码编译时 安装文件到指定路径 (DESTDIR绝对目录, prefix相对目录(相对于DESTDIR))
+    make install DESTDIR=/install/directory prefix=/usr
 
 33. ss/ssr/v2ray/socks5 透明代理 [https://www.zfl9.com/ss-redir.html]
 
