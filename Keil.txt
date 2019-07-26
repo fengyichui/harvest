@@ -418,4 +418,11 @@ Keil学习
 12. KEIL同时挂多个jlink:
     在option->debug->settings->jlink cmd 输入命令行：USBADDR = <address>
 
+13. Segger
+    a. Open Flashloader
+        https://wiki.segger.com/Open_Flashloader
+    b. Low power Debug
+        https://wiki.segger.com/Generic_IDE#Low_power_debugging
+
+
 vim: ft=help

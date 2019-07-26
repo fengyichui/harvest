@@ -348,4 +348,7 @@
     计算机管理-事件查看器-Windows日志-系统 里会记录蓝屏事件
     蓝屏时系统会把内存转储文件存放到：C:\WINDOWS\MEMORY.DMP，使用WinDbg可以调试该文件
 
+16. 阻止乐视电视更新
+    在路由器的Host表中添加：127.0.0.1 upgrade-hdtv.cp21.ott.cibntv.net
+
 vim: ft=help
