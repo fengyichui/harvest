@@ -351,4 +351,15 @@
 16. 阻止乐视电视更新
     在路由器的Host表中添加：127.0.0.1 upgrade-hdtv.cp21.ott.cibntv.net
 
+17. 使用UltraEdit创建自定义工具 (Jlink)
+    高级 -> 用户工具 -> 配置工具：
+        命令行："C:\Program Files (x86)\SEGGER\JLink_V648\JLink.exe" -device Cortex-M4 -If SWD -CommandFile "%F"
+        输出：输出到列表框
+    右键Ribbon空白区域 -> 自定义功能区 -> New Group -> Add>> (把左侧新添加的Jlink工具添加到新Group中)
+
+18. Win10卓越性能模式
+    Powershell: powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+    控制面板会多出来卓越性能的隐藏附加方案
+    Windows 10 version 1803 或更高版本
+
 vim: ft=help
