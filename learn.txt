@@ -362,4 +362,39 @@
     控制面板会多出来卓越性能的隐藏附加方案
     Windows 10 version 1803 或更高版本
 
+19. window10的Linux子系统
+    Ubuntu 18.04
+    a. 使用wsltty作为控制台
+        https://github.com/mintty/wsltty
+
+    b. 使用国内源：
+        $ vim /etc/apt/sources.list:
+        $ sudo apt-get update
+        $ sudo apt-get upgrade
+        新源列表： >
+            #ubunto 18.04
+            deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+            deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+            deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+            deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+            deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+            deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+<
+    c. 修改默认shell为zsh
+        $ chsh -s /usr/bin/zsh
+        上条命令如果不行，则在.bashrc的最前面添加：[[ -t 1 ]] && exec zsh
+
+    d. 添加新的用户
+        $ useradd liqiang --shell /usr/bin/zsh --home-dir /home/liqiang -m
+        $ passwd liqiang         # 新用户的密码
+        $ sudo vim /etc/sudoers  # 使新用户具备sudo权限
+            /etc/sudoers 添加如下内容： >
+                liqiang ALL=(ALL) ALL
+<        在Powershell中设置默认用户:
+            $ ubuntu1804 config --default-user liqiang
+
 vim: ft=help

@@ -723,4 +723,24 @@
 
     记住: 进入Hard Fault可能会有滞后性. ~
 
+13. ARM thumb 指令跳转：
+
+    指令           | 可跳转范围
+    ---------------+-----------
+    B (16bit,T2)   | ±2KB
+    B.W (32bit,T4) | ±16MB
+    BL (32bit)     | ±16MB
+
+    所以ROM版本的芯片，ROM的基地址最好选择是0x00100000-0x00F00000，这样0地址去call RAM里的函数才能开销最小。
+
+    以下是call开销对比（keil编译）：
+        16MB之内的call开销：4bytes, 1条指令 >
+                0x000045c0:    f0fbfd26    ..&.    BL       abcdefg ; 0x100010
+<        16MB之外的call开销：14bytes, 4条指令 >
+                0x000022a0:    f7fefd4e    ..N.    BL       $Ven$TT$L$$co_timer_set ; 0xd40
+            $Ven$TT$L$$co_timer_set
+                0x00000d40:    f2425c53    B.S\    MOV      r12,#0x2553
+                0x00000d44:    f6c00c00    ....    MOVT     r12,#0x800
+                0x00000d48:    4760        `G      BX       r12
+
 vim: ft=help
