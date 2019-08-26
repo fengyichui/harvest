@@ -366,6 +366,13 @@
     Ubuntu 18.04
     a. 使用wsltty作为控制台
         https://github.com/mintty/wsltty
+        安装位置：
+            %LOCALAPPDATA%\wsltty
+        wsltty使用.minttyrc:
+            wsltty同样使用mintty的配置文件, 位置在: %APPDATA%\wsltty\config,
+            把.minttyrc里的内容拷贝到这个文件中
+        执行默认shell的快捷方式：
+             %LOCALAPPDATA%\wsltty\bin\mintty.exe --WSL= --configdir="%APPDATA%\wsltty" -~ wsl.exe
 
     b. 使用国内源：
         $ vim /etc/apt/sources.list:
@@ -385,8 +392,9 @@
             deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
 <
     c. 修改默认shell为zsh
-        $ chsh -s /usr/bin/zsh
+        $ chsh -s $(which zsh)
         上条命令如果不行，则在.bashrc的最前面添加：[[ -t 1 ]] && exec zsh
+        快捷方式：%LOCALAPPDATA%\wsltty\bin\mintty.exe --WSL= --configdir="%APPDATA%\wsltty" -~ wsl.exe 会加载默认shell，否则会强制启动bash
 
     d. 添加新的用户
         $ useradd liqiang --shell /usr/bin/zsh --home-dir /home/liqiang -m
