@@ -196,7 +196,29 @@
                 $ apt-cyg install libclang-devel
             command:
                 $ python3 install.py --clang-completer --system-libclang --system-boost
+                $ find -name libclang.dll.a -delete  # 删除libclang.dll.a, 防止ycmd强制加载
+            cleanup: >
+                rm -rf azure
+                rm -f azure-pipelines.yml codecov.yml COPYING.txt install.sh README.md tox.ini .coveragerc .ycm_extra_conf.py
+                rm -f CODE_OF_CONDUCT.md CONTRIBUTING.md install.py print_todos.sh run_tests.py .mergify.yml
 
+                find -iname '.git*' -exec rm -rf {} \;
+
+                find -type d -iname '__pycache__' -exec rm -rf {} \;
+
+                for n in 'doc' 'docs' '*test*' 'examples' '_appveyor' ; do
+                    find third_party -type d -iname "$n" -exec rm -rf {} \;
+                done
+
+                for n in '.coveragerc' '.hgignore' '.hgtags' 'appveyor.yml' 'codecov.yml' 'makefile' 'cmakelists.txt' \
+                        'contributors' 'license*' 'authors*' 'changes*' 'changelog*' 'readme*' 'manifest' '.travis.yml' \
+                        '*.txt' '*.rst' '*.go' '*.svg' '*.ai' '*.md' '*.in' '*.cmake' '*.bat' '*.sh' '*.c' '*.h' '*.inc' \
+                        '*.cc' '*.cpp' '*.hpp' '*.ipp' '*.cs' '*.csproj' '*.sln' 'libclang.dll.a' ; do
+                    find third_party -type f -not -iname '*.py' -not -iname 'grammar*' -iname "$n" -delete
+                done
+
+                find -depth -type d -empty -delete
+<
         arm-none-eabi-gdb:
             最新版本在：
                 ftp://sourceware.org/pub/gdb/releases/
@@ -362,7 +384,7 @@
     控制面板会多出来卓越性能的隐藏附加方案
     Windows 10 version 1803 或更高版本
 
-19. window10的Linux子系统
+19. Window10的Linux子系统
     Ubuntu 18.04
     a. 使用wsltty作为控制台
         https://github.com/mintty/wsltty
@@ -404,5 +426,39 @@
                 liqiang ALL=(ALL) ALL
 <        在Powershell中设置默认用户:
             $ ubuntu1804 config --default-user liqiang
+
+20. Window10安装docker
+    a. 开启 Hyper-V
+        程序和功能 -> 启用或关闭Windows功能 -> 勾选Hyper-V
+    b. 安装Toolbox
+        https://www.docker.com/get-docker
+        需要注册 Download Docker Desktop
+       运行下载的安装文件
+    c. 更换镜像
+        %PROGRAMDATA%\docker\config\daemon.json
+        加入或修改： >
+            {
+              "registry-mirrors": ["http://hub-mirror.c.163.com"]
+            }
+
+21. Markdown速查表 >
+    # 标题1
+    ## 标题2
+    ### 标题3
+    #### 标题4
+    ##### 标题5
+    ###### 标题6
+    *重点* _重点_
+    **强调** __强调__
+    1. 有序列表
+    * + - 无序列表
+    > 引用块
+    `代码段`
+    ```代码块
+    [链接](http://url.com "标题")
+    [参考链接](ID)
+    [ID]: http://url.com "参考链接"
+    ![图片][./image.jpg "标题"]
+    --- *** ___ 分割线
 
 vim: ft=help

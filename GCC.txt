@@ -234,6 +234,16 @@
             info sources
                 查看所有文件位置
 
+         线程：
+            info threads                    显示当前可调试的所有线程
+            thread ID(1,2,3…)               切换当前调试的线程为指定ID的线程
+            break file.c:123 thread all     在所有线程中相应的行上设置断点
+            thread apply ID1 ID2 command    让一个或者多个线程执行GDB命令command
+            thread apply all command        让所有被调试线程执行GDB命令command
+            set scheduler-locking off       不锁定任何线程，也就是所有线程都执行，这是默认值
+            set scheduler-locking on        只有当前被调试程序会执行
+            set scheduler-locking on step   在单步的时候，只有当前线程会执行
+
     ~/.gdbinit 语法： ~
          默认情况gdb会在初始化的时候加载该文件。
          定义函数：define
