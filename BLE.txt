@@ -1152,4 +1152,19 @@
 25. 新的芯片 idea
     1. 关机功能能否和普通IO做到一个PIN上去，这样像手环应用关机就可以真关机了
 
+26. HS6621 flash控制器和SPI性能：
+    flash控制器读flash时()：
+        每32bytes, 大概有0.5个时钟周期的间隙
+    flash控制器刷LCD(双通道)时(CPU:32MHz, SPI:1MHz)：
+        每18bits, 大概有0.5个时钟周期的间隙
+        每8*18bits, 大概有1.5个时钟周期的间隙
+    flash控制器刷LCD(双通道)时(CPU:32MHz, SPI:32MHz)：
+        每18bits, 大概有10个时钟周期的间隙 (数据:570ns(18bits),间隙1:310ns,间隙2:750ns)
+        每8*18bits, 大概有24个时钟周期的间隙
+        损失了40%的速度
+    裸SPI控制器(CPU:32MHz, SPI:4MHz):
+        每8bits，有3个时钟周期的损失
+    间隙和CPU速度有关系！！！
+
+
 vim: ft=help

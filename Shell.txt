@@ -23,7 +23,9 @@ Shell 总结
     1.4命令返回形式
         => for shname in `find . -type f -name "*.sh"`  ~
         => for shname in `ls *.sh`   ~
-    1.5 (())形式
+    1.5 忽略in时, in的参数默认是 $@ (参数)
+        => for i; do ...; done ~
+    1.6 (())形式
         => for((i=1;i<100;i++))  ~
     example: >
     for p in $proj_dir; do
@@ -31,13 +33,14 @@ Shell 总结
         eval ${p}_return=$?
     done
 
-2. while:                    *shell_while*
+2. while、until:                    *shell_while*
     基本语法:
         while ...            ~
         do                   ~
             do something     ~
         done                 ~
     NOTE: ... 为bool表达式，见下面介绍
+    NOTE: until和while几乎相同，区别只是表示否定的
 
 3. break continue           *shell_break_contunue*
 
