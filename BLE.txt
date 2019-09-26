@@ -1151,6 +1151,7 @@
 
 25. 新的芯片 idea
     1. 关机功能能否和普通IO做到一个PIN上去，这样像手环应用关机就可以真关机了
+    2. 睡眠后数字自动存储IO状态：给软件一个配置，哪些不自动控制的，用于jlink调试
 
 26. HS6621 flash控制器和SPI性能：
     flash控制器读flash时()：
@@ -1165,6 +1166,108 @@
     裸SPI控制器(CPU:32MHz, SPI:4MHz):
         每8bits，有3个时钟周期的损失
     间隙和CPU速度有关系！！！
+
+27. HS6621A1 测试
+
+    SRAM: @3.3v
+        12.9uA:  ULP:32kB*4(nodeepsleep)     LP:all_close rc32k:open
+        9.4uA:   ULP:32kB*2(nodeepsleep)     LP:all_close rc32k:open
+        7.8uA:   ULP:32kB*1(nodeepsleep)     LP:all_close rc32k:open
+        10.9uA:  ULP:32kB*4(32k*3:deepsleep) LP:all_close rc32k:open
+
+        112.0uA: ULP:32kB*4(nodeepsleep)     LP:8kB*16(nodeepsleep) rc32k:open
+        105.4uA: ULP:32kB*4(nodeepsleep)     LP:8kB*15(nodeepsleep) rc32k:open
+        87.5uA:  ULP:32kB*4(nodeepsleep)     LP:8kB*12(nodeepsleep) rc32k:open
+        32.3uA:  ULP:32kB*4(nodeepsleep)     LP:8kB*16(deepsleep)   rc32k:open
+
+        ULP: 1.75uA/block(32kB) (nodeepsleep)
+        ULP: 1.03nA/block(32kB) (deepsleep)
+
+        LP:  6.125uA/block(8kB) (nodeepsleep)
+        LP:  1.216uA/block(8kB) (deepsleep)
+
+    32k: @3.6v
+        RC32k: 6.9uA(close)    6.9uA(open)
+        xtal32k: 6.9uA(close)  6.3uA(open)
+
+    @3.3v
+        DIG_LDO_V0P9_RET_VBAT:1.00v     10.2uA
+        DIG_LDO_V0P9_RET_VBAT:0.95v     9.1uA
+        DIG_LDO_V0P9_RET_VBAT:0.90v     8.1uA
+        DIG_LDO_V0P9_RET_VBAT:0.85v     7.4uA
+        DIG_LDO_V0P9_RET_VBAT:0.80v     6.8uA
+        DIG_LDO_V0P9_RET_VBAT:0.75v     6.1uA
+        DIG_LDO_V0P9_RET_VBAT:0.70v     5.7uA
+        DIG_LDO_V0P9_RET_VBAT:0.65v     5.2uA
+
+    chip             #8         #2
+        Vbat 4.2v:   8.9uA      8.6uA
+        Vbat 4.1v:   7.6uA      7.7uA
+        Vbat 4.0v:   7.4uA      7.5uA
+        Vbat 3.9v:   7.2uA      7.4uA
+        Vbat 3.8v:   7.1uA      7.3uA
+        Vbat 3.7v:   7.0uA      7.2uA
+        Vbat 3.6v:   6.9uA      7.1uA
+        Vbat 3.5v:   6.9uA      7.1uA
+        Vbat 3.4v:   6.8uA      7.0uA
+        Vbat 3.3v:   7.1uA      7.3uA
+        Vbat 3.2v:   7.0uA      7.2uA
+        Vbat 3.1v:   6.9uA      7.1uA
+        Vbat 3.0v:   6.9uA      7.1uA
+        Vbat 2.9v:   6.8uA      7.0uA
+        Vbat 2.8v:   6.7uA      7.0uA
+        Vbat 2.7v:   6.7uA      7.0uA
+        Vbat 2.6v:   6.7uA      6.9uA
+        Vbat 2.5v:   6.6uA      6.9uA
+        Vbat 2.4v:   6.6uA      6.9uA
+        Vbat 2.3v:   6.5uA      6.8uA
+        Vbat 2.2v:   6.5uA      6.8uA
+        Vbat 2.1v:   6.4uA      6.8uA
+        Vbat 2.0v:   6.4uA      6.7uA
+        Vbat 1.9v:   6.4uA      6.7uA
+        Vbat 1.8v:   6.3uA      6.6uA
+        Vbat 1.7v:   6.3uA      6.6uA
+        Vbat 1.6v:   6.2uA      6.5uA
+
+    __WIF:
+        2.10mA XTAL32M      ANA:0.66mA
+        2.46mA RC32M        ANA:0.60mA
+
+                        pd_io_ldo=1     pd_ret_ldo=1、pd_io_ldo=1       =0 =0 (ret_ldo=1v)
+    整体电流    7.4uA   6.8uA           350uA                           10uA
+    模块电流            600nA           
+
+    pd_ret_ldo=0、pd_io_ldo=0
+        ret_ldo=0.85v  ret_ldo=1v
+        7.4uA          10uA
+
+    ret_ldo: 350nA
+    io_ldo: 600nA
+
+    RC32K:   1.7uA (7.4-5.7)
+    XTAL32K: 1.0uA (6.7-5.7)
+
+    5.7uA:  RET_LDO:0.85v(实际0.875v) vbat=3.3v (ANA:1.25uA DIG:2.7uA ULPSRAM:1.75uA) (1ulpRAM, 32K close)
+    7.1uA:  RET_LDO:0.85v(实际0.868v) vbat=3.3v (ANA:1.25uA                         ) (2ulpRAM, 32K close)
+    9.0uA:  RET_LDO:0.85v(实际0.860v) vbat=3.3v (ANA:1.25uA                         ) (3ulpRAM, 32K close)
+    10.4uA: RET_LDO:0.85v(实际0.855v) vbat=3.3v (ANA:1.25uA                         ) (4ulpRAM, 32K close)
+
+    4.1uA:  RET_LDO:0.70v(实际0.746v) vbat=3.3v (ANA:1.25uA                         ) (1ulpRAM, 32K close)
+    5.0uA:  RET_LDO:0.70v(实际0.   v) vbat=3.3v (ANA:1.25uA                         ) (2ulpRAM, 32K close)
+
+    chip #11 (1st ULPRAM: nodeepsleep)
+        5.5uA  RET_LDO:0.85v(实际0.882v) vbat=3.3v ULPRAM:0001
+        6.8uA  RET_LDO:0.85v(实际0.875v) vbat=3.3v ULPRAM:0011 (nodeepsleep) 6.8-5.5 = 1.3
+        7.1uA  RET_LDO:0.85v(实际0.873v) vbat=3.3v ULPRAM:0101 (nodeepsleep) 6.9-5.5 = 1.6
+        6.9uA  RET_LDO:0.85v(实际0.875v) vbat=3.3v ULPRAM:1001 (nodeepsleep) 6.9-5.5 = 1.4
+        6.3uA  RET_LDO:0.85v(实际0.878v) vbat=3.3v ULPRAM:0011 (deepsleep)   6.3-5.5 = 0.8
+        6.6uA  RET_LDO:0.85v(实际0.876v) vbat=3.3v ULPRAM:0101 (deepsleep)   6.6-5.5 = 1.1
+        6.3uA  RET_LDO:0.85v(实际0.878v) vbat=3.3v ULPRAM:1001 (deepsleep)   6.3-5.5 = 0.8
+
+    ECO:
+        1. SRAM的deepsleep控制
+        2. 快启看first_run的问题
+
 
 
 vim: ft=help

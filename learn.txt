@@ -250,8 +250,9 @@
         tmux:
             tmux在cygwin上启动慢的解决方法：
             - 在server.c的server_start()函数的exit(0)的上一行添加：unlink(socket_path); 来删除已存在的socket文件
-              $ ./configure && make
-              $ make install
+              $ ./autogen.sh && ./configure
+              $ make
+              $ make install DESTDIR=dist prefix=/usr
 
         sshfs:
             下载WinFsp并安装: https://github.com/billziss-gh/winfsp/releases

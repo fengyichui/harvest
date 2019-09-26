@@ -284,6 +284,9 @@
         执行字符串：
             eval "format_string", arg1, arg2, arg3, ..., argn   # 转换 printf "format_string", arg1, arg2, arg3, ..., argn 为一个命令行，然后调用它
 
+        TIPS:
+            默认遇到执行失败的命令就会退出脚本，可以使用 "(gdb) ignore-errors <command>" 来忽略某个命令的错误
+
         example: >
         (gdb) source test.gdb
         (file) test.gdb:

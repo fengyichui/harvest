@@ -228,6 +228,7 @@ Makefile
     else                        # 否则
     else ifeq (<arg1>, <arg2>)  # 否则如果arg1==arg2, gnu make 3.81版支持，老的不支持
     endif                       #
+
     例如： >
         ifeq ($(VAR), something1)
         # do something
@@ -235,6 +236,18 @@ Makefile
         # do something
         else
         # do something
+        endif
+<
+    ifeq 内的语句没有逻辑或，可以变通： >
+        do_it = 
+        ifeq ($(GCC_MINOR), 4)
+            do_it = yes
+        endif
+        ifeq ($(GCC_MINOR), 5)
+            do_it = yes
+        endif
+        ifdef do_it
+            CFLAGS += -fno-strict-overflow
         endif
 
 12. 为源文件定义宏
