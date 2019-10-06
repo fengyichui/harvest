@@ -935,7 +935,7 @@ Shell 总结
 39. 获取通过PIPE("|")的母命令的PID
     默认情况下 $! 获取到的是管道中最后一个命令的PID，获取任意命令的PID的方法：
     Write tail's PID to file descriptor 3, and then capture it from there. >
-      $ ( tail -f $1 & echo $! >&3 ) 3>pidfile | nc -l -p 9977
+      $ ( tail -f $1 & echo $! >&3 ) 3>pidfile | nc -l -p 9977 &
       $ tailpid=$(<pidfile)
 
 vim:ft=help
