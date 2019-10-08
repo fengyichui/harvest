@@ -581,7 +581,9 @@
     -7 | 3s      15s     5.3s    5.3s     5.9s    5.8s    -       1.3s
     -9 | 3s      15s     5s      5.1s     5.6s    5.6s    -       1.2s
 
-
-
+24. win10关机等待时间
+    WaitToKillServiceTimeout  毫秒 20000 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Contro]
+    WaitToKillAppTimeout      毫秒 20000 [HKEY_CURRENT_USER\ControlPanel\Desktop] or [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Contro]
+    HungAppTimeout            毫秒 5000  [HKEY_CURRENT_USER\ControlPanel\Desktop]
 
 vim: ft=help

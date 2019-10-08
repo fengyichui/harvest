@@ -526,12 +526,14 @@ Shell 总结
         trap signal-list        trap不指定任何命令,接受信号的默认操作.默认操作是结束进程的运行.
         trap '' signal-list     trap命令指定一个空命令串,允许忽略信号.
     signal-list：
-        HUP(1)      挂起，通常因终端掉线或用户退出而引发
-        INT(2)      中断，通常因按下Ctrl+C组合键而引发
-        QUIT(3)     退出，通常因按下Ctrl+\组合键而引发
-        ABRT(6)     中止，通常因某些严重的执行错误而引发
-        ALRM(14)    报警，通常用来处理超时
-        TERM(15)    终止，通常在系统关机时发送
+        EXIT(0)        On exit from shell
+        SIGHUP(1)      挂起，通常因终端掉线或用户退出而引发
+        SIGINT(2)      中断，通常因按下Ctrl+C组合键而引发
+        SIGQUIT(3)     退出，通常因按下Ctrl+\组合键而引发
+        SIGABRT(6)     中止，通常因某些严重的执行错误而引发
+        SIGKILL(9)     Die Now (cannot be trap'ped)
+        SIGALRM(14)    报警，通常用来处理超时
+        SIGTERM(15)    终止，通常在系统关机时发送
     例如： >
         trap 'echo "interrupt"' INT
         sleep 100       # 在此处按下<CTRL-C>会终止sleep执行，但是不会退出脚本，会继续执行，并打印"interrupt"
@@ -932,10 +934,26 @@ Shell 总结
         world
         !
 
-39. 获取通过PIPE("|")的母命令的PID
+39. 获取通过PIPE("|")的后台母命令的PID
     默认情况下 $! 获取到的是管道中最后一个命令的PID，获取任意命令的PID的方法：
     Write tail's PID to file descriptor 3, and then capture it from there. >
       $ ( tail -f $1 & echo $! >&3 ) 3>pidfile | nc -l -p 9977 &
       $ tailpid=$(<pidfile)
+
+40. nohup, setsid, & 区别
+    nohup: ~
+        让提交的命令忽略 SIGHUP/HANGUP 信号
+    setsid: ~
+        在新session执行命令
+        每打开一次终端（本地或远程）登录Linux，都会生成一个新的session； 除此之外，程序中也可以调用函数setsid创建一个新的session
+        一般deamon函数在fork以后会调用setsid创建一个新的会话,让子进程成为新进程组的组长, 同时也断开了与控制终端的联系.
+    &: ~
+        以“&”方式可以将一个前台进程以后台方式运行，但是如果它是一个终端的job，
+        则如果向终端收到SIGHUP信号，终端也会向它的所有job发送SIGHUP，
+        这样以“&”方式运行的进程则会因为收到SIGHUP则退出。
+        当用户注销（logout）或者网络断开时，终端会收到 SIGHUP（hangup）信号从而关闭其所有子进程。
+        早期的Unix，终端通过Modem和系统通讯，当用户注销（logout）时，Modem就会挂断（hangup）电话；
+        当Modem断开时，会给终端发SIGHUP来通知终端关闭所有子进程。
+
 
 vim:ft=help
