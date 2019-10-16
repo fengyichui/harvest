@@ -424,5 +424,7 @@ Keil学习
     b. Low power Debug
         https://wiki.segger.com/Generic_IDE#Low_power_debugging
 
+14. 挂起某些编译的警告
+    --diag_suppress=1,167,177,188,223
 
 vim: ft=help
