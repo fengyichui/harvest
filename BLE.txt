@@ -1271,9 +1271,23 @@
         6.6uA  RET_LDO:0.85v(实际0.876v) vbat=3.3v ULPRAM:0101 (deepsleep)   6.6-5.5 = 1.1
         6.3uA  RET_LDO:0.85v(实际0.878v) vbat=3.3v ULPRAM:1001 (deepsleep)   6.3-5.5 = 0.8
 
+    chip #100 (1st ULPRAM: nodeepsleep) RET_LDO:0.65v
+        3.9uA (ana=1.4uA) RET_LDO:0.65v(实际0.712v) vbat=3.3v  ULPRAM:0001
+        4.6uA (ana=1.4uA) RET_LDO:0.65v(实际0.702v) vbat=3.3v  ULPRAM:0011 (nodeepsleep) 4.6-3.9 = 0.7
+        4.8uA (ana=1.4uA) RET_LDO:0.65v(实际0.700v) vbat=3.3v  ULPRAM:0101 (nodeepsleep) 4.8-3.9 = 0.9
+        4.6uA (ana=1.4uA) RET_LDO:0.65v(实际0.702v) vbat=3.3v  ULPRAM:1001 (nodeepsleep) 4.6-3.9 = 0.7
+
     ECO:
         1. SRAM的deepsleep控制
         2. 快启看first_run的问题
 
+    A1问题：
+        1. 电容太大会导致快启hardware fault
+        2. AGC校准后，校准程序不会停，睡眠后才会停
+
+             2M      1M      S2      S8
+    PLL144  -84     -90     -93     -96
+    NOPLL   -84.6   -90.3   -93.1   -97
+    PLL144  -85     -89.7   -89.1   -95.7  (CPU read/write lp RAM)
 
 vim: ft=help

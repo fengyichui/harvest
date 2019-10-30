@@ -304,12 +304,15 @@ Shell 总结
     ${}     变量使用
 
 17. 执行一个字符串
-    $ eval something ~
-    example: >
-    a=b
-    eval ${a}b=12
-    echo $bb           #输出:12
-    eval echo \$${a}b  #输出:12
+    $ eval something 执行字符串 >
+        a=b
+        eval ${a}b=12
+        echo $bb           #输出:12
+        eval echo \$${a}b  #输出:12
+<
+    $ declare someting 专用于声明变量 >
+        declare $( awk 'BEGIN{print "var=17"}' )
+        echo $var
 
 18. jobs 并行执行
     $ command &   #创建一个job，后台执行，使用$!获取PID ~
@@ -767,6 +770,10 @@ Shell 总结
         右移    : rshift(val,count)
         按位取反: compl(val)
 
+    11. 设置shell的变量在AWK脚本中
+        declare $( awk 'BEGIN{print "var=17"}' )
+        echo $var
+        注意尽量使用declare, 而不是eval
 
 33. SED >
     $ sed -r 's/<.*>//g' html.txt           # -r 使用扩展的正则表达式

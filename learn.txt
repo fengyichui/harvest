@@ -356,7 +356,7 @@
 12. 取消 "UNC paths are not supported. Defaulting to Windows directory" 提示
     Under the registry path
        HKEY_CURRENT_USER\Software\Microsoft\Command Processor
-    add the value DisableUNCCheck REG_DWORD and set the value to 0 x 1 (Hex).
+    add the value DisableUNCCheck REG_DWORD and set the value to 0x1 (Hex).
     Note: On Windows 10 version 1803, the setting seems to be located under HKLM:
         HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor
 
@@ -365,8 +365,9 @@
     更新文件的modify-time属性:
         copy /B /Y source_file+,,    把source_file复制到当前文件夹，并修改时间属性。
 
-14. ss
-    104.18.18.18 free-ss.site
+14. freess
+    freess直连方式：host中添加：104.18.18.18 free-ss.site
+    获取最新的freess的地址：使用国外邮箱发送邮件到 ss@rohankdd.com
 
 15. windows蓝屏调试
     计算机管理-事件查看器-Windows日志-系统 里会记录蓝屏事件
