@@ -356,6 +356,7 @@ Shell 总结
 
 20. 链表、数组
     初始： ~
+        declare -a a
         a=(a b c)
     添加： ~
         a+=(d)
