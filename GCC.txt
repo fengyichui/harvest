@@ -756,4 +756,14 @@
                 0x00000d44:    f6c00c00    ....    MOVT     r12,#0x800
                 0x00000d48:    4760        `G      BX       r12
 
+14. GCC profiling
+    -finstrument-functions
+        Generate instrumentation calls for entry and exit to functions. Just after function
+        entry and just before function exit, the following profiling functions are
+        called with the address of the current function and its call site. >
+            void __cyg_profile_func_enter (void *this_fn, void *call_site);
+            void __cyg_profile_func_exit (void *this_fn, void *call_site);
+<    -finstrument-functions-exclude-file-list=file,file,...
+    -finstrument-functions-exclude-function-list=sym,sym,...
+
 vim: ft=help

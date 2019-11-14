@@ -272,6 +272,7 @@ Shell 总结
     -n （noexec 或 no ecxecution 简称） - 指示 Shell 读取所有命令然而不执行它们，这个选项激活语法检查模式。 ~
     -x （xtrace 或 execution trace 简称） - 告诉 Shell 在终端显示所有执行的命令和它们的参数。 这个选项是启用 Shell 跟踪模式。 ~
     -e  这句语句告诉bash如果任何语句的执行结果不是true则应该退出该脚本 ~
+    -f  不扩展特殊字符,保持原样输出(例如："/*"是会自动扩展成根目录下的文件和目录) ~
     使用方法：
     - 执行命令时输入 ~
         $ bash -v some.sh
@@ -889,15 +890,21 @@ Shell 总结
             echo $films $name $surname > filmsfirst.txt
         done < CBActors.txt
 
-     2. vim - << EOF
+     2. vim - << EOF    #作为标准输入传递给vim编辑器
         abc
         abcd
         abcde
         EOF
 
-     3. vim - <<< $string
+     3. vim - <<< $string  #作为标准输入传递给vim编辑器
 
-     4. diff <(ls /original/dir/) <(ls /backup/dir/)
+     4. diff <(ls /original/dir/) <(ls /backup/dir/)  #作为假文件传递给diff
+
+     5. read -r -d '' var << EOF    #传递给var变量
+        This is line 1.
+        This is line 2.
+        Line 3.
+        EOF
 
 36. 字典
     声明 ~

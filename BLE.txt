@@ -1284,10 +1284,12 @@
     A1问题：
         1. 电容太大会导致快启hardware fault
         2. AGC校准后，校准程序不会停，睡眠后才会停
+        3. SF 两线读的时候，dummy时的SI的输入输出控制导致大电流
 
              2M      1M      S2      S8
     PLL144  -84     -90     -93     -96
     NOPLL   -84.6   -90.3   -93.1   -97
     PLL144  -85     -89.7   -89.1   -95.7  (CPU read/write lp RAM)
+
 
 vim: ft=help
