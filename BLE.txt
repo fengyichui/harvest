@@ -582,6 +582,7 @@
                 InitA: local
 
 17. iOS连接参数
+    灰色的废弃 >
     连接上的默认参数：
         interval = 30ms
         timeout = 720ms
@@ -599,7 +600,7 @@
         Slave Latency ≤ 4
         connSupervisionTimeout ≤ 6 seconds
         Interval Max * (Slave Latency + 1) * 3 < connSupervisionTimeout
-
+<
     HID:
         iOS_version<=10: iOS会主动更新参数: interval=15ms letency=4  timeout=1000, 且参数更新的最小letency是4
         iOS_version>=11: slave可以请求参数：interval=15ms letency=50 timeout=5000, 貌似letency没有限制了
