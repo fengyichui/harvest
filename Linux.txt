@@ -1102,8 +1102,15 @@
     混淆插件: "plain"（即：不混淆）、"http_simple"、"http_post"、"tls1.2_ticket_auth"
     # 为什么推荐 plain，因为混淆不总是有效果的，有时候不混淆让其看起来像随机数据会更好一些
 
-34. fstab
+34. fstab (/etc/fstab)
     //192.168.5.11/file_huntersun          /mnt/5p11   smbfs binary,noacl 0 0
     sshfs#u0_a103@192.168.100.230:dir      /mnt/mate9  fuse  defaults,user,allow_other,reconnect,ConnectTimeout=5,ServerAliveInterval=5,port=9000 0 0
+
+35. cron
+    cygwin使用cron时，如果将cron作为windows服务来运行的话，会导致所有定时gui不显示窗口
+    可以制作快捷方式：D:\cygwin64\bin\run.exe --quote /usr/bin/bash.exe -l -c "/usr/sbin/cron.exe" 放到“启动”中
+    常用命令：
+    $ crontab -e        编辑和查看表, 修改退出会自动生效
+    $ cronevents        查看cron的log
 
 vim:ft=help
