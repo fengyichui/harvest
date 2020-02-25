@@ -1288,7 +1288,7 @@
         3. SF 两线读的时候，dummy时的SI的输入输出控制导致大电流
         4. CPU和RAM不同频时，因为CPU优先级较高，LCD会一直得不到BUS，导致LCD状态等死
         5. 外部flash速度只约束到了48M，只影响读，不影响写，内部的约束到了72M
-        6. 
+        6. flash透明读时，在不开cache的情况下，多Word读会出问题，例如：LDR r0, r1, [50000000]，会导致r0数据正确，r1没有数据
 
 
 
@@ -1301,5 +1301,34 @@
     读flash： 612us/16行 (2线64MHz)     16%
     解压：   1629us/16行                44%
     刷屏：   1471us/16行 (2线64MHz)     40%
+
+
+2019年BLE鼠标兼容性问题汇总:
+    1、导致鼠标卡顿和偶尔丢失按键
+       对于蓝牙协议栈的TX buffer缓存，motion数据不需要全部占有，一般3个足够；只有按键信息才可以占用全部缓存
+    2、无法在同一台win10上多次配对连接
+       对于在win10上，鼠标与一电脑配对连接成功，在电脑上没有删除改鼠标，然后鼠标重   新变更地址进入配对与该电脑连接，则可以搜索到但无法与该电脑再次连接；
+       原因是鼠标IRK一直没有变化，导致电脑认为该鼠标的IRK和已有设备一样，但地址不一样；导致电脑无法处理
+       通过对鼠标IRK随地址变化而变化的修改后，问题消除；
+    3、某些win10电脑无法回连
+       鼠标的回连广播采用directed ADV无法回连部分win10电脑，需要采用undirected ADV;
+       所以，回连策略针更改为：对static random地址的主机采取第一次回连用directed ADV后采用undirected ADV，这样既兼顾了directedADV的快速性又兼容了这部分异常电脑；
+    4、回连时间慢
+       因win10电脑在回连时，connection request里面的连接参数就已经带上了slaveLatency，所以，导致鼠标与主机通讯因latency导致连接缓慢；
+       在连接未完成阶段，关闭lantency，回连速度得到大幅度提升；
+    5、对BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST的响应
+       鼠标对该event必须回应，使用api函数sd_ble_gap_conn_param_update进行回应，如果参数符合要求，则回复该参数即可，如果不一样，则回复想要的参数；
+       对于feature没有connection parameter update procedure功能的情况，则没有这个世界；
+    6、部分mac无法连接
+       该兼容性问题，罗技设备也有该兼容性问题。
+       由于部分mac电脑在加密时不发送idKey至鼠标端，导致这个加密过程无法完成；
+       所以，鼠标response给主机的信息里面对主机不要求回发idKey；需要注意的是此时adv无法再采用whiteList功能了，因为没有主机的idkey了；
+    7、某些BT4.1的电脑无法完成连接
+       对于部分BT4.1的电脑的请求LL_LENGTH_REQ必须回应unknown，除此之外都会导致该电脑连接崩溃；
+    8、连接过程可能失败
+       如果在连接过程中，鼠标的motion不停的往主机发送，则有可能导致连接失败；
+       所以需要阻止motion在完全完成连接后才能发送；
+
+
 
 vim: ft=help

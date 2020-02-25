@@ -340,7 +340,9 @@ Keil学习
             {
                 ER0 +0
                 {
-                    *(InRoot$$Sections)
+                    vectors.o (Vect, +FIRST)    ; Vector table
+                    *(InRoot$$Sections)         ; All library sections that must be in a root region,
+                                                ; for example, __main.o, __scatter*.o, __dc*.o, and * Region$$Table
                 }
                 ER1 START_ADDRESS
                 {
@@ -426,5 +428,37 @@ Keil学习
 
 14. 挂起某些编译的警告
     --diag_suppress=1,167,177,188,223
+
+15. 复位和初始化流程
+    Reference：Arm Compiler 6 User's Guide/Compiler Getting Started Guide/Embedded Software Development/Reset and initialization ~
+
+             C Library                               User Code
+   -----------------------------           -------------------------------
+
+   +---------------------------+           +-----------------------------+
+   | __main                    | <---1---- | Reset_Handler               | <-- Image Entry Point
+   | - copy code and data      |           | - initialize stack pointers |
+   | - copy/decompress RW data |           | - configure MMU/MPU         |
+   | - initialize ZI data      |           | - setup cache/enable TCM    |
+   +---------------------------+           +-----------------------------+
+                |
+                |                          +-----------------------------+
+                2                    +---> | __user_setup_stackheap()    |
+                |                    |     | - setup app stack/heap      |
+                V                    3     +-----------------------------+
+   +---------------------------+     |
+   | __rt_entry                | <---+     +-----------------------------+ 
+   | - initialize lib function |           | $Sub$$main()                |
+   | - call constructors (C++) | ----4---->| - enable caches/interrupts  |
+   | ------------------------- |           | ---> call $Super$$main()    |
+   | - Exit from application   |           +-----------------------------+
+   +---------------------------+                          | 5
+                ^                                         V
+                |                          +-----------------------------+
+                |                          | main()                      |
+                +--------------6-----------| - cause linker to link in   |
+                                           |   lib initialization code   |
+                                           +-----------------------------+
+
 
 vim: ft=help
