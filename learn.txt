@@ -588,4 +588,9 @@
     WaitToKillAppTimeout      毫秒 20000 [HKEY_CURRENT_USER\ControlPanel\Desktop] or [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Contro]
     HungAppTimeout            毫秒 5000  [HKEY_CURRENT_USER\ControlPanel\Desktop]
 
+25. win10 系统通知框样式改成win7的气球式
+    注册表：HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\Explorer (没有则新建)
+    新建DWORD，名字为EnableLegacyBalloonNotifications，值为1
+    重启资源管理器
+
 vim: ft=help

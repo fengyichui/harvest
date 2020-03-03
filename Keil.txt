@@ -154,6 +154,7 @@ Keil学习
 
 
 9. 分散加载文件详解:
+    Reference: Arm Compiler 6 User's Guides/Compiler Reference Guide/armlink Reference/Scatter File Syntax~
 
     +------------------------------------------+
     |  首先来个例子:                           |
@@ -326,6 +327,9 @@ Keil学习
         - Expressions.
         - ScatterAssert function with load address related functions that take an expression as a parameter.
         - #define BASE_ADDRESS 0x8000
+        - +, -, /, *, ~, OR and AND     (OR/AND link | and &)
+        - LOR, LAND, and !      (LOR/LAND like || and &&)
+        - <, <=, >, >=, and ==
         - defined(version1) ? 0x8000 : 0x10000
         - ImageBase(region_name), ImageLength(region_name), ImageLimit(region_name)
         - AlignExpr(expr, align)
@@ -448,7 +452,7 @@ Keil学习
                 V                    3     +-----------------------------+
    +---------------------------+     |
    | __rt_entry                | <---+     +-----------------------------+ 
-   | - initialize lib function |           | $Sub$$main()                |
+   | - initialize lib function |           | $Sub$$main() (in C Code)    |
    | - call constructors (C++) | ----4---->| - enable caches/interrupts  |
    | ------------------------- |           | ---> call $Super$$main()    |
    | - Exit from application   |           +-----------------------------+

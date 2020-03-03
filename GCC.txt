@@ -234,6 +234,10 @@
             info sources
                 查看所有文件位置
 
+         调试KEIL编译的axf：
+            keil的编译选项需要加上：--dwarf2
+            因为keil默认使用Dwarf3，但是gdb对Dwarf2支持较好
+
          线程：
             info threads                    显示当前可调试的所有线程
             thread ID(1,2,3…)               切换当前调试的线程为指定ID的线程
