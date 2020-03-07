@@ -4,8 +4,30 @@
 1. 32786KHz晶振        *32768KHz*
     它从上电到震动稳定需要一段时间，这个时间大概是几百ms到几秒，和负载电容关系很大
 
-2. ADC
-    
+2. 芯片管脚
+    VBUS:       充电用入口
+    VBAT_CHG:   充电用出口
+    VDD_ANA:    模拟电，睡眠醒来，这个脚会动下
+    VDD_DIG:    数字电
+    SW:         DCDC电
+    DVDD:       数字电，睡眠醒来，这个脚会动下
+    VDD_IO:     数字IO电，一般外部加电容
+
+    VDD:        Main I/O and VDD domain supply input
+    VDDA:       External analog power supply for analog peripherals
+    VREF+,VREF: External reference voltage for ADCs and DAC
+    VBAT:       Backup battery supply input
+    VSS:        Main ground
+    VSSA:       Analog ground
+
+3. 老化测试
+    一般老化测试是在125℃时进行1000小时测试，来验证芯片工艺是否有问题，芯片可以复位，但是恢复常温后可以正常
+    一般民用芯片正常工作温度是-40℃ ~ 85℃
+    同芯微的spi flash在老化测试时，只对flash进行读操作。125℃时不能进行擦写操作，flash的电荷泵不足以支撑擦写操作
+
+
+
+
 
 
 
