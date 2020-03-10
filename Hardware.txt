@@ -26,14 +26,120 @@
     同芯微的spi flash在老化测试时，只对flash进行读操作。125℃时不能进行擦写操作，flash的电荷泵不足以支撑擦写操作
 
 
+4. Flash 的那些坑：
+    PUYA的flash:
+        1. 写1bytes和写256bytes耗时都是2ms；
+        2. 擦除时间真是短8ms（有page擦除）；
+        3. 不擦除的情况下，每个bit都可以从0写成1；
+        4. 写的长度为0时，会造成后面的写操作出错；
 
+        PUYA工程师的邮件：
+            PUYA的flash program都是以整个page program方式的。
+            program一个page数据时，编程指令直接送入>= 256byte的数据，芯片直接执行编程动作。
+            只program一个byte或少于256byte时，芯片会做算法来内部读未编程地址的数据来补满一个page编程数据。
+            由指令送入数据的地址不会care原来cell里是什么数据，整个page写入补满成一个page的编程数据。
+            Byte program时的处理过程是1）读内部数据，补满整个page    2）byte program预处理   3）page program
+            在byte program预处理时，program成“0”的cell可能会变成“1”。但写入数据是“0”时，该cell又会被program成“0”。（写入数据与原来cell数据“与”处理在这时候起作用）
+            每一次byte program时，都是对整个page做一次program。所以如果一个page有多次byte或bit方式的program，可能会影响该page擦写次数。
+            采用byte program时编程时间比其他传统flash要长。但在最小erase区间，erase时间，功耗等各个方面有明显优势。
 
+    同芯微 的 flash:
+        工艺和PUYA的相同，他们的工艺和兆易的不一样
+        他们研发工程师说：
+            覆盖写可能会出现问题，不建议做覆盖写的操作。
+            覆盖写不能超过200次，超过了之后就不能保证了(还不能确定200次以内是否一定安全)。必须做擦除之后才可以。
+            不超过256bytes的写flash内部的行为是：读原始数到buffer中 -> 弱擦除256bytes -> 写回
 
+5. flash
+    NOR Flash, NAND Flash
+        共性：
+            a. 都是非易失存储介质。即掉电都不会丢失内容。
+            b. 在写入前都需要擦除。实际上NOR Flash的一个bit可以从1变成0，而要从0变1就要擦除整块。NAND flash都需要擦除。
 
+        区别：
+            属性               NOR                  NAND
+            ----------------------------------------------------
+            容量               较小(1MB-32MB)       很大
+            XIP(可执行code)    可以                 不行
+            访问方式           可随机访问           快方式
+            读取速度           很快                 快
+            写入速度           慢                   快
+            擦除速度           很慢                 快
+            可擦除次数         10000~100000         10000~1000000
+            可靠性             高                   较低
+            价格               高                   低
+            接口               SPI/Parallel
+            应用               BIOS/SPI_FLASH       存储卡、U盘、SSD、eMMC等大容量
 
+        NOR Flash
+            NOR Flash和普通的内存比较像的一点是他们都可以支持随机访问，这使它也具有支持XIP（eXecute In Place）
+            的特性，可以像普通ROM一样执行程序。这点让它成为BIOS等开机就要执行的代码的绝佳载体。
+            NOR Flash 根据与 Host 端接口的不同，可以分为 Parallel NOR Flash 和 Serial NOR Flash 两类。
+            Parallel NOR Flash 可以接入到 Host 的控制器 上，所存储的内容可以直接映射到 CPU 地址空间，
+            不需要拷贝到 RAM 中即可被 CPU 访问。NOR Flash在BIOS中最早就是这种接口，叫做FWH（Firmware HUB），
+            由于其接是并行接口，速度缓慢，现在基本已经被淘汰。Serial NOR Flash 的成本比 Parallel NOR Flash 低，
+            主要通过 SPI 接口与 Host 也就是PCH相连。
+            现在几乎所有的BIOS和一些机顶盒上都是使用NOR Flash，它的大小一般在1MB到32MB之间，价格昂贵。
 
+        NAND Flash
+            NAND Flash广泛应用在各种存储卡，U盘，SSD，eMMC等等大容量设备中。
+            它的颗粒根据每个存储单元内存储比特个数的不同，可以分为 SLC（Single-Level Cell）、MLC（Multi-Level Cell）
+            和 TLC（Triple-Level Cell） 三类。其中，在一个存储单元中，SLC 可以存储 1 个比特，MLC 可以存储 2 个比特，
+            TLC 则可以存储 3 个比特。
+            NAND Flash 的单个存储单元存储的比特位越多，读写性能会越差，寿命也越短，但是成本会更低。
+            现在高端SSD会选取MLC甚至SLC，低端SSD则选取TLC。SD卡一般选取TLC。
 
+        其他
+            a. 最早的手机等设备之中既有NOR Flash也有NAND Flash。NOR Flash很小，因为支持XIP，
+               所以负责初始化系统并提供NAND Flash的驱动，类似Bootloader。而NAND Flash则存储数据和OS镜像。
+               三星最早提出Norless的概念，在它的CPU on die ROM中固话了NAND Flash的驱动，会把NAND flash的
+               开始一小段拷贝到内存低端作为bootloader,这样昂贵的NOR Flash就被节省下来了，降低了手机主板
+               成本和复杂度。渐渐NOR Flash在手机中慢慢消失了。
+            b. NOR Flash最大的问题是擦写慢和可擦写次数少，但是很少会因为这个原因造成BIOS速度降低和损坏，
+               你知道是为什么吗？
 
+        尾声
+            NAND Flash相对NOR Flash更可能发生比特翻转，就必须采用错误探测/错误更正(EDC/ECC)算法，同时NAND Flash
+            随着使用会渐渐产生坏块；我们在使用NAND Flash的SD卡上经常使用FAT文件系统，文件分配表会被频繁改写，
+            而每块的擦写次数是NAND Flash寿命的决定性因素。如何才能平衡各块的擦写和为可能的坏块寻找替换呢？
+            通常需要有一个特殊的软件层次，实现坏块管理、擦写均衡、ECC、垃圾回收等的功能，这一个软件层次称为
+            FTL（Flash Translation Layer）。根据 FTL 所在的位置的不同，可以把 Flash Memory 分为 Raw Flash 和
+            Managed Flash 两类：最早大家都是使用raw Flash，FTL全由驱动程序实现。后来发展到SD和eMMC等，
+            则由设备固件实现抽象。
+
+    TF/SD/MMC卡 (NAND Flash)
+        TF卡
+            TF卡即T-Flash又称MicroSD，是极细小的快闪存储器卡，采用SanDisk最新NAND MLC技术及控制器技术。
+
+        SD卡
+            SD卡为Secure Digital Memory Card, 即安全数码卡，是一种基于半导体快闪记忆器的新一代记忆设备。
+            它在MMC的基础上发展而来，增加了两个主要特色：SD卡强调数据的安全，可以设定所储存的使用权限，
+            防止数据被他人复制;另外一个特色就是传输速度比2.11版的MMC卡快。
+
+        MMC卡
+            MMC就是MultiMediaCard的缩写，即多媒体卡。它是一种非易失性存储器件，体积小巧，容量大，耗电量低，
+            传输速度快，广泛应用于消费类电子产品中。MMC是一个接口协定（一种卡式），能符合这接口的内存器都
+            可称作mmc储存体（mmc卡）。
+
+    SSD/eMMC/UFS三种技术 (NAND Flash)：
+        SSD 主要作用是取代 PC/服务器 上的 HDD 硬盘，它需要：
+            超大容量（百GB~TB级别）
+            极高的并行性以提高性能
+            对功耗，体积等要求并不敏感
+            兼容已有接口技术 （SATA，PCI等）
+
+        而eMMC和UFS主要都是针对移动设备发明的，它们需要：
+            适当的容量
+            适当的性能
+            对功耗 ，体积的要求极其敏感
+            仅需遵循一定的接口标准 （稍后解释）
+
+    eMMC
+        eMMC (Embedded Multi Media Card) 为MMC协会所订立的、主要是针对手机或平板电脑等产品的内嵌式存储器标准
+        规格。eMMC的一个明显优势是在封装中集成了一个控制器，它提供标准接口并管理闪存，使得手机厂商就能专注于
+        产品开发的其它部分，并缩短向市场推出产品的时间。这些特点对于希望通过缩小光刻尺寸和降低成本的NAND供应
+        商来说，同样的重要。
+        eMMC = NAND flash + 控制器 + 标准封装接口
 
 
 vim:tw=78:ts=8:ft=help:norl:

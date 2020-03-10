@@ -1329,6 +1329,19 @@
        如果在连接过程中，鼠标的motion不停的往主机发送，则有可能导致连接失败；
        所以需要阻止motion在完全完成连接后才能发送；
 
+hs6621 CoreMark:
+    编译器：armclang 6.13
+    优化选项：-Omax
+    CPU速度：64MHz (ULP/LP RAM也在64MHz上)
+    程序运行在：RAM
+
+    cache   code in   data in   CoreMark   CoreMark/MHz
+    ---------------------------------------------------
+    yes     ULP       LP        193        3.02
+    yes     LP        ULP       186        2.91
+    no      LP        ULP       179        2.79
+    no      ULP       LP        150        2.34
+
 
 
 vim: ft=help
