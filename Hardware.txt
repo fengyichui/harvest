@@ -141,5 +141,22 @@
         商来说，同样的重要。
         eMMC = NAND flash + 控制器 + 标准封装接口
 
+6. 华为GT系列手表：
+    BOM
+        NXP     NFC                  PN80T           $0.80
+        博通    GPS                  BCM47752        $1.80
+        ST      主控                 STM32L4R9       $8.00
+        ST      陀螺仪+6轴加速计     LSM6DSL         $0.50
+        TI      升压变换器           TPS61256        $0.50
+        TI      降压变换器           TPS62743        $0.50
+        TI      漏电负荷芯片         TPS22916        $3.00
+                BLE芯片                              $3.50
+        东芝    16MB内存+128MB闪存   TC58CYG0S3H     $1.00
+        AKM     3轴电子罗盘          AK09918         $0.50
+                AMOLED               WB014ZNM-T00    $8.50
+                429mAh电池           HB512627ECW+    $0.57
 
-vim:tw=78:ts=8:ft=help:norl:
+    猜测刷屏方案
+        eMMC + 2D加速 + MIPI + AMOLED
+
+
