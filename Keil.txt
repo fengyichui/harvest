@@ -37,9 +37,15 @@ Keil学习
     void exec ("command_string")        Executes the debug command. 
     void execf ("fmt_string", ... )     Define debug commands with a variable component (for Cortex-M only). 
     void printf ("string", ...)         Works like the ANSI-C printf function. 
+    void memset (start_address, length value)
+
 <    函数里的语法基本类似于C语言，区别在：
     Reference: User's Guide\Debug Functions\Differences Between µVision and C ~
 
+    钩子 >
+    FUNC void OnResetExec(void) { ... }         is executed after reset via the µVision reset button.
+    FUNC void OnStopAfterReset(void) { ... }    is executed after a reset in µVision has been detected with the option "Stop after Reset" enabled in the Options for Target dialog.
+<
     预定义命令 (Ref: User's Guide\Debugging\Debug Commands) >
     DEFINE      Create a Toolbox button. 
     EXIT        Exit debug mode. 
