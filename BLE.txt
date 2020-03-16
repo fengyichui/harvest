@@ -1332,16 +1332,21 @@
 hs6621 CoreMark:
     编译器：armclang 6.13
     优化选项：-Omax
-    CPU速度：64MHz (ULP/LP RAM也在64MHz上)
     程序运行在：RAM
+    cache: 16KB
 
-    cache   code in   data in   CoreMark   CoreMark/MHz
-    ---------------------------------------------------
-    yes     ULP       LP        193        3.02
-    yes     LP        ULP       186        2.91
-    no      LP        ULP       179        2.79
-    no      ULP       LP        150        2.34
-
+    CPU     cache   ULP/LP     code in   data in   CoreMark   CoreMark/MHz
+    ----------------------------------------------------------------------
+    64MHz   yes     64/64MHz   ULP       LP        193        3.02
+    64MHz   yes     64/64MHz   LP        ULP       186        2.91
+    64MHz   no      64/64MHz   LP        ULP       179        2.79
+    64MHz   no      64/64MHz   ULP       LP        150        2.34
+    64MHz   yes     64/64MHz   ULP       ULP       186        2.91
+    64MHz   yes     64/64MHz   LP        LP        193        3.02
+    64MHz   no      64/64MHz   LP        LP        177        2.76
+    64MHz   yes     2 /64MHz   ULP       LP        193        3.02
+    64MHz   no      2 /64MHz   ULP       LP        5.5        0.09
+    128MHz  yes     4 /128MHz  ULP       LP        387        3.02
 
 
 vim: ft=help
