@@ -33,6 +33,8 @@
         3. 不擦除的情况下，每个bit都可以从0写成1；
         4. 写的长度为0时，会造成后面的写操作出错；
 
+        一次写需要1.88ms
+
         PUYA工程师的邮件：
             PUYA的flash program都是以整个page program方式的。
             program一个page数据时，编程指令直接送入>= 256byte的数据，芯片直接执行编程动作。
@@ -43,12 +45,13 @@
             每一次byte program时，都是对整个page做一次program。所以如果一个page有多次byte或bit方式的program，可能会影响该page擦写次数。
             采用byte program时编程时间比其他传统flash要长。但在最小erase区间，erase时间，功耗等各个方面有明显优势。
 
-    同芯微 的 flash:
+    同芯微的flash:
         工艺和PUYA的相同，他们的工艺和兆易的不一样
         他们研发工程师说：
             覆盖写可能会出现问题，不建议做覆盖写的操作。
             覆盖写不能超过200次，超过了之后就不能保证了(还不能确定200次以内是否一定安全)。必须做擦除之后才可以。
             不超过256bytes的写flash内部的行为是：读原始数到buffer中 -> 弱擦除256bytes -> 写回
+        一次写需要3.38ms
 
 5. flash
     NOR Flash, NAND Flash

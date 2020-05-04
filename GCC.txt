@@ -3,7 +3,7 @@
 
 
 1. 最小化Code size (去除无用的数据和函数)： >
-    CC_OPT = -Os -fdata-sections -ffunction-sections
+    CC_OPT = -Os -flto -fdata-sections -ffunction-sections
     LD_OPT = -Wl,--gc-sections
     gcc $(CC_OPT) test.cpp -o test $(LD_OPT)
 

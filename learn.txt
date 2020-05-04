@@ -338,7 +338,7 @@
 
 10. Doxygen
     a. 按原始注释输出(保留空格和换行)
-        <pre> ... </pre>
+        <pre> ... </pre> 或者 @verbatim @endverbatim
     b. 去掉不需要的行
         @cond ... @endcond
     c. 创建Document.html指向index.html
@@ -415,7 +415,22 @@
             deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
             deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
             deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+
+            # Ubuntu 20.04
+            # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+            deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
+            # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
+            deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+            # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+            deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+            # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+            deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+            # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+            # 预发布软件源，不建议启用
+            # deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
+            # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
 <
+
     c. 修改默认shell为zsh
         $ chsh -s $(which zsh)
         上条命令如果不行，则在.bashrc的最前面添加：[[ -t 1 ]] && exec zsh
@@ -592,5 +607,42 @@
     注册表：HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\Explorer (没有则新建)
     新建DWORD，名字为EnableLegacyBalloonNotifications，值为1
     重启资源管理器
+
+26. WSL1
+    a. Fixing WSL Mount Permissions
+       https://www.turek.dev/post/fix-wsl-file-permissions/
+       The short version is to add this section to your WSL instance’s /etc/wsl.conf
+       (the file probably does not exist, just create it): >
+        [automount]
+        enabled = true
+        options = "metadata,umask=22,fmask=11"
+<       And then run: wsl --shutdown
+
+27. WSL2
+    a. How to copy text from vim to system clipboard?
+       https://github.com/Microsoft/WSL/issues/892 >
+
+        For those who want to go the X server route, let me leave my notes here.
+
+        1. Install VcXsrv(https://sourceforge.net/projects/vcxsrv/) (I found that Xming
+           is outdated on sourceforge and the new version is donationware)
+        2. If it starts after installing, stop it
+        3. Start it using XLaunch (search in the start menu), go with all the defaults
+           (ensure the clipboard options are checked)
+        4. At the end, save the configuration to a file (use that to start it from now on)
+        5. Put export DISPLAY=localhost:0.0 in your .bashrc in bash for Windows (and run the
+           command in any open bash windows). The reason I explicitly say localhost is that
+           this makes SSH X forwarding work, see below.
+        6. Ensure vim is installed using clipboard support. vim --version | grep clipboard should
+           say +clipboard, not -clipboard. Also if you run the ex command :echo has('clipboard')
+           in vim and it says 0 it does not have clipboard support compiled in. If you don't have
+           clipboard support, install the vim-gtk package (apt-get install vim-gtk).
+        7. It should now work
+
+        As a bonus you should now be able to copy from and to your Windows clipboard from a remote
+        machine by using SSH X forwarding (ssh -X ... ). You can use xclip on the remote machine or
+        if you use vim there you will again need to make sure the clipboard option is compiled into
+        vim (e.g. install vim-gtk). You can probably also configure PuTTY to use your local X server
+        in case you prefer using that for remote connections.
 
 vim: ft=help

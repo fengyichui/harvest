@@ -1113,4 +1113,7 @@
     $ crontab -e        编辑和查看表, 修改退出会自动生效
     $ cronevents        查看cron的log
 
+36. Ubuntu查询某个命令数据哪个安装包
+    aptitude search ping
+
 vim:ft=help
