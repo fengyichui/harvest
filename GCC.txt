@@ -770,4 +770,62 @@
 <    -finstrument-functions-exclude-file-list=file,file,...
     -finstrument-functions-exclude-function-list=sym,sym,...
 
+15. GCC ld script
+
+    a. About LMA/VMA
+        Every loadable or allocatable output section has two addresses. The first is the *VMA* , or
+        virtual memory address. This is the address the section will have when the output file is
+        run. The second is the *LMA* , or load memory address. This is the address at which the
+        section will be loaded. In most cases the two addresses will be the same. An example of
+        when they might be different is when a data section is loaded into ROM, and then copied
+        into RAM when the program starts up (this technique is often used to initialize global
+        variables in a ROM based system). In this case the ROM address would be the LMA, and
+        the RAM address would be the VMA.
+        You can see the sections in an object file by using the objdump program with the ‘-h’ option.
+
+    b. SECTION
+        基本格式：
+            section_name [vma_address] [(type)] :
+                [AT(lma_address)]
+                [ALIGN(section_align) | ALIGN_WITH_INPUT]
+                [SUBALIGN(subsection_align)]
+                [constraint]
+            {
+                output-section-command
+                output-section-command
+                ...
+            } [>region] [AT>lma_region] [:phdr :phdr ...] [=fillexp] [,]
+
+    EXCLUDE_FILE
+
+    内建命令
+        ENTRY(symbol)           将符号SYMBOL的值设置成入口地址。同命令行的-e选项
+        INCLUDE filename        包含其他名为filename的链接脚本 相当于c程序内的的#include指令, 用以包含另一个链接脚本.  脚本搜索路径由-L选项指定.
+        INPUT(files)            将括号内的文件做为链接过程的输入文件, 命令行的-l选项一样.
+        GROUP(files)            指定需要重复搜索符号定义的多个输入文件
+        OUTPUT(filename)        定义输出文件的名字 同ld的-o选项
+        SEARCH_DIR(path)        定义搜索路径， 同ld的-L选项, 不过由-L指定的路径要比它定义的优先被搜索。
+        STARTUP(filename)       指定filename为第一个输入文件
+        OUTPUT_FORMAT(bfdname)  设置输出文件使用的BFD格式 同ld选项-o format BFDNAME, 不过ld选项优先级更高.
+        TARGET(bfdname)         设置输入文件的BFD格式 同ld选项-b BFDNAME.
+        ASSERT(exp, message)    如果EXP不为真，终止连接过程
+        FORCE_COMMON_ALLOCATION 为common symbol(通用符号)分配空间，即使用了-r连接选项也为其分配
+        EXTERN(symbol symbol ...)   在输出文件中增加未定义的符号，如同连接器选项-u
+
+    表达式
+        内建函数：
+            ABSOLUTE(exp)       转换成绝对值
+            ADDR(section)       返回某section的VMA值。
+            LOADADDR(section)   返回SECTION的LMA
+            SIZEOF(section)     返回SECTION的大小。当SECTION没有被分配时，即此时SECTION的大小还不能确定时，连接器会报错。
+            ALIGN(exp,align)    返回定位符'.'的修调值，对齐后的值，(. + EXP - 1) & ~(EXP - 1)
+            BLOCK(exp)          如同ALIGN(EXP)，为了向前兼容。
+            DEFINED(symbol)     如果符号SYMBOL在全局符号表内，且被定义了，那么返回1，否则返回0。例子，
+            MAX(exp1,exp2)      返回大者
+            MIN(exp1,exp2)      返回小者
+            NEXT(exp)           返回下一个能被使用的地址，该地址是EXP的倍数，类似于ALIGN(EXP)。除非使用了MEMORY命令定义了一些非连续的内存块，否则NEXT(EXP)与ALIGH(EXP)一定相同。
+            ORIGIN(memory)      返回memory的起始地址
+            LENGTH(memory)      返回memory的长度
+
+
 vim: ft=help
