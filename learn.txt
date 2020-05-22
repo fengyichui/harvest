@@ -346,8 +346,10 @@
         <meta http-equiv="REFRESH" content="0;URL=html/index.html">
     d. 添加代码块
         @code {.c} ... @endcode
-    e. 添加图片
-        @image html a.jpg
+    e. 添加图片 HTML
+        @image html Picture.png "Bild2"
+    f. 添加图片 PDF
+        @image latex Picture.png "Bild3" width=\textwidth
 
 
 11. ellisys最新版本
@@ -670,6 +672,41 @@
         string = string_fix;
       }
       // }
+
+29. Doxygen生成pdf文档
+
+    安装中文latex环境
+        首先安装texlive(额, 这个有点大, 我装的时候提示几百兆) >
+            sudo apt-get install texlive-full
+<        然后安装cjk的一些东西 >
+            sudo apt-get install latex-cjk-chinese*
+            sudo apt-get install cjk-latex
+<
+    生成文档
+        运行doxygen命令, 如果成功, 在生成的out/latex下会有输出.
+        修改生成的out/latex/refman.tex
+            将其中的: >
+                \begin{document}
+<            改为: >
+                \usepackage{CJKutf8}
+                \begin{document}
+                \begin{CJK}{UTF8}{gbsn}
+<            并将其中的: >
+                \end{document}
+<            改为: >
+                \end{CJK}
+                \end{document}
+<        以上操作是声明使用CJKutf8的包, 并用CJK将document段括起来. 然后在out/latex下make就行了.
+
+    自动替换脚本
+        以上操作如果嫌麻烦, 可以封装到类似如下的shell脚本中, 自动替换refman.tex并make出pdf. >
+            document_pdf:
+                @sed -i -e 's/GENERATE_LATEX\s*=\s*NO/GENERATE_LATEX         = YES/' document/doxygen/doxyfile
+                @doxygen document/doxygen/doxyfile
+                @sed -i -e 's,begin{document},usepackage{CJKutf8}\n\\begin{document}\n\\begin{CJK}{UTF8}{gbsn},' document/latex/refman.tex
+                @sed -i -e 's,end{document},end{CJK}\n\\end{document},' document/latex/refman.tex
+                @make -C document/latex/ >/dev/null
+                @sed -i -e 's/GENERATE_LATEX\s*=\s*YES/GENERATE_LATEX         = NO/' document/doxygen/doxyfile
 
 
 vim: ft=help
