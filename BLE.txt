@@ -1362,5 +1362,28 @@ hs6621c CoreMark
         ---------------------------------------------------
         32MHz   ROM       RAM       84         2.6
 
+阿波罗超低功耗蓝牙芯片揭秘
+    MPU功耗超低 8uA/MHz
+    台积电流片
+    工艺专利交给台积电，其他厂商也可以用这个技术，但是不能用于蓝牙
+    和dialog和封，阿波罗MCU + dialog's BLE
+    这个工艺不好做蓝牙的模拟部分
+
+
+HS6621C
+    睡眠 (同芯4Mb)
+        5.5uA: 64KB RAM + 12KB EM + RC32K + flash睡眠
+        4.6uA: 64KB RAM + 12KB EM + RC32K
+        4.9uA: 64KB RAM + 12KB EM + XTAL32K
+        4.1uA: 64KB RAM + 12KB EM
+        3.7uA: 64KB RAM
+        3.1uA: 32KB RAM
+        2.4uA:  0KB RAM (0.9ANA 1.5DIG)
+
+    RC32K:   0.5uA (4.6uA - 4.1uA)
+    XTAL32K: 0.8uA (4.9uA - 4.1uA)
+    12KB EM: 0.4uA
+    32k RAM: 0.65uA
+
 
 vim: ft=help

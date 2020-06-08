@@ -470,5 +470,63 @@ Keil学习
                                            |   lib initialization code   |
                                            +-----------------------------+
 
+16. #pragma
+    Reference: Arm Compiler 6 User's Guides/Migration and Compatibility Guide/Compiler Source Code Compatibility ~ >
+        #pragma import (symbol) __asm(".global symbol\n\t"); 
+        #pragma arm
+        #pragma thumb
+        #pragma arm section
+        #pragma clang section
+        #pragma diag_default
+        #pragma diag_suppress
+        #pragma diag_remark
+        #pragma diag_warning
+        #pragma diag_error
+        #pragma clang diagnostic ignored "-Wmultichar" 
+        #pragma clang diagnostic warning "-Wmultichar" 
+        #pragma clang diagnostic error "-Wmultichar" 
+        #pragma clang diagnostic fatal "-Wmultichar"  
+        #pragma exceptions_unwind
+        #pragma no_exceptions_unwind
+        #pragma GCC system_header
+        #pragma hdrstop
+        #pragma no_pch
+        #pragma import(__use_no_semihosting)
+        #pragma import(__use_no_semihosting_swi)
+        #pragma inline
+        #pragma no_inline
+        #pragma Onum
+        #pragma Ospace
+        #pragma Otime
+        #pragma pop
+        #pragma push
+<
+    #pragma arm section section_type[[=]"name"] [,section_type="name"]*
+        Valid section types are:
+        - code.
+        - rodata.
+        - rwdata.
+        - zidata.
+        例子: >
+        #pragma arm section rwdata = "foo", rodata = "bar"
+            int x2 = 5;                     // in foo (data part of region)
+            int y2[100];                    // in .bss
+            int const z2[3] = {1,2,3};      // in bar
+            char *s2 = "abc";               // s2 in foo, "abc" in .conststring
+        #pragma arm section rodata
+
+        #pragma arm section code = "foo"
+            int add1(int x)                   // in foo (code part of region)
+            {
+                return x+1;
+            }
+        #pragma arm section code
+
+
+17. armcc 和 armclang 优化对比
+    .data .bss 没有区别
+    armcc -O3           213kB
+    armclang -Oz lto    185kB
+
 
 vim: ft=help

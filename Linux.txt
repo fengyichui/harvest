@@ -1115,5 +1115,10 @@
 
 36. Ubuntu查询某个命令数据哪个安装包
     aptitude search ping
+    apt-file search ping
+
+37. WSL 可能导致init进程占用100%的CPU
+    https://github.com/microsoft/WSL/issues/3914
+    打开 启用或关闭Windows功能->虚拟机平台
 
 vim:ft=help
