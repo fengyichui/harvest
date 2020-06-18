@@ -1120,5 +1120,15 @@
 37. WSL 可能导致init进程占用100%的CPU
     https://github.com/microsoft/WSL/issues/3914
     打开 启用或关闭Windows功能->虚拟机平台
+    !!!不工作!!!
+
+38. 使用nc做网络传输
+    发送端：echo "something" | nc dest_ip dest_port
+    接收端：nc local_port
+    例如网络串口: >
+    发送本地串口数据到192.168.101.141
+        picocom /dev/ttyS4 -b 115200 | pp | tee --output-error=warn $(tty) | nc 192.168.101.141 11223
+    192.168.101.141接收网络串口数据:
+        nc -k -l 11223
 
 vim:ft=help

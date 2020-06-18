@@ -985,5 +985,40 @@ Shell 总结
         早期的Unix，终端通过Modem和系统通讯，当用户注销（logout）时，Modem就会挂断（hangup）电话；
         当Modem断开时，会给终端发SIGHUP来通知终端关闭所有子进程。
 
+    Question >
+        Why use setsid instead of nohup for keeping a process running when the shell may time out or exit?
+<
+    Answer >
+        When you run a lengthy process such as nzreclaim interactively or in the background, it is attached
+        to the shell. When the shell exits, the process will abort.
+        Although you can use nohup to ensure that a command ignores the hangup signal, which occurs when
+        a user disconnects from the pseudo-terminal (pty), it is not as reliable as setsid. nohup is known
+        to time out prematurely. Setsid runs commands in a separate session (that is not attached to your pty)
+        so the commands run to completion even after you log out. For example:
+        $ setsid nzreclaim -allDbs -records -force > /tmp/nzreclaim.out &
+
+41. 临时文件
+    1、mktemp（强烈推荐）
+        The  mktemp  utility takes the given filename template and overwrites a portion of it to create a unique filename.
+        The template  may  be  any filename  with  some  number  of  'Xs'  appended  to  it,  for  example /tmp/tfile.XXXXXXXXXX.
+        If  no  template  is  specified a  default  of tmp.XXXXXXXXXX is used and the -t flag is implied (see below).
+
+        mktemp [-V] | [-dqtu] [-p directory] [template]
+        -d    Make a directory instead of a file.    # 创建临时目录
+
+        下面演示一下 mktemp 如何使用： >
+        TMPFILE=$(mktemp /tmp/tmp.XXXXXXXXXX) || exit 1
+        echo "program output" >> $TMPFILE
+<
+    2、$RANDOM
+        编程中，随机数是经常要用到的。BASH也提供了这个功能：$RANDOM 变量，返回（0-32767）之间的随机数，它产生的是伪随机数，所以不应该用于加密的密码。 >
+        TMPFILE="/tmp/tmp_$RANDOM"
+        echo "program output" >> $TMPFILE
+<
+    3、$$变量
+        Shell的特殊变量 $$保存当前进程的进程号。可以使用它在我们运行的脚本中创建一个唯一的临时文件，因为该脚本在运行时的进程号是唯一的。
+        这种方法在同一个进程中并不能保证多个文件名唯一。但是它可以创建进程相关的临时文件。 >
+        TMPFILE="/tmp/tmp_$$"
+        echo "program output" >> $TMPFILE
 
 vim:ft=help

@@ -638,6 +638,8 @@
 19. CBT报错解析：
     a. BIT zero not found >
        我们发送的数据包的preamble的前面被截断了。检查radio控制的TX-setup时间是否过短
+<    b. 初始频偏一直是-30dbm >
+       Preamble是不是发反了
 
 20. HS6620
     - HS6620 CEVA RX窗口 (RX_MODE == Normal):
@@ -1384,6 +1386,7 @@ HS6621C
     XTAL32K: 0.8uA (4.9uA - 4.1uA)
     12KB EM: 0.4uA
     32k RAM: 0.65uA
+
 
 
 vim: ft=help

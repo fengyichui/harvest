@@ -263,6 +263,34 @@
             在sshfs源代码目录执行：$ ./test/appveyor-build.sh; ninja install
             eg: sshfs -o allow_other,reconnect,delay_connect,ConnectTimeout=5,ServerAliveInterval=5,port=9000,uid=-1,gid=-1,FileInfoTimeout=-1 u0_a103@192.168.100.230:storage/downloads/1 /mnt/mate9
 
+    Ubuntu:
+        sudo apt-get build-dep vim-gtk3  # 安装vim的build依赖
+        sudo apt-get source vim-gtk3     # 获取vim的源文件, 配置规则和选项：debian/rules
+
+        arm-none-eabi-gdb:
+            最新版本在：
+                ftp://sourceware.org/pub/gdb/releases/
+
+            修改gdb/config.h中的PKGVERSION为："(GNU Arm Embedded Toolchain, Modified by liqiang in 20200609) "
+            ../gdb-9.1/configure --target arm-none-eabi --enable-tui --disable-gdbtk --with-expat --with-lzma --with-mpfr --with-python --enable-sim
+
+        vim:
+            $ sudo apt-get build-dep vim-gtk3
+            $ make distclean
+            $ cd src
+            $ ./configure --with-features=huge \
+                          --enable-gui=gtk3 \
+                          --enable-multibyte \
+                          --enable-pythoninterp=yes \
+                          --enable-python3interp=yes \
+                          --enable-fail-if-missing
+                          # --enable-rubyinterp=yes \
+                          # --enable-perlinterp=yes \
+                          # --enable-luainterp=yes \
+            $ make
+            $ make install
+
+
 7. 创建常用右键菜单：
     使用winmaster.exe创建有用的右键菜单：
     1、cygwin >
