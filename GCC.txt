@@ -827,5 +827,26 @@
             ORIGIN(memory)      返回memory的起始地址
             LENGTH(memory)      返回memory的长度
 
+16. GCC优化选项
+    O0: 默认选项，目的: 减少编译时间;生成可调试代码(可打断)
+    O/O1: 做一些不显著增加编译时间的优化
+    O2: 显著提升编译时间，提升代码性能，做不包含`space-speed tradeoff`的所有优化
+    O3: 进一步优化，显著增加可执行文件大小。
+    Os: 优化性能同时不增加可执行文件大小。包含O2选项中不增加代码大小的优化项
+    Og: 优化性能同时不损害可调试性。包含O1选项中不损害可调试性的优化项
+    Ofast: 忽视严格的标准编译性。包含O3中所有选项及` -ffast-math`
+
+    大家对O3普遍比较谨慎，主要因为:
+    - 前期Gcc版本中，O3 is buggy
+    - O3往往优化后比O2还要慢一些
+    第2点，主要是因为，O3在做优化时，采用了很激进的策略，例如激进的循环展开、函数内联等，
+    导致生成的代码比较大，可能超出了CPU的指令Cacheinstruction cache，破坏了局部性和完整性。
+
+    LTO（Link Time Optimization）
+    链接时优化是链接期间的程序优化，多个中间文件通过链接器合并在一起，并将它们组合为一个程序，缩减代码体积，
+    因此链接时优化是对整个程序的分析和跨模块的优化。link time时需要为GP alias计算大小，是否超过16bit，
+    以决定用什么东西。该计算在linker中做而不是compiler来做。
+    -flto是使用lto的主要方法，是一个优化选项，禁用lto使用-fno-lto。flto主要做的操作有inline、ipa(ipo)和alias分析等。
+
 
 vim: ft=help
