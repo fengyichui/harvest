@@ -362,6 +362,7 @@
     删除文件: os.remove(path) ~
     创建目录: os.mkdir(path) ~
     删除目录: os.rmdir(path) ~
+    文件大小: os.path.getsize(path) ~
     递归删除目录下所有文件: shutil.rmtree(path) ~
     产看文件是否存在: os.path.exists('msc.log') ~
 
@@ -756,5 +757,9 @@
         traceback.print_exc()   # print exception
         traceback.format_exc()  # return a exception string
 
+33. str和bytes互转
+    B1 = b'ABC'
+    S= B1.decode('ascii') #bytes类型转str
+    B2 = S.encode('ascii') #str转bytes
 
 vim:ft=help

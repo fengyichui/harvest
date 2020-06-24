@@ -113,7 +113,7 @@ Keil学习
         导出：linker框内加入: --symdefs=.\symdefs.o (多用于ROM符号导出)
         导入：文件列表内加入导出的目标文件:symdefs.o
 
-8. link时，地址无关的scatter (常用于打ROM Patch) >
+8. link时，地址无关的scatter (PIC) (常用于打ROM Patch) >
     LOAD 0 PI
     {
         PATCH 0 PI

@@ -248,6 +248,10 @@
             set scheduler-locking on        只有当前被调试程序会执行
             set scheduler-locking on step   在单步的时候，只有当前线程会执行
 
+        调试PIC文件：
+            file a.axf -o 0x1000               -o 指定PIC文件加载的offset
+            add-symbol-file a.axf -o 0x1000
+
     ~/.gdbinit 语法： ~
          默认情况gdb会在初始化的时候加载该文件。
          定义函数：define
@@ -848,5 +852,144 @@
     以决定用什么东西。该计算在linker中做而不是compiler来做。
     -flto是使用lto的主要方法，是一个优化选项，禁用lto使用-fno-lto。flto主要做的操作有inline、ipa(ipo)和alias分析等。
 
+17. GCC 编译地址无关的程序
+    编译选项加上：-fPIC
+    >
+        -fpic   Generate position-independent code (PIC) suitable for use in a shared library,
+                if supported for the target machine. Such code accesses all constant addresses
+                through a global offset table (GOT). The dynamic loader resolves the GOT
+                entries when the program starts (the dynamic loader is not part of GCC; it
+                is part of the operating system). If the GOT size for the linked executable
+                exceeds a machine-specific maximum size, you get an error message from the
+                linker indicating that ‘-fpic’ does not work; in that case, recompile with ‘-fPIC’
+                instead. (These maximums are 8k on the SPARC, 28k on AArch64 and 32k on
+                the m68k and RS/6000. The x86 has no such limit.)
+
+                Position-independent code requires special support, and therefore works only on
+                certain machines. For the x86, GCC supports PIC for System V but not for the
+                Sun 386i. Code generated for the IBM RS/6000 is always position-independent.
+
+                When this flag is set, the macros __pic__ and __PIC__ are defined to 1.
+
+        -fPIC   If supported for the target machine, emit position-independent code, suitable
+                for dynamic linking and avoiding any limit on the size of the global offset table.
+                This option makes a difference on AArch64, m68k, PowerPC and SPARC.
+
+                Position-independent code requires special support, and therefore works only
+                on certain machines.
+
+                When this flag is set, the macros __pic__ and __PIC__ are defined to 2.
+
+        -fpie   These options are similar to ‘-fpic’ and ‘-fPIC’, but the generated position-
+        -fPIE   independent code can be only linked into executables. Usually these options
+                are used to compile code that will be linked using the ‘-pie’ GCC option.
+
+                ‘-fpie’ and ‘-fPIE’ both define the macros __pie__ and __PIE__. The macros
+                have the value 1 for ‘-fpie’ and 2 for ‘-fPIE’.
+
+        -fno-plt
+                Do not use the PLT for external function calls in position-independent code.
+                Instead, load the callee address at call sites from the GOT and branch to it.
+                This leads to more efficient code by eliminating PLT stubs and exposing GOT
+                loads to optimizations. On architectures such as 32-bit x86 where PLT stubs
+                expect the GOT pointer in a specific register, this gives more register allocation
+                freedom to the compiler. Lazy binding requires use of the PLT; with ‘-fno-plt’
+                all external symbols are resolved at load time.
+
+                Alternatively, the function attribute noplt can be used to avoid calls through
+                the PLT for specific external functions.
+
+                In position-dependent code, a few targets also convert calls to functions that
+                are marked to not use the PLT to use the GOT instead.
+
+        -fno-jump-tables
+                Do not use jump tables for switch statements even where it would be more effi-
+                cient than other code generation strategies. This option is of use in conjunction
+                with ‘-fpic’ or ‘-fPIC’ for building code that forms part of a dynamic linker
+                and cannot reference the address of a jump table. On some targets, jump tables
+                do not require a GOT and this option is not needed.
+
+        -mbuild-constants
+                Normally GCC examines a 32- or 64-bit integer constant to see if it can construct
+                it from smaller constants in two or three instructions. If it cannot, it outputs
+                the constant as a literal and generates code to load it from the data segment
+                at run time.
+
+                Use this option to require GCC to construct all integer constants using code,
+                even if it takes more instructions (the maximum is six).
+
+                You typically use this option to build a shared library dynamic loader. Itself a
+                shared library, it must relocate itself in memory before it can find the variables
+                and constants in its own data segment.
+
+        -msingle-pic-base
+                Treat the register used for PIC addressing as read-only, rather than loading
+                it in the prologue for each function. The runtime system is responsible for
+                initializing this register with an appropriate value before execution begins.
+
+        -mpic-register=reg
+                Specify the register to be used for PIC addressing. For standard PIC base case,
+                the default is any suitable register determined by compiler. For single PIC base
+                case, the default is ‘R9’ if target is EABI based or stack-checking is enabled,
+                otherwise the default is ‘R10’.
+
+        -mpic-data-is-text-relative
+                Assume that the displacement between the text and data segments is fixed at
+                static link time. This permits using PC-relative addressing operations to access
+                data known to be in the data segment. For non-VxWorks RTP targets, this
+                option is enabled by default. When disabled on such targets, it will enable
+                ‘-msingle-pic-base’ by default.
+<
+    比如 jump label 指令
+    non-PIC 的形式是：
+        jump printf
+        意思是调用 printf。
+
+    PIC 的形式则是：
+        jump printf-offset@GOT
+        意思是跳到 GOT 表的 index 为 printf-offset 的地方处指示的地址去执行。这个地址处的代码存放在 .plt section ，
+        每个外部函数对应一段这样的代码，其功能是呼叫 dynamic-loader(ld-linux.so) 来查找函数的地址(本例中是 printf)，
+        然后将其地址写到 GOT 表的 index 为 printf-offset 的地方，同时执行这个函数。这样，第 2 次呼叫 printf 的时候，
+        就会直接跳到 printf 的地址，而不必再查找了。
+
+    GOT 是 data section, 是一个 table, 除专用的几个 entry，每个 entry 的内容可以在执行的时候修改；
+    PLT 是 text section, 是一段一段的 code，执行中不需要修改。
+
+    新的段 .data.rel*: 这个段的每个数据要加上PIC的基地址: >
+        This may be used for read-only global variables which are initialized to something which requires a relocation,
+        such as the address of a function or a different global variable. Because the global variable requires a runtime
+        initialization in the form of a dynamic relocation, it can not be placed in a read-only segment. However, because
+        it is declared to be constant, and therefore may not be changed by the program, the dynamic linker can mark it
+        as read-only after the dynamic relocation has been applied.
+
+        For some targets this technique may also be used for the PLT or parts of the GOT.
+
+        Making these pages read-only helps catch some cases of memory corruption, and making the PLT in particular read-only
+        helps prevent some types of buffer overflow exploits.
+
+        The first step is in gcc. When gcc sees a variable which is constant but requires a dynamic relocation, it puts it
+        into a section named .data.rel.ro (this functionality unfortunately relies on magic section names). A variable which
+        requires a dynamic relocation against a local symbol is put into a .data.rel.ro.local section; this helps group such
+        variables together, so that the dynamic linker may apply the relocations, which will always be RELATIVE relocations,
+        more efficiently, especially when using combreloc.
+
+        The linker groups .data.rel.ro and .data.rel.ro.local sections as usual. The new step is that the linker then emits a
+        PT_GNU_RELRO program segment which covers these sections. If the PLT and/or GOT can be read-only after dynamic
+        relocations, they are put next to the .data.rel.ro sections and also become part of the new segment. This segment will
+        enclosed within a PT_LOAD segment. The p_vaddr field of the PT_GNU_RELRO segment gives the virtual address of the
+        start of the read-only after dynamic relocations code, and the p_memsz field gives its length.
+
+        When the dynamic linker sees a PT_GNU_RELRO segment, it uses mprotect to mark the pages as read-only after the dynamic
+        relocations have been applied. Of course this only works if the segment does in fact cover an entire page. The linker
+        will try to force this to happen.
+
+        Note that the current dynamic linker code will only work correctly if the PT_GNU_RELRO segment starts on a page boundary.
+        This is because the dynamic linker rounds the p_vaddr field down to the previous page boundary. If there is anything on
+        the page which should not be read-only, the program is likely to fail at runtime. So in effect the linker must only emit
+        a PT_GNU_RELRO segment if it ensures that it starts on a page boundary.
+
+        I see this as a relatively minor security benefit. It is not an optimization as far as I can see. I am documenting it here
+        as part of my general documentation of obscure linker features. The current description of this feature in the GNU linker
+        manual is rather obscure.
 
 vim: ft=help
