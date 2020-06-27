@@ -1405,4 +1405,70 @@
       }
       // }
 
+44. 预加载so
+    预加载so的两种方式：
+    - 修改 "/etc/ld.so.preload" 配置文件，这种方法对配置修改之后运行的进程生效，而无法影响已经在运行的进程
+    - 启动进程前设置 "LD_PRELOAD" 变量(如shell中执行LD_PREOAD=/lib64/inject.so ./myprocess)，则只对当前进程生效
+    默认情况下进程创建的子进程也会继承LD_PRELOAD环境变量，而父进程可以在子进程初始化前修改子进程的环境变量，从而避免往子代传播。
+
+    LD_PRELOAD可以影响程序的运行时的链接，它允许你定义在程序运行前优先加载的动态链接库，这个功能主要就是用来有选择性的载入不同动态链接库中的相同函数。
+
+    通过这个环境变量，我们可以在主程序和其动态链接库的中间加载别的动态链接库，甚至覆盖正常的函数。
+
+    进程在启动后，会按照一定顺序加载动态库：
+    - 加载环境变量LD_PRELOAD指定的动态库
+    - 加载文件/etc/ld.so.preload指定的动态库
+    - 搜索环境变量LD_LIBRARY_PATH指定的动态库搜索路径
+    - 搜索路径/lib64下的动态库文件
+
+    以下面两种方法可以让LD_PRELOAD失效。
+    - 通过静态链接。使用gcc的-static参数可以把libc.so.6静态链入执行程序中。但这也就意味着你的程序不再支持动态链接。
+    - 通过设置执行文件的setgid/setuid标志。在有SUID权限的执行文件，系统会忽略LD_PRELOAD环境变量。也就是说，如果你有以root方式运行的程序，最好设置上SUID权限。
+
+    经典实例：
+        fakeroot：
+            fakeroot 允许执行 mknod 这样需要 root 权限的程序而不会失败（虽然没有真正创建设备文件），所以被 buildroot 用于文件系统构建。
+            fakeroot 通过 libfakeroot-0.so 篡改了 getuid 相关的函数
+        catchsegv:
+            catchsegv 能够捕捉断错误，并打印出 backtrace 从而方便辅助定位软件问题。
+            catchsegv 通过 libSegFault.so 捕获 SIGSEGV 信号来获得 backtrace
+
+    简单例子：
+        random_num.c： >
+            #include<stdio.h>
+            #include<stdlib.h>
+            #include<time.h>
+            int main()
+            {
+                srand(time(NULL));
+                int i =10;
+                while(i--)
+                    printf("%d\n",rand()%100);
+                return0;
+            }
+<        我相信，它足够简单吧。我不使用任何参数来编译它，如下所示：
+        $ gcc random_num.c -o random_num ~
+        我希望它输出的结果是明确的：从 0-99 中选择的十个随机数字，希望每次你运行这个程序时它的输出都不相同。
+
+        现在，让我们假装真的不知道这个可执行程序的出处。甚至将它的源文件删除，或者把它移动到别的地方  我们已不再需要它了。我们将对这个程序的行为进行重大的修改，而你并不需要接触到它的源代码，也不需要重新编译它。
+
+        因此，让我们来创建另外一个简单的 C 文件：
+        unrandom.c： >
+            int rand()
+            {
+                return 42;
+            }
+<        我们将编译它进入一个共享库中。
+        $ gcc-shared -fPIC unrandom.c -o unrandom.so ~
+        因此，现在我们已经有了一个可以输出一些随机数的应用程序，和一个定制的库，它使用一个常数值 42 实现了一个 rand() 函数。
+        现在 …… 就像运行 random_num 一样，然后再观察结果：
+        LD_PRELOAD=$PWD/unrandom.so ./random_nums ~
+        如果你想偷懒或者不想自动亲自动手（或者不知什么原因猜不出发生了什么），我来告诉你  它输出了十次常数 42。
+
+        如果先这样执行
+        export LD_PRELOAD=$PWD/unrandom.so ~
+        然后再以正常方式运行这个程序，这个结果也许会更让你吃惊：一个未被改变过的应用程序在一个正常的运行方式中，看上去受到了我们做的一个极小的库的影响 ……
+
+
+
 vim:ft=help
