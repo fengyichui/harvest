@@ -1378,6 +1378,18 @@
         if you use vim there you will again need to make sure the clipboard option is compiled into
         vim (e.g. install vim-gtk). You can probably also configure PuTTY to use your local X server
         in case you prefer using that for remote connections.
+<
+    b. 不能连接到window的port：
+        防火墙问题, powershell中运行（管理员）：
+            New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)"  -Action Allow
+
+    c. 通过VcXsrv.exe显示GUI时，如果有如下错误提示： >
+            Authorization required, but no authorization protocol specified
+            E233: cannot open display
+<        原因：
+            vcxsrv.exe没有允许其接收所有IP地址，应如下：vcxsrv.exe -multiwindow -clipboard -nowgl -ac
+            或者在Extra Settting时勾选：Disable access control
+
 
 43. 修复gdb不能解析windows路径的问题:
     在gdb/source.c文件的openp()函数的 “if ((opts & OPF_TRY_CWD_FIRST) || IS_ABSOLUTE_PATH (string))” 之前加入: >
