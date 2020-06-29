@@ -1353,6 +1353,9 @@
 <       And then run: wsl --shutdown
 
 42. WSL2
+
+    WSL2 Kernel: https://docs.microsoft.com/en-us/windows/wsl/wsl2-kernel
+
     a. How to copy text from vim to system clipboard?
        https://github.com/Microsoft/WSL/issues/892 >
 
@@ -1382,6 +1385,7 @@
     b. 不能连接到window的port：
         防火墙问题, powershell中运行（管理员）：
             New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)"  -Action Allow
+            # powershell -Command "Set-NetFirewallProfile -DisabledInterfaceAliases \"vEthernet (WSL)\""
 
     c. 通过VcXsrv.exe显示GUI时，如果有如下错误提示： >
             Authorization required, but no authorization protocol specified
@@ -1390,6 +1394,9 @@
             vcxsrv.exe没有允许其接收所有IP地址，应如下：vcxsrv.exe -multiwindow -clipboard -nowgl -ac
             或者在Extra Settting时勾选：Disable access control
 
+    d. 不能运行windows程序
+        由于tmux导致WSL_INTEROP出错
+            export WSL_INTEROP=/run/WSL/$(ls /run/WSL/|awk 'NR==1{print}')
 
 43. 修复gdb不能解析windows路径的问题:
     在gdb/source.c文件的openp()函数的 “if ((opts & OPF_TRY_CWD_FIRST) || IS_ABSOLUTE_PATH (string))” 之前加入: >
@@ -1482,5 +1489,82 @@
         然后再以正常方式运行这个程序，这个结果也许会更让你吃惊：一个未被改变过的应用程序在一个正常的运行方式中，看上去受到了我们做的一个极小的库的影响 ……
 
 
+45. bash 和 zsh 启动流程：
+    Login Shells, Interactive Shells: (https://docstore.mik.ua/orelly/unix3/upt/ch03_04.htm)
+        - Interactive shell:        An interactive shell reads commands from user input on a tty.
+        - Non-interactive shell:    a shell reads commands from a file: a shell script
+        - Login shell:              Typically, most users will encounter a login shell only if either:
+            -- they logged in from a tty, not through a GUI.
+            -- they logged in remotely, such as through ssh.
+        - Non-login shell:          If the shell was started any other way, such as through GNOME’s gnome-terminal or KDE’s konsole, then it is typically not a login shell.
+
+    Bash: >
+        +----------------+-----------+-----------+---------------+
+        |                |Interactive|Interactive|Non-interactive|
+        |                |login      |non-login  |Script         |
+        +----------------+-----------+-----------+---------------+
+        |/etc/profile    |   A       |           |               | --noprofile
+        +----------------+-----------+-----------+---------------+
+        |/etc/bash.bashrc|           |    A      |               | --norc (--rcfile <file>)
+        +----------------+-----------+-----------+---------------+
+        |~/.bashrc       |           |    B      |               |
+        +----------------+-----------+-----------+---------------+
+        |~/.bash_profile |   B1      |           |               |
+        +----------------+-----------+-----------+---------------+
+        |~/.bash_login   |   B2      |           |               |
+        +----------------+-----------+-----------+---------------+
+        |~/.profile      |   B3      |           |               |
+        +----------------+-----------+-----------+---------------+
+        |BASH_ENV        |           |           |  A            |
+        +----------------+-----------+-----------+---------------+
+        |...........     |           |           |               |
+        +----------------+-----------+-----------+---------------+
+        |~/.bash_logout  |    C      |           |               | shell exit
+        +----------------+-----------+-----------+---------------+
+                          --login
+<
+    Zsh: >
+        +----------------+-----------+-----------+------+
+        |                |Interactive|Interactive|Script|
+        |                |login      |non-login  |      |
+        +----------------+-----------+-----------+------+
+        |/etc/zshenv     |    A      |    A      |  A   |
+        +----------------+-----------+-----------+------+
+        |~/.zshenv       |    B      |    B      |  B   |
+        +----------------+-----------+-----------+------+
+        |/etc/zprofile   |    C      |           |      |
+        +----------------+-----------+-----------+------+
+        |~/.zprofile     |    D      |           |      |
+        +----------------+-----------+-----------+------+
+        |/etc/zshrc      |    E      |    C      |      |
+        +----------------+-----------+-----------+------+
+        |~/.zshrc        |    F      |    D      |      |
+        +----------------+-----------+-----------+------+
+        |/etc/zlogin     |    G      |           |      |
+        +----------------+-----------+-----------+------+
+        |~/.zlogin       |    H      |           |      |
+        +----------------+-----------+-----------+------+
+        |.............   |           |           |      |
+        +----------------+-----------+-----------+------+
+        |~/.zlogout      |    I      |           |      | shell exit
+        +----------------+-----------+-----------+------+
+        |/etc/zlogout    |    J      |           |      |
+        +----------------+-----------+-----------+------+
+<
+    Note:
+        For bash, put stuff in ~/.bashrc, and make ~/.bash_profile source it.
+        For zsh, put stuff in ~/.zshrc, which is always executed.
+
+    Bash check: >
+        if [[ -n $PS1 ]]; then
+            echo "interactive"
+        else
+            echo "non-interactive"  # bash script
+        fi
+        if shopt -q login_shell ; then  # --login option
+            echo "login"
+        else
+            echo "nonlogin"
+        fi
 
 vim:ft=help
