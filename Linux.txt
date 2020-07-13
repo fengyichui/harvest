@@ -1121,11 +1121,6 @@
     aptitude search ping
     apt-file search ping
 
-37. WSL 可能导致init进程占用100%的CPU
-    https://github.com/microsoft/WSL/issues/3914
-    打开 启用或关闭Windows功能->虚拟机平台
-    !!!不工作!!!
-
 38. 使用nc做网络传输
     发送端：echo "something" | nc dest_ip dest_port
     接收端：nc local_port
@@ -1352,6 +1347,37 @@
         options = "metadata,umask=22,fmask=11"
 <       And then run: wsl --shutdown
 
+    b. Ubuntu 20.04 不能执行sleep等函数
+        https://github.com/microsoft/WSL/issues/4898#issuecomment-646790723
+        Create this file called nanosleep.c >
+
+        #include <time.h>
+        #include <unistd.h>
+
+        // This restores the old behaviour of nanosleep() to use CLOCK_MONOTONIC.
+        //
+        // "POSIX.1 specifies that nanosleep() should measure time against the
+        // CLOCK_REALTIME clock. However, Linux measures the time using the
+        // CLOCK_MONOTONIC clock.  This probably does not matter [...]"
+        //
+        // # gcc -shared -fPIC -o /usr/local/lib/libnanosleep.so nanosleep.c
+        // # echo /usr/local/lib/libnanosleep.so >> /etc/ld.so.preload
+        //
+        int nanosleep(const struct timespec *req, struct timespec *rem)
+        {
+            return clock_nanosleep(CLOCK_MONOTONIC, 0, req, rem);
+        }
+
+        int usleep(useconds_t usec)
+        {
+            struct timespec req = {
+                .tv_sec     = (usec / 1000000),
+                .tv_nsec    = (usec % 1000000) * 1000,
+            };
+            return nanosleep(&req, NULL);
+        }
+
+
 42. WSL2
 
     WSL2 Kernel: https://docs.microsoft.com/en-us/windows/wsl/wsl2-kernel
@@ -1397,6 +1423,7 @@
     d. 不能运行windows程序
         由于tmux导致WSL_INTEROP出错
             export WSL_INTEROP=/run/WSL/$(ls /run/WSL/|awk 'NR==1{print}')
+
 
 43. 修复gdb不能解析windows路径的问题:
     在gdb/source.c文件的openp()函数的 “if ((opts & OPF_TRY_CWD_FIRST) || IS_ABSOLUTE_PATH (string))” 之前加入: >
@@ -1649,6 +1676,17 @@
 
         启动使用wine对windows可执行程序的支持
         $ echo ':DOSWin:M::MZ::/usr/local/bin/wine:' > /proc/sys/fs/binfmt_misc/register
+
+47. apt-get update特别慢，更新文件特别大
+    Probably, apt-file was installed at some point and its entry (or "trigger" if i can say) got set in /etc/apt/apt.conf.d/
+    Solution:
+        - You could keep apt-file and disable its config in apt, using this commend:
+            $ sudo sh /usr/share/doc/apt-file/examples/apt-file-2-update.sh --install
+          Then you can use follow command separately as needed (Separation of concerns):
+            $ apt update & apt-file update
+        - Also you may tweak /etc/apt/apt-file.conf to set only needed indexes to be downloaded.
+        - Purge apt-file if not required any more.
+            $ sudo apt-get purge
 
 
 
