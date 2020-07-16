@@ -251,6 +251,7 @@ Keil学习
                                ABSOLUTE    绝对地址（默认）；
                                FIXED       固定地址；
                                UNINIT      不用初始化该区域的ZI段；
+                               NOCOMPRESS  RW data不压缩，默认要压缩的 (如果出现HardwareFault, 且调用堆栈中出现__decompress，则加上NOCOMPRESS)
         module_select_pattern：目标文件滤波器，支持通配符 "*" 和 "?" ；
                                *.o匹配所有目标，* （或".ANY"）匹配所有目标文件和库。
         input_section_attr：   每个input_section_attr必须跟随在 "+" 后；且大小写不敏感；
