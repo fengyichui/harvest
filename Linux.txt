@@ -1425,31 +1425,43 @@
             export WSL_INTEROP=/run/WSL/$(ls /run/WSL/|awk 'NR==1{print}')
 
 
-43. 修复gdb不能解析windows路径的问题:
-    在gdb/source.c文件的openp()函数的 “if ((opts & OPF_TRY_CWD_FIRST) || IS_ABSOLUTE_PATH (string))” 之前加入: >
-      // FIX can't parse windows path issue {
-      {
-        static char string_fix[PATH_MAX];
-        int i, j;
-        bool prev_is_sep = false;
-        for (i=0, j=0; i<PATH_MAX && string[i]; ++i)
-        {
-          if (string[i]=='\\' || string[i]=='/')
-          {
-            if (!prev_is_sep)
-              string_fix[j++] = '/';
-            prev_is_sep = true;
-          }
-          else
-          {
-            prev_is_sep = false;
-            string_fix[j++] = string[i];
-          }
-        }
-        string_fix[j] = '\0';
-        string = string_fix;
-      }
-      // }
+43. arm-none-eabi-gdb 修改以支持KEIL的ARMCC：
+    a. gdb\symtab.c的producer_is_realview()函数的arm_idents加入： >
+        "Component: ARM Compiler",
+<
+    b. 修复gdb不能解析windows路径的问题:
+        gdb/source.c文件中添加函数： >
+            // FIX can't parse windows path issue {
+            const char *fix_windows_path(const char *string)
+            {
+              static char string_fix[PATH_MAX];
+              int i, j;
+              bool prev_is_sep = false;
+              for (i=0, j=0; i<PATH_MAX && string[i]; ++i)
+              {
+                if (string[i]=='\\' || string[i]=='/')
+                {
+                  if (!prev_is_sep)
+                    string_fix[j++] = '/';
+                  prev_is_sep = true;
+                }
+                else
+                {
+                  prev_is_sep = false;
+                  string_fix[j++] = string[i];
+                }
+              }
+              string_fix[j] = '\0';
+
+              return string_fix;
+            }
+<
+        在gdb/source.c文件的openp()函数的 “if ((opts & OPF_TRY_CWD_FIRST) || IS_ABSOLUTE_PATH (string))” 之前加入: >
+            string = fix_windows_path(string);
+<
+        在gdb/source.c文件的symtab_to_filename_for_display()函数的 return symtab->filename; 修改为: >
+            return fix_windows_path(symtab->filename);
+
 
 44. 预加载so
     预加载so的两种方式：
@@ -1688,6 +1700,31 @@
         - Purge apt-file if not required any more.
             $ sudo apt-get purge
 
+48. SVN 不能存储密码
+    如果svn不能存储密码的话，手动修改文件
+    ~/.subversion/auth/svn.simple/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx >
+        K 8
+        passtype
+        V 6
+        simple
+        K 8
+        password
+        V 5
+        lq123
+        K 15
+        svn:realmstring
+        V 54
+        <https://swserver:443> Huntersun Subversion Repository
+        K 8
+        username
+        V 7
+        liqiang
+        END
+
+49. 报错处理：
+    a. Wrong __data_start/_end pair
+    能是libgc.so的问题
+    用老版本的库替换：sudo ln -sf /usr/lib/x86_64-linux-gnu/libgc.so.1.0.3 /usr/lib/x86_64-linux-gnu/libgc.so.1
 
 
 vim:ft=help

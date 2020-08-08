@@ -56,6 +56,8 @@
 
     普冉用的是sonos工艺，华邦，旺宏，北京兆易，cypress，恒烁，XTX都是用的ETOX工艺，工艺有差别
 
+    同芯flash的4线模式enable和disable都需要8.3ms
+
 5. flash
     NOR Flash, NAND Flash
         共性：

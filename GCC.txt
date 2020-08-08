@@ -992,4 +992,21 @@
         as part of my general documentation of obscure linker features. The current description of this feature in the GNU linker
         manual is rather obscure.
 
+18. 使用AddressSanitizer进行内存访问越界检查
+    https://blog.csdn.net/c_lazy/article/details/80009627
+    AddressSanitizer是google开发一个应用内存检查工具，性能据说比valgrind要好不少，可以配合clang或者GCC编译器使用，GCC需要4.8及以上版本。
+    https://github.com/google/sanitizers/wiki/AddressSanitizer
+    gcc -fsanitize选项真的非常强大，heap区动态申请的内存、全局data段的内存，均可以被侦测到
+
+    使用方法
+    环境：centos7.1，GCC 4.8.3
+    需要安装的库：libasan.x86_64，新版本的gcc可能还需要安装libubsan，虽然说AddressSanitizer是gcc的一部分，但这两库默认是没有安装的。
+    使用方法很简单，只要在编译程序时加上-fsanitize=address -fno-omit-frame-pointer两个编译选项即可，需要说明的是要使用系统自带的内存管理库，
+    不能使用第三方的内存管理库，因为这个功能要拦截malloc,free等标准函数。gcc几个常用编译选项如下：
+    -fsanitize=address    #开启地址越界检查功能
+    -fno-omit-frame-pointer  #开启后，可以出界更详细的错误信息
+    -fsanitize=leak   #开启内存泄露检查功能
+
+
+
 vim: ft=help
