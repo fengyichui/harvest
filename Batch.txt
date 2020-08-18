@@ -293,5 +293,8 @@
 <    例3： >
     for /l %%a in (0,1,255) do for /l %%b in (0,1,255) do for /l %%c in (1,1,254) do for /f "tokens=1,2*" %%e in (userpass.txt) do net use \\%1.%%a.%%b.%%c\ipc$ %%e /u:%%f
 
+10. 通过schtask.exe创建开机启动程序(管理员权限)
+    schtasks.exe /create /sc onlogon /TN "$NAME" /TR "$COMMANDS" /RL HIGHEST /F
+
 
 vim: ft=help
