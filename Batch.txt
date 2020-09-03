@@ -296,5 +296,8 @@
 10. 通过schtask.exe创建开机启动程序(管理员权限)
     schtasks.exe /create /sc onlogon /TN "$NAME" /TR "$COMMANDS" /RL HIGHEST /F
 
+11. bat 乱码 或者 执行出错
+    a. 编码：cp936或者chinese
+    b. 换行：dos，\r\n
 
 vim: ft=help

@@ -719,6 +719,22 @@
 <    5、查看或踢出已经登录的用户： >
        $ sudo w -f            #查看登录用户
        $ pkill -kill -t pts1  #踢出登录用户，或者 $ pkill -9 -t pts1 强制踢出
+<
+    使用WSL的ssh服务器:
+    1、配置sshd
+        编辑：/etc/ssh/sshd_config  =>  PasswordAuthentication = yes
+        测试：sudo service ssh start
+    2、自动启动
+        https://github.com/troytse/wsl-autostart.git
+        $ schtasks.exe /create /sc onlogon /TN WslAutoStart /TR "D:\wsl-autostart\start.vbs" /RL HIGHEST /F
+        /etc/sudoers 中加入：%sudo ALL=NOPASSWD: /etc/init.d/ssh 以忽略sudo密码
+
+    常见错误：
+    1、sshd: no hostkeys available -- exiting.
+        $ sudo ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+    2、WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+        我们需要删除本机 ~/.ssh/known_hosts文件的192.168.5.1[需要远程的主机IP] 公钥信息
+
 
 22. 使用ssh正向连接、反向连接、做socks代理的方法
 
@@ -1376,6 +1392,14 @@
             };
             return nanosleep(&req, NULL);
         }
+<
+    c. svn不能存储密码的问题
+        默认WSL没有安装加密管理器，新版本的svn不允许明文存储密码，安装gnome-keyring来解决：
+        sudo apt-get install gnome-keyring
+
+    d. meld报错
+        gi.repository.GLib.Error: gtk-icon-theme-error-quark: Icon 'text-x-generic' not present in theme Yaru (0)
+        解决方法：$ sudo apt-get install --reinstall meld gnome-icon-theme
 
 
 42. WSL2
@@ -1689,6 +1713,9 @@
         启动使用wine对windows可执行程序的支持
         $ echo ':DOSWin:M::MZ::/usr/local/bin/wine:' > /proc/sys/fs/binfmt_misc/register
 
+        启动WSL对.bat文件的支持 （现在的wsl不支持）
+        $ echo ':DOSBat:E::bat::cmd.exe /c:' > /proc/sys/fs/binfmt_misc/register
+
 47. apt-get update特别慢，更新文件特别大
     Probably, apt-file was installed at some point and its entry (or "trigger" if i can say) got set in /etc/apt/apt.conf.d/
     Solution:
@@ -1725,6 +1752,20 @@
     a. Wrong __data_start/_end pair
     能是libgc.so的问题
     用老版本的库替换：sudo ln -sf /usr/lib/x86_64-linux-gnu/libgc.so.1.0.3 /usr/lib/x86_64-linux-gnu/libgc.so.1
+
+50. 安装linux版本bcompare
+    安装：
+        wget https://www.scootersoftware.com/bcompare-4.3.5.24893_amd64.deb
+        sudo apt-get update
+        sudo apt-get install gdebi-core
+        sudo gdebi bcompare-4.3.5.24893_amd64.deb
+    破解：
+        cd /usr/lib/beyondcompare/
+        sudo sed -i "s/keexjEP3t4Mue23hrnuPtY4TdcsqNiJL-5174TsUdLmJSIXKfG2NGPwBL6vnRPddT7tH29qpkneX63DO9ECSPE9rzY1zhThHERg8lHM9IBFT+rVuiY823aQJuqzxCKIE1bcDqM4wgW01FH6oCBP1G4ub01xmb4BGSUG6ZrjxWHJyNLyIlGvOhoY2HAYzEtzYGwxFZn2JZ66o4RONkXjX0DF9EzsdUef3UAS+JQ+fCYReLawdjEe6tXCv88GKaaPKWxCeaUL9PejICQgRQOLGOZtZQkLgAelrOtehxz5ANOOqCaJgy2mJLQVLM5SJ9Dli909c5ybvEhVmIC0dc9dWH+/N9KmiLVlKMU7RJqnE+WXEEPI1SgglmfmLc1yVH7dqBb9ehOoKG9UE+HAE1YvH1XX2XVGeEqYUY-Tsk7YBTz0WpSpoYyPgx6Iki5KLtQ5G-aKP9eysnkuOAkrvHU8bLbGtZteGwJarev03PhfCioJL4OSqsmQGEvDbHFEbNl1qJtdwEriR+VNZts9vNNLk7UGfeNwIiqpxjk4Mn09nmSd8FhM4ifvcaIbNCRoMPGl6KU12iseSe+w+1kFsLhX+OhQM8WXcWV10cGqBzQE9OqOLUcg9n0krrR3KrohstS9smTwEx9olyLYppvC0p5i7dAx2deWvM1ZxKNs0BvcXGukR+/g" BCompare
+    key:
+        --- BEGIN LICENSE KEY ---
+        GXN1eh9FbDiX1ACdd7XKMV7hL7x0ClBJLUJ-zFfKofjaj2yxE53xauIfkqZ8FoLpcZ0Ux6McTyNmODDSvSIHLYhg1QkTxjCeSCk6ARz0ABJcnUmd3dZYJNWFyJun14rmGByRnVPL49QH+Rs0kjRGKCB-cb8IT4Gf0Ue9WMQ1A6t31MO9jmjoYUeoUmbeAQSofvuK8GN1rLRv7WXfUJ0uyvYlGLqzq1ZoJAJDyo0Kdr4ThF-IXcv2cxVyWVW1SaMq8GFosDEGThnY7C-SgNXW30jqAOgiRjKKRX9RuNeDMFqgP2cuf0NMvyMrMScnM1ZyiAaJJtzbxqN5hZOMClUTE+++
+        --- END LICENSE KEY -----
 
 
 vim:ft=help

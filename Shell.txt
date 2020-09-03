@@ -678,6 +678,7 @@ Shell 总结
         查找      ：match(string, /regexp/) #如果没有找到则返回0，找到的话返回开始位置，且找到的字符串的位置记录在RSTART,RLENGTH中
         截取      ：substr(string, start_index, length)
         执行系统命令： system("string")
+        执行系统命令并获得其输出："command" |& getline var;  例如：echo "some/path/exex.c:some text" | awk -F: '{ "basename "$1"" |& getline $1; print $1 " ==> " $2}'
 
     3、内建变量
         $0       当前记录（这个变量中存放着整个行的内容）

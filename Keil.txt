@@ -252,6 +252,7 @@ Keil学习
                                FIXED       固定地址；
                                UNINIT      不用初始化该区域的ZI段；
                                NOCOMPRESS  RW data不压缩，默认要压缩的 (如果出现HardwareFault, 且调用堆栈中出现__decompress，则加上NOCOMPRESS)
+                               FILL value  填充某个值，例如：FILL 0xFFFFFFFF
         module_select_pattern：目标文件滤波器，支持通配符 "*" 和 "?" ；
                                *.o匹配所有目标，* （或".ANY"）匹配所有目标文件和库。
         input_section_attr：   每个input_section_attr必须跟随在 "+" 后；且大小写不敏感；
@@ -502,32 +503,44 @@ Keil学习
         #pragma pop
         #pragma push
 <
-    #pragma arm section section_type[[=]"name"] [,section_type="name"]*
-        Valid section types are:
-        - code.
-        - rodata.
-        - rwdata.
-        - zidata.
-        例子: >
-        #pragma arm section rwdata = "foo", rodata = "bar"
-            int x2 = 5;                     // in foo (data part of region)
-            int y2[100];                    // in .bss
-            int const z2[3] = {1,2,3};      // in bar
-            char *s2 = "abc";               // s2 in foo, "abc" in .conststring
-        #pragma arm section rodata
+    armcc:
+        #pragma arm section section_type[[=]"name"] [,section_type="name"]*
+            Valid section types are:
+            - code.
+            - rodata.
+            - rwdata.
+            - zidata.
+    armclang:
+        #pragma clang section section_type="name" [,section_type="name"]*
+            Valid section types are:
+            - text.
+            - rodata.
+            - rwdata.
+            - zidata.
+            例子: >
+                #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+                #pragma clang section text = ".ramtext.code"  rodata = ".ramtext.rodata"
+                #else
+                #pragma arm section code = ".ramtext.code"  rodata = ".ramtext.rodata"
+                #endif
 
-        #pragma arm section code = "foo"
-            int add1(int x)                   // in foo (code part of region)
-            {
-                return x+1;
-            }
-        #pragma arm section code
-
+                #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+                #pragma clang section text = "" rodata = ""
+                #else
+                #pragma arm section code
+                #pragma arm section rodata
+                #endif
 
 17. armcc 和 armclang 优化对比
     .data .bss 没有区别
     armcc -O3           213kB
     armclang -Oz lto    185kB
 
+18. armclang
+    判断是否是armclang的宏：
+        if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+        armclang 同时会定义 __GNUC__
+    判断是否是keil编译器：
+        if defined (__ARMCC_VERSION)
 
 vim: ft=help

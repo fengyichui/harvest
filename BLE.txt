@@ -1438,6 +1438,9 @@ HS6621C, BLE下传速度测试(DFU)：
     43   Nexus5X             67475.93       40ms(0x20)       123         498       1M     524288         7.77       0
     44   iPhone11(iOS13.5)   32706.67       15ms(0x0C)       251         498       1M     524288         16.03      0
 
+HS6621C A2:
+    1. HIB need RC32K, REGW0(&HS_PMU->ANA_PD, PMU_ANA_PD_CKOPMU32K_MASK);
+    2. 快启参数：M23_T1_CFG=6, T5_CFG=2,
 
 
 vim: ft=help
