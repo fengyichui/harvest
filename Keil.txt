@@ -543,4 +543,25 @@ Keil学习
     判断是否是keil编译器：
         if defined (__ARMCC_VERSION)
 
+19. armclang 检查 .ramtext.code 段中是否引用到了其他段的内容
+    a. 首先要勾选选项卡中的：One ELF Section per Function
+
+    b. 检查.ramtext.code是否引用到了其他段的内容
+       编译好的map文件中，只保留包含.ramtext.code行。vim: v/.ramtext/d
+       剩下的内容包含（例子）：
+          pmu_a2.o(.ramtext.code) refers to entry_a2.o(.text.__co_assert) for __co_assert
+          pmu_a2.o(.ramtext.code) refers to pmu_a2.o(.rodata.str1.1) for .L.str.1
+       表示.ramtext.code里引用到了2个非.ramtext.code的函数和常亮：__co_assert,.L.str.1
+
+    c. 检查.ramtext.code里是哪个函数引用到__co_assert,.L.str.1的：
+       删除#pragma clang section text = ".ramtext.code"  rodata = ".ramtext.rodata"
+       重新编译，map文件中搜索关键字，查到类似如下信息：
+          pmu_a2.o(.text.pmu_lowpower_enter) refers to entry_a2.o(.text.__co_assert) for __co_assert
+          pmu_a2.o(.text.pmu_lowpower_enter) refers to pmu_a2.o(.rodata.str1.1) for .L.str.1
+       表示函数pmu_lowpower_enter中引用到了__co_assert,.L.str.1
+
+    d. .L.str.1这类的.rodata.str很难编译进指定的某个段中，只能通过反汇编去检查了
+
+
+
 vim: ft=help

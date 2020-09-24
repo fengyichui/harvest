@@ -1442,5 +1442,15 @@ HS6621C A2:
     1. HIB need RC32K, REGW0(&HS_PMU->ANA_PD, PMU_ANA_PD_CKOPMU32K_MASK);
     2. 快启参数：M23_T1_CFG=6, T5_CFG=2,
 
+手机和手环的假连接，导致手机无法再连接手环：
+    复现方式：反复的距离远的连接和超时断开
+    原因：4.1新加的 "参数更新请求"
+    收到手机的controller请求Host，但是Host没回复
+
+
+
+MI 9 SE
+
+
 
 vim: ft=help
