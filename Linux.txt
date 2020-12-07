@@ -727,6 +727,7 @@
     2、自动启动
         https://github.com/troytse/wsl-autostart.git
         $ schtasks.exe /create /sc onlogon /TN WslAutoStart /TR "D:\wsl-autostart\start.vbs" /RL HIGHEST /F
+        在 "任务计划程序" 里把 "条件" -> "只有在计算机使用交流电源时才启动此任务" 的勾去掉。
         /etc/sudoers 中加入：%sudo ALL=NOPASSWD: /etc/init.d/ssh 以忽略sudo密码
 
     常见错误：
@@ -1277,7 +1278,9 @@
                 ftp://sourceware.org/pub/gdb/releases/
 
             修改gdb/config.h中的PKGVERSION为："(GNU Arm Embedded Toolchain, Modified by liqiang in 20200609) "
-            ../gdb-9.1/configure --target arm-none-eabi --enable-tui --disable-gdbtk --with-expat --with-lzma --with-mpfr --with-python --enable-sim
+            $ ../gdb-9.1/configure --target arm-none-eabi --enable-tui --disable-gdbtk --with-expat --with-lzma --with-mpfr --with-python --enable-sim
+            $ make -j
+            $ make install DESTDIR=$PWD/dist prefix=/opt/arm-none-eabi-gdb
 
         vim:
             $ sudo apt-get build-dep vim-gtk3

@@ -51,10 +51,12 @@
             覆盖写可能会出现问题，不建议做覆盖写的操作。
             覆盖写不能超过200次，超过了之后就不能保证了(还不能确定200次以内是否一定安全)。必须做擦除之后才可以。
             不超过256bytes的写flash内部的行为是：读原始数到buffer中 -> 弱擦除256bytes -> 写回
+            byte写的时候，如果中间断电，该byte所在的page(256bytes)的数据都可能异常（所以flash管理里掉电保护的写需要以page为单位）
         一次写需要3.38ms
         HOLD WP有弱上拉，6M的电阻，所以用万用表量管脚时，是2.6V左右（万用表内阻可能有10M+左右）
 
-    普冉用的是sonos工艺，华邦，旺宏，北京兆易，cypress，恒烁，XTX都是用的ETOX工艺，工艺有差别
+    普冉、同芯微用的是sonos工艺，华邦，旺宏，北京兆易，cypress，恒烁，XTX都是用的ETOX(Floating Gate)工艺，工艺有差别
+    sonos工艺的写是以page为单位，Floating Gate工艺的写是以bit(byte?)为单位的
 
     同芯flash的4线模式enable和disable都需要8.3ms
 

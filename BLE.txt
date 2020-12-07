@@ -1079,21 +1079,6 @@
         1MHz    -96.2dBm
         500kHz/125kHz不支持软判决
 
-22. PUYA Flash 的那些坑：
-    1. 写1bytes和写256bytes耗时都是2ms；
-    2. 擦除时间真是短8ms（有page擦除）；
-    3. 不擦除的情况下，每个bit都可以从0写成1；
-    4. 写的长度为0时，会造成后面的写操作出错；
-
-    PUYA工程师的邮件：
-        PUYA的flash program都是以整个page program方式的。
-        program一个page数据时，编程指令直接送入>= 256byte的数据，芯片直接执行编程动作。
-        只program一个byte或少于256byte时，芯片会做算法来内部读未编程地址的数据来补满一个page编程数据。
-        由指令送入数据的地址不会care原来cell里是什么数据，整个page写入补满成一个page的编程数据。
-        Byte program时的处理过程是1）读内部数据，补满整个page    2）byte program预处理   3）page program
-        在byte program预处理时，program成“0”的cell可能会变成“1”。但写入数据是“0”时，该cell又会被program成“0”。（写入数据与原来cell数据“与”处理在这时候起作用）
-        每一次byte program时，都是对整个page做一次program。所以如果一个page有多次byte或bit方式的program，可能会影响该page擦写次数。
-        采用byte program时编程时间比其他传统flash要长。但在最小erase区间，erase时间，功耗等各个方面有明显优势。
 
 23. 认证
     HS6620 BLE BQB 认证 （4.2 Endproduct, BITE）（2016/08/xx）
