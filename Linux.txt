@@ -915,6 +915,7 @@
         time            检查命令执行时间
         column          输出个数成列表格：cat /etc/passwd | column -t -s:
         fzf             a command line fuzzy finder
+        unbuffer        disables the output buffering that occurs when program output is redirected from non-interactive programs.
 
 27. X Window System (Cygwin)
     请求的包： >
@@ -1315,18 +1316,6 @@
         $ sudo apt-get update
         $ sudo apt-get upgrade
         新源列表： >
-            #ubunto 18.04
-            deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-            deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-            deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-            deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-            deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-            deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-            deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-
             # Ubuntu 20.04
             # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
             deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
@@ -1348,13 +1337,18 @@
         快捷方式：%LOCALAPPDATA%\wsltty\bin\mintty.exe --WSL= --configdir="%APPDATA%\wsltty" -~ wsl.exe 会加载默认shell，否则会强制启动bash
 
     d. 添加新的用户
-        $ useradd liqiang --shell /usr/bin/zsh --home-dir /home/liqiang -m
-        $ passwd liqiang         # 新用户的密码
-        $ sudo vim /etc/sudoers  # 使新用户具备sudo权限
-            /etc/sudoers 添加如下内容： >
-                liqiang ALL=(ALL) ALL
-<        在Powershell中设置默认用户:
-            $ ubuntu1804 config --default-user liqiang
+        $ adduser liqiang                                       # create a user and password
+        $ usermod -a -G sudo liqiang                            # Add to sudo group
+        $ echo -e "[user]\ndefault=liqiang" >> /etc/wsl.conf    # set as your default user in WSL:
+        $ passwd liqiang                                        # 新用户的密码 (可选)
+
+    e. 从Ubuntu-20.04更新到Ubuntu-20.10
+        ref: https://discourse.ubuntu.com/t/installing-ubuntu-20-10-on-wsl/18941
+        更新：
+            $ sudo sed --in-place 's/Prompt=lts/Prompt=normal/' /etc/update-manager/release-upgrades
+            $ sudo do-release-upgrade
+        重新装：
+            https://cloud-images.ubuntu.com/groovy/current/groovy-server-cloudimg-arm64-wsl.rootfs.tar.gz
 
 41. WSL1
     a. Fixing WSL Mount Permissions
@@ -1366,7 +1360,7 @@
         options = "metadata,umask=22,fmask=11"
 <       And then run: wsl --shutdown
 
-    b. Ubuntu 20.04 不能执行sleep等函数
+    b. Ubuntu 20.04 不能执行sleep等函数 (20.10已经解决: glibc 2.32)
         https://github.com/microsoft/WSL/issues/4898#issuecomment-646790723
         Create this file called nanosleep.c >
 

@@ -1022,4 +1022,7 @@ Shell 总结
         TMPFILE="/tmp/tmp_$$"
         echo "program output" >> $TMPFILE
 
+42. 如何编写zsh命令完成脚本
+    https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org
+
 vim:ft=help
