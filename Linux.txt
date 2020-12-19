@@ -1767,4 +1767,11 @@
 51. Terminal出现行不对齐
     $ reset -w
 
+52. 使用多个网卡的同时下载(负载均衡)
+    https://github.com/alexkirsz/dispatch-proxy.git
+    工具：$ sudo npm install -g dispatch-proxy
+    启动：$ dispatch start -p 1088 192.168.101.30 192.168.103.84
+    这样连接到localhost@1088的网络包就自动同步不同的IP分发出去了
+
+
 vim:ft=help
