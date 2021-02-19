@@ -70,7 +70,7 @@
          所以常用-ggdb3作为编译选项
 
          调试KEIL编译的axf：
-            keil的编译选项需要加上：--dwarf2
+            keil的编译选项需要加上：--dwarf2(ARMCC) -gdwarf-2(ARMCLANG)
             因为keil默认使用Dwarf3，但是gdb对Dwarf2支持较好
 
     调试命令: ~

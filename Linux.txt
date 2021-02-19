@@ -1278,8 +1278,9 @@
             最新版本在：
                 ftp://sourceware.org/pub/gdb/releases/
 
-            修改gdb/config.h中的PKGVERSION为："(GNU Arm Embedded Toolchain, Modified by liqiang in 20200609) "
-            $ ../gdb-9.1/configure --target arm-none-eabi --enable-tui --disable-gdbtk --with-expat --with-lzma --with-mpfr --with-python --enable-sim
+            $ ../gdb-9.1/configure --target arm-none-eabi \
+                --enable-tui --disable-gdbtk --with-libexpat --with-lzma=no --with-mpfr --with-python --enable-sim \
+                "--with-pkgversion=GNU Arm Embedded Toolchain"
             $ make -j
             $ make install DESTDIR=$PWD/dist prefix=/opt/arm-none-eabi-gdb
 
@@ -1773,5 +1774,8 @@
     启动：$ dispatch start -p 1088 192.168.101.30 192.168.103.84
     这样连接到localhost@1088的网络包就自动同步不同的IP分发出去了
 
+53. 打包perl脚本和它的依赖
+    $ sudo apt install libapp-fatpacker-perl
+    $ fatpack pack diff-so-fancy >diff-so-fancy.pack
 
 vim:ft=help

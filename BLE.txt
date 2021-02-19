@@ -634,6 +634,8 @@
     Broadcom：16bit
     CSR：8bit
     Huntersun：8bit
+    Reltek小米遥控器: 1010101010100_01010101
+    Nordic鼠标：011_10101010
 
 19. CBT报错解析：
     a. BIT zero not found >
@@ -1461,6 +1463,46 @@ HS6621C, BLE下传速度测试(DFU)：
 HS6621C A2:
     1. HIB need RC32K, REGW0(&HS_PMU->ANA_PD, PMU_ANA_PD_CKOPMU32K_MASK);
     2. 快启参数：M23_T1_CFG=6, T5_CFG=2,
+
+手机蓝牙HCI的log：
+    小米生成hci log
+    *#*#5959#*#*
+    MIUI/debug-log/...
+
+    华为获取hci log 
+    进入开发者模式，找到“HCI信息收集”并打开。(新手机需要进入维修模式，服务app -> 维修模式 )
+    adb pull /data/log/bt
+
+
+不同手机 autoConnect=True/False创建连接时使用的window和interval对比（通过HCI log得出）:
+                                autoConnect = true                      autoConnect = false
+    手机型号            Scan Interval       Scan Window         Scan Interval       Scan Window
+    Pixel 4             1.28 s (2048 Slots) 30 ms (48 Slots)    60 ms (96 Slots)    30 ms (48 Slots)
+    华为 P40            1.28 s (2048 Slots) 80 ms (128 Slots)   60 ms (96 Slots)    30 ms (48 Slots)
+    三星 s9 star lite   1.28 s (2048 Slots) 80 ms (128 Slots)   60 ms (96 Slots)    30 ms (48 Slots)
+    Red Mi K30          1.28 s (2048 Slots) 30 ms (48 Slots)    30 ms (48 Slots)    30 ms (48 Slots)
+
+
+异常电脑使用鼠标汇总：
+    电脑型号：ASUS  SonicMaster  W50A
+            操作系统：Window10 家庭中文版 1909
+            蓝牙芯片：
+            Realtek Bluetooth 4.0 Adapter
+            HCI 6.10106 LMP6.57428
+            驱动版本：1.5.1012.3003
+            芯片组：Realtek RTL8723BE Wireless LAN 802.11n PCI-ENIC
+        在我们发出ping_req的时候，可能诱发该电脑发送MIC ERR的数据包。所以我们不再主动发送PING_REQ
+
+关于主机端连接参数的优化
+    HP ZHAN99 G1电脑
+        蓝牙芯片组：intel®wireless_AC9560 160MHz
+        驱动版本：22002
+            当连接参数是intv=7.5ms latency=100 timeout=3s时，空闲状态电脑会自动每隔45ms(7.5ms*5)发一个包，
+            这样在这个电脑上会增功耗：7.5*(100+1) != 45*17
+            和导致其他奇怪问题
+
+    小米4A电视
+        特殊连接参数：空闲状态正常情况intv=real_intv*N
 
 
 vim: ft=help
