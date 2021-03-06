@@ -776,6 +776,38 @@
     举例： >
            正向：ssh -D 1234 test@8.8.8.8 (config: `DynamicForward: 1234`)
            反向：ssh -R 1234 test@8.8.8.8 (config: `RemoteForward: 1234`)
+<
+    其他例子 >
+        ssh -L 127.0.0.1:8080:example.org:80 ssh-server                             127.0.0.1:8080 => ssh-server => example.org:80
+        ssh -L 8080:example.org:80 ssh-server                                       *:8080 => ssh-server => example.org:80
+        ssh -L 192.168.0.1:5432:127.0.0.1:5432 ssh-server                           192.168.0.1:5432 => ssh-server => 127.0.0.1:5432
+        ssh -R 8080:localhost:80 ssh-server                                         Anybody => ssh-server:8080 => localhost:80
+        ssh -R 1.2.3.4:8080:localhost:80 ssh-server                                 1.2.3.4 => ssh-server:8080 => localhost:80
+        ssh -R 8080:example.org:80 ssh-server                                       Anybody => ssh-server:8080 => example.org:80
+        ssh -D 3000 ssh-server                                                      *:3000(SOCKS5) => ssh-server => *:*
+        ssh -D 127.0.0.1:3000 ssh-server                                            127.0.0.1:3000(SOCKS5) => ssh-server => *:*
+        ssh -J user1@jump-host user2@remote-host                                    MyPC => user1@jump-host => user2@remote-host
+        ssh -J jump-host1,jump-host2 ssh-server                                     MyPC => jump-host1 => jump-host2 => ssh-server
+        ssh -o ProxyCommand="nc -X 5 -x localhost:3000 %h %p" user@remote-host      MyPC => proxy-host(localhost:3000,SOCKS5) => user2@remote-host
+<
+    命令行： >
+        -f      forks the ssh process into the background
+        -n      prevents reading from STDIN
+        -N      do not run remote commands. Used when only forwarding ports
+        -T      disables TTY allocation
+
+<
+    SSH configurations >
+        /etc/ssh/sshd_config (server)
+            AllowTcpForwarding yes          Make sure that TCP forwarding is enabled on the SSH server. By default it should be.
+            GatewayPorts yes                By default, forwarded ports are not accessible to the public internet. You'll need to add this to your sshd_config on your remote server to forward public internet traffic to your local computer.
+            ServerAliveInterval 15          keep SSH tunnels open through network failures, Configure the server to send heartbeat messages.
+            ServerAliveCountMax 4           same above
+        /etc/ssh/ssh_config (client)
+            GatewayPorts yes                If you're forwarding ports on interfaces other than 127.0.0.1 then you'll need to enable GatewayPorts on your local system, either within ssh_config or as a command-line option
+            ClientAliveInterval 15          keep SSH tunnels open through network failures, Configure the client to send heartbeat messages.
+            ClientAliveCountMax 4           same above
+
 
 
 23. tmux

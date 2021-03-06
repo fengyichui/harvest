@@ -72,6 +72,7 @@
          调试KEIL编译的axf：
             keil的编译选项需要加上：--dwarf2(ARMCC) -gdwarf-2(ARMCLANG)
             因为keil默认使用Dwarf3，但是gdb对Dwarf2支持较好
+            armchang编译的程序，用arm-none-eabi-objcopy可能导致gdb调试时bt命令出问题 ?????
 
     调试命令: ~
          一般:

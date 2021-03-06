@@ -1352,6 +1352,7 @@ BLE鼠标手环兼容性问题汇总:
             符’\0’。 或者使用函数 strlen()计算属性值长度， 不要使用函数 strnlen().
             HS6620 没有这个问题， 是因为其遵循 Nordic API， 它的初始化 DIS 的参考实现 ble_srv_ascii_to_utf8()
             里面使用的是 strlen()。
+    11、鼠标上，设备端不要主动发起配对请求，尤其是回连的时候，以防止某些手机的兼容性问题（鼠标功能不正常）
 
 
 hs6621 CoreMark (hs6621总线设计有问题) :
@@ -1472,6 +1473,12 @@ HS6621C A2:
     华为获取hci log 
     进入开发者模式，找到“HCI信息收集”并打开。(新手机需要进入维修模式，服务app -> 维修模式 )
     adb pull /data/log/bt
+
+    windows10:
+        Microsoft Store上下载 "Windows Performance Analyzer"
+
+        ref: https://helgeklein.com/blog/2020/09/how-to-check-which-bluetooth-a2dp-audio-codec-is-used-on-windows/
+        ref: https://github.com/microsoft/busiotools/tree/master/bluetooth/tracing
 
 
 不同手机 autoConnect=True/False创建连接时使用的window和interval对比（通过HCI log得出）:

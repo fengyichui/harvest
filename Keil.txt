@@ -562,6 +562,4 @@ Keil学习
 
     d. .L.str.1这类的.rodata.str很难编译进指定的某个段中，只能通过反汇编去检查了
 
-
-
 vim: ft=help
