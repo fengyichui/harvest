@@ -1511,5 +1511,31 @@ HS6621C A2:
     小米4A电视
         特殊连接参数：空闲状态正常情况intv=real_intv*N
 
+Intel蓝牙芯片组(AC-8260 chipset) 假连接问题
+    设备管理器里名字类似：Intel(R) Dual Band Wireless-AC 8260
+    驱动地址：https://downloadcenter.intel.com/download/30251/-Windows-10?wapkw=AC%208260
+    Intel蓝牙芯片组老版本的驱动会出现假连接的问题, 更新到22.30.0.4版本, 该问题解决
+
+    What the issue we have on the Bluetooth mouse?
+        The Bluetooth mouse stop working many times when it is working, and it is 'Connected' on the Win10 Bluetooth Setting window.
+        In fact, the mouse is disconnected. The mouse can't work even reboot it. It can work again only if we should switch off and
+        on the button of Win10 Bluetooth, 
+
+    Why we think update the Bluetooth drive can fix the issue?
+        1. We tested two the Logitech's mouse 'M720'and 'MX ANYWHERE 3'on the same PC,
+           and they have the same issue as our mouse.
+        2. We got the version changes of this chipset Bluetooth driver from the webs it.
+           and found the some key information, fixed some Bluetooth issues they are belows :
+        * In ReleaseNotes_BT_22.30.0.pdf : Occasionally, the Bluetooth LE mouse may stop working
+        * In ReleaseNotes_BT_22.20.0.pdf : On some systems, a Bluetooth mouse may show disconnection after resuming from Modern Standby mode.
+        * In ReleaseNotes_BT_22.10.0.pdf : On some systems with multiple Bluetooth devices (e.g. mouse, keyboard, headset or stylus)
+                                            connected simultaneously, some devices may stop working or lose connection while in the middle of use.
+
+竞品：
+    REALTEK 8762D的屏幕454*454的手环，使用1.8V的QSPI的PSRAM
+    1. PSRAM不掉电
+    2. 电流：低电流=102uA 平均=167uA RF电流=15mA CPU—GATE=1.3mA 
+    3. 时间：广播持续时间=7.4ms  唤醒间隔=500ms
+
 
 vim: ft=help

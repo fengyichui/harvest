@@ -151,6 +151,23 @@
         %USERNAME%                  本地返回当前登录的用户的名称。
         %USERPROFILE%               本地返回当前用户的配置文件的位置。
         %WINDIR%                    系统返回操作系统目录的位置。
+    常见目录:
+        %HOMEDRIVE%和%SystemDrive%              C:\
+        %ALLUSERSPROFILE%                       C:\ProgramData
+        %PROGRAMDATA%                           C:\ProgramData
+        %PROGRAMFILES%                          C:\Program Files
+        %PROGRAMFILES(X86)%                     C:\Program Files (x86)
+        %COMMONPROGRAMFILES%                    C:\Program Files\Common Files
+        %COMMONPROGRAMFILES(x86)%               C:\Program Files (x86)\Common Files
+        %COMSPEC%                               C:\Windows\System32\cmd.exe
+        %HOMEPATH%                              C:\Users\用户名
+        %USERPROFILE%                           C:\Users\用户名
+        %APPDATA%                               C:\Users\用户名\AppData\Roaming
+        %LOCALAPPDATA%                          C:\Users\用户名\AppData\Local
+        %TEMP%和%TMP%                           C:\Users\用户名\AppData\LocalTemp
+        %PUBLIC%                                C:\UsersPublic
+        %SystemRoot%                            C:\Windows
+        %WINDIR%                                C:\Windows
 
 9. 案例
     例1： >
