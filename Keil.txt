@@ -503,33 +503,42 @@ Keil学习
         #pragma pop
         #pragma push
 <
+
+16 KEIL和GCC定义section
     armcc:
-        #pragma arm section section_type[[=]"name"] [,section_type="name"]*
+        a. __attribute__((section("name")))
+        b. #pragma arm section section_type[[=]"name"] [,section_type="name"]*
             Valid section types are:
             - code.
             - rodata.
             - rwdata.
             - zidata.
     armclang:
-        #pragma clang section section_type="name" [,section_type="name"]*
+        a. __attribute__((section("name")))
+        b. #pragma clang section section_type="name" [,section_type="name"]*
             Valid section types are:
             - text.
             - rodata.
             - rwdata.
             - zidata.
-            例子: >
-                #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-                #pragma clang section text = ".ramtext.code"  rodata = ".ramtext.rodata"
-                #else
-                #pragma arm section code = ".ramtext.code"  rodata = ".ramtext.rodata"
-                #endif
 
-                #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-                #pragma clang section text = "" rodata = ""
-                #else
-                #pragma arm section code
-                #pragma arm section rodata
-                #endif
+    GCC:
+        只支持 __attribute__((section("name")))
+
+    例子: >
+        #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+        #pragma clang section text = ".ramtext.code"  rodata = ".ramtext.rodata"
+        #else
+        #pragma arm section code = ".ramtext.code"  rodata = ".ramtext.rodata"
+        #endif
+
+        #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+        #pragma clang section text = "" rodata = ""
+        #else
+        #pragma arm section code
+        #pragma arm section rodata
+        #endif
+
 
 17. armcc 和 armclang 优化对比
     .data .bss 没有区别

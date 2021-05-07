@@ -221,13 +221,14 @@ Makefile
     LDFLAGS     链接器参数。（如：“ld”）
 
 11. 条件表达式
-    ifeq (<arg1>, <arg2>)       # 如果arg1==arg2
-    ifneq (<arg1>, <arg2>)      # 如果arg1!=arg2
-    ifdef <variable-name>       # 如果variable-name不为空则为真
-    ifndef <variable-name>      # 如果variable-name为空则为真
-    else                        # 否则
-    else ifeq (<arg1>, <arg2>)  # 否则如果arg1==arg2, gnu make 3.81版支持，老的不支持
-    endif                       #
+    ifeq (<arg1>, <arg2>)                           # 如果arg1==arg2
+    ifneq (<arg1>, <arg2>)                          # 如果arg1!=arg2
+    ifeq ($(shell test $(VER) -gt 4; echo $$?),0)   # 通过shell命令做判断: 如果$(VER)>=4
+    ifdef <variable-name>                           # 如果variable-name不为空则为真
+    ifndef <variable-name>                          # 如果variable-name为空则为真
+    else                                            # 否则
+    else ifeq (<arg1>, <arg2>)                      # 否则如果arg1==arg2, gnu make 3.81版支持，老的不支持
+    endif                                           #
 
     例如： >
         ifeq ($(VAR), something1)
@@ -238,16 +239,9 @@ Makefile
         # do something
         endif
 <
-    ifeq 内的语句没有逻辑或，可以变通： >
-        do_it = 
-        ifeq ($(GCC_MINOR), 4)
-            do_it = yes
-        endif
-        ifeq ($(GCC_MINOR), 5)
-            do_it = yes
-        endif
-        ifdef do_it
-            CFLAGS += -fno-strict-overflow
+    ifeq 内的语句没有逻辑或，可以通过shell变通： >
+        ifeq ($(shell [ $(CONFIG_HS6621C) = "y" ] && [ $(CONFIG_HARDWARE_VERSION) -lt 6 ]; echo $$?),0)
+            # do something
         endif
 
 12. 为源文件定义宏
