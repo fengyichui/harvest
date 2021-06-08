@@ -54,6 +54,7 @@
             byte写的时候，如果中间断电，该byte所在的page(256bytes)的数据都可能异常（所以flash管理里掉电保护的写需要以page为单位）
         一次写需要3.38ms
         HOLD WP有弱上拉，6M的电阻，所以用万用表量管脚时，是2.6V左右（万用表内阻可能有10M+左右）
+        有擦除不完全的问题，需要在FT时候加入棋盘格式读写和全片擦除并校验的流程
 
     普冉、同芯微用的是sonos工艺，华邦，旺宏，北京兆易，cypress，恒烁，XTX都是用的ETOX(Floating Gate)工艺，工艺有差别
     sonos工艺的写是以page为单位，Floating Gate工艺的写是以bit(byte?)为单位的

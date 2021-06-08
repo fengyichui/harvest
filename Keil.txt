@@ -2,8 +2,11 @@
 Keil学习
 
 1. 预定义变量
-    - %L    Linker output file path (obj\output_file_name.axf, obj\output_file_name.lib)
-    - @L    Linker output file name without extension (output_file_name)
+    - %L    Linker output file, File name with extension (output_file_name.lib)
+    - @L    Linker output file, File name without extension or path specification (output_file_name)
+    - #L    Linker output file, Complete path and file name with extension (C:\MYPROJECT\obj\output_file_name.lib)
+    - $L    Linker output file, Path name of a file extended with a backslash (C:\MYPROJECT\obj\)
+    - !L    Linker output file, File name with extension and relative path specification to the current folder (.\obj\output_file_name.axf)
     - $P    Project directory (C:\project\.)
     - %F    The currently active editor file (src\abc.c)
     eg:

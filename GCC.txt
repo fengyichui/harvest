@@ -1009,6 +1009,10 @@
     -fno-omit-frame-pointer  #开启后，可以出界更详细的错误信息
     -fsanitize=leak   #开启内存泄露检查功能
 
+19. 关于动态数组的处理
+    GCC: 直接挪SP指针
+    ARMCLANG: 直接挪SP指针
+    ARMCC: 通过malloc做，可以通过编译选项去除: --no_vla
 
 
 vim: ft=help

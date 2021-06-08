@@ -1538,4 +1538,30 @@ Intel蓝牙芯片组(AC-8260 chipset) 假连接问题
     3. 时间：广播持续时间=7.4ms  唤醒间隔=500ms
 
 
+在广播间隔大于1s后连接成功率降低，
+    三星Galaxy A9 Star Lite  型号：SM-A6050, 安卓10
+    6621D      0.242s  100%
+    6621D      1.4s    88%
+    Dialog     2.367s  63%
+
+各个芯片的cache：
+    HS6621P: 16kB 4way
+    HS6621C: 8kB 4way
+    HS6621D: 2kB 2way
+
+    HS6621P:
+        * Physically addressed and physically tagged.
+        * L1 data cache set to 16 KB.
+        * L1 cache line size set to 32 bytes.
+        * L1 cache integrates 32 Bits bus master interface.
+        * Unified Direct mapped cache architecture.
+        * Unified 4-Way set associative cache architecture.
+        * Write through cache operations, read allocate.
+        * Round Robin victim selection policy.
+        * Event Monitoring, with one programmable 32 bit counter.
+        * Configuration registers accessible through Cortex M Private Peripheral Bus.
+        * Cache Interface includes cache maintenance operations registers.
+
+
+
 vim: ft=help

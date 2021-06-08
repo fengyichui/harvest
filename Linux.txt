@@ -1431,6 +1431,8 @@
         gi.repository.GLib.Error: gtk-icon-theme-error-quark: Icon 'text-x-generic' not present in theme Yaru (0)
         解决方法：$ sudo apt-get install --reinstall meld gnome-icon-theme
 
+    e. 提示：Invalid machine ID in /var/lib/dbus/machine-id or /etc/machine-id
+        $ sudo systemd-machine-id-setup
 
 42. WSL2
 
@@ -1485,7 +1487,7 @@
 <
     b. 修复gdb不能解析windows路径的问题:
         gdb/source.c文件中添加函数： >
-            // FIX can't parse windows path issue {
+            // FIX can't parse windows path issue
             const char *fix_windows_path(const char *string)
             {
               static char string_fix[PATH_MAX];
